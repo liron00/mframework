@@ -22,16 +22,6 @@ Object.assign(M, {
 })
 
 Object.assign(M, {
-  STATIC_ROUTES: [
-    '/',
-    '/about',
-    '/guys',
-    '/login',
-    '/matches',
-    '/sandbox',
-    '/users'
-  ],
-
   _refs: {},
 
   defaultAtom (defaultValue) {
