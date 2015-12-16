@@ -1,6 +1,7 @@
 view Link {
   const prop = initProp(view, {
     to: atom(),
+    target: atom(),
     children: atom()
   })
 
@@ -19,12 +20,23 @@ view Link {
       e.preventDefault = oldPreventDefault
 
       if (!defaultPrevented) {
-        Flint.router.go(prop.to.get())
+        if (prop.to.get().indexOf('://') >= 0) {
+          // Flint.router.go can't handle redirecting to another site
+          window.location = prop.to.get()
+        } else {
+          Flint.router.go(prop.to.get())
+        }
       }
     }
   }
 
-  <link-a href={prop.to.get()} onClick={go}>{prop.children.get()}</link-a>
+  <link-a
+    href={prop.to.get()}
+    target={prop.target.get()}
+    onClick={go}
+  >
+    {prop.children.get()}
+  </link-a>
 
   $ = {
     textDecoration: 'none',
