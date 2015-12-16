@@ -8,7 +8,6 @@ view Link {
   const go = (e) => {
     if (e.button == 0 && !e.metaKey) {
       const oldPreventDefault = e.preventDefault.bind(e)
-      oldPreventDefault()
 
       let defaultPrevented = false
       e.preventDefault = () => {
@@ -19,11 +18,15 @@ view Link {
 
       e.preventDefault = oldPreventDefault
 
-      if (!defaultPrevented) {
-        if (prop.to.get().indexOf('://') >= 0) {
+      if (defaultPrevented) {
+        oldPreventDefault()
+      } else {
+        if (
+          prop.target.get() != '_blank' &&
           // Flint.router.go can't handle redirecting to another site
-          window.location = prop.to.get()
-        } else {
+          prop.to.get().indexOf('://') == -1
+        ) {
+          oldPreventDefault()
           Flint.router.go(prop.to.get())
         }
       }
