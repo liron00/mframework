@@ -13,15 +13,66 @@ view Carousel {
     sortable: M.defaultAtom(false),
     initialSelectedIndex: atom(),
     selectedIndex: atom(),
-    wrap: M.defaultAtom(true)
+    showButtons: M.defaultAtom(true),
+    wrap: M.defaultAtom(true),
+    style: M.mergeAtom({
+      button: {
+        border: 'none',
+        background: '#f6f6f6',
+        position: 'relative',
+        fontSize: 48,
+        display: 'flex',
+        cursor: 'pointer',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#aaa',
+        fontFamily: 'Franklin Gothic Book',
+        zIndex: 5
+      },
+      buttonHover: {
+        background: '#f9e7f2'
+      }
+    })
   })
 
-  const innerWidth = derivation(
-    () => prop.width.get() - 2 * prop.buttonWidth.get()
-  )
-  const innerHeight = derivation(
-    () => prop.height.get()
-  )
+  const buttonStyle = derivation(() => {
+    return IMap({
+      width: prop.buttonWidth.get(),
+      height: innerHeight.get()
+    }).merge(
+      prop.style.get().get('button')
+    )
+  })
+
+  const leftButtonStyle = derivation(() => {
+    return buttonStyle.get().merge({
+      borderRadius: [8, 0, 0, 8]
+    }).merge(
+      hoveringLeft.get()? prop.style.get().get('buttonHover') : undefined
+    ).merge(
+      prop.style.get().get('leftButton')
+    )
+  })
+
+  const rightButtonStyle = derivation(() => {
+    return buttonStyle.get().merge({
+      borderRadius: [0, 8, 8, 0]
+    }).merge(
+      hoveringRight.get()? prop.style.get().get('buttonHover') : undefined
+    ).merge(
+      prop.style.get().get('rightButton')
+    )
+  })
+
+
+  const innerWidth = derivation(() => {
+    return prop.width.get() - (
+      prop.showButtons.get()? 2 * prop.buttonWidth.get() : 0
+    )
+  })
+  const innerHeight = derivation(() => {
+    return prop.height.get()
+  })
 
   const desiredIndex = atom(prop.initialSelectedIndex.get() || 0)
 
@@ -106,12 +157,13 @@ view Carousel {
 
   <leftSection>
     <button class="leftButton"
-      if={prop.children.get().length > 1 && (
+      if={prop.showButtons.get() && prop.children.get().length > 1 && (
         prop.wrap.get() || selectedIndex.get() > 0
       )}
       onClick={() => advance(-1)}
       onMouseEnter={() => hoveringLeft.set(true)}
       onMouseLeave={() => hoveringLeft.set(false)}
+      style={leftButtonStyle.get().toJS()}
     >
       &lt;
     </button>
@@ -172,12 +224,13 @@ view Carousel {
   </midSection>
   <rightSection>
     <button class="rightButton"
-      if={prop.children.get().length > 1 && (
+      if={prop.showButtons.get() && prop.children.get().length > 1 && (
         prop.wrap.get() || selectedIndex.get() < prop.children.get().length - 1
       )}
       onClick={() => advance(1)}
       onMouseEnter={() => hoveringRight.set(true)}
       onMouseLeave={() => hoveringRight.set(false)}
+      style={rightButtonStyle.get().toJS()}
     >
       &gt;
     </button>
@@ -190,32 +243,6 @@ view Carousel {
 
   $leftSection = {
     width: prop.buttonWidth.get()
-  }
-
-  $button = {
-    width: prop.buttonWidth.get(),
-    height: innerHeight.get(),
-    border: 'none',
-    background: '#f6f6f6',
-    position: 'relative',
-    fontSize: 48,
-    display: 'flex',
-    cursor: 'pointer',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#aaa',
-    fontFamily: 'Franklin Gothic Book',
-    zIndex: 5
-  }
-
-  $leftButton = {
-    borderRadius: [8, 0, 0, 8],
-    background: hoveringLeft.get()? '#f9e7f2' : ''
-  }
-
-  $rightButton = {
-    borderRadius: [0, 8, 8, 0],
-    background: hoveringRight.get()? '#f9e7f2' : ''
   }
 
   $midSection = {
