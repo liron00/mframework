@@ -63,5 +63,14 @@ export default {
     return str
   },
 
+  shuffle: arr => {
+    // http://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array-in-javascript
+    const stackOverflowShuffleFunc = function shuffle(o){
+      for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+      return o;
+    }
+    stackOverflowShuffleFunc(arr)
+  },
+
   urlRegex: /((?:https?:\/\/)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b(?:[-a-zA-Z0-9@:%_\+.~#?&//=]*))/
 }

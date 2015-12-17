@@ -49,6 +49,26 @@ Object.assign(M, {
     })
   },
 
+  mergeAtom (defaultValue, deep = true) {
+    // defaultValue can be an IMap, an object, or missing/undefined
+    return atom(IMap(defaultValue)).lens({
+      get: value => value,
+      set: (oldValue, value) => {
+        if (value === undefined) {
+          return oldValue
+        } else if (value) {
+          if (deep) {
+            return oldValue.mergeDeep(value)
+          } else {
+            return oldValue.merge(value)
+          }
+        } else {
+          throw new Error("Invalid value for mergeAtom")
+        }
+      }
+    })
+  },
+
   requiredAtom () {
     return atom().lens({
       get: value => value,
