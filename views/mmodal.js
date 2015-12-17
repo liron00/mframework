@@ -1,7 +1,6 @@
 import ReactModal from 'react-modal'
-ReactModal.setAppElement('#_flintapp')
 
-view Modal {
+view MModal {
   const prop = initProp(view, {
     contentStyle: M.mapAtom({}),
     overlayStyle: M.mapAtom({}),
@@ -9,7 +8,7 @@ view Modal {
     children: atom()
   })
 
-  <ReactModal
+  <ReactModal if={false}
     appElement={document.getElementById('_flintapp')}
     isOpen={prop.isOpen.get()}
     onRequestClose={view.props.onRequestClose}

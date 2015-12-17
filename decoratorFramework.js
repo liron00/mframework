@@ -167,6 +167,13 @@ let nextId = 0
 window.views = {}
 
 const decorator = (view) => {
+  if ([
+    'Installer', 'Modal', 'Menu', 'Errors'
+  ].indexOf(view.name) >= 0) {
+    // Ignore special Flint components
+    return
+  }
+
   nextId += 1
   view.id = nextId
 

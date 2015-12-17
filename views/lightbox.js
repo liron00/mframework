@@ -55,7 +55,7 @@ view Lightbox {
     }
   })
 
-  <Modal
+  <MModal
     isOpen={isOpen.get()}
     onRequestClose={() => isOpen.set(false)}
     overlayStyle={{
@@ -94,5 +94,5 @@ view Lightbox {
       }}
       onClick={() => isOpen.set(false)}
     />
-  </Modal>
+  </MModal>
 }

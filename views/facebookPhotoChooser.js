@@ -48,7 +48,7 @@ view FacebookPhotoChooser {
   >
     {prop.children.get()}
   </noPhoto>
-  <Modal if={showingFbPhotos.get()}
+  <MModal if={showingFbPhotos.get()}
     onRequestClose={() => showingFbPhotos.set(false)}
     contentStyle={{
       margin: 100,
@@ -71,7 +71,7 @@ view FacebookPhotoChooser {
       selectedPhoto.set(photo)
       showingFbPhotos.set(false)
     }} />
-  </Modal>
+  </MModal>
 
   $noPhoto = {
     cursor: 'pointer',
