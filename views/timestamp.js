@@ -1,6 +1,10 @@
 import moment from 'moment'
 
 view Timestamp {
+  const context = initContext(view, {
+    fonts: atom()
+  })
+
   const prop = initProp(view, {
     timestamp: atom()
   })
@@ -18,7 +22,6 @@ view Timestamp {
   <timestamp>{timestampString.get()}</timestamp>
 
   $timestamp = {
-    fontFamily: 'proximanova',
-    fontWeight: 'normal'
+    font: context.fonts.get().normal
   }
 }
