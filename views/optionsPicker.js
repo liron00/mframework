@@ -8,8 +8,9 @@
 view OptionsPicker {
   const prop = initProp(view, {
     innerStyle: M.mapAtom({}),
-    options: atom(),
+    options: M.listAtom(),
     initialValues: M.listAtom([]),
+    limit: M.defaultAtom(null),
     values: M.listAtom()
   })
 
@@ -31,7 +32,15 @@ view OptionsPicker {
     const index = selectedValues.get().indexOf(value)
     if (selected) {
       if (index == -1) {
-        selectedValues.set(selectedValues.get().push(value).sort(M.util.compare))
+        if (
+          prop.limit.get() == null ||
+          selectedValues.get().size < prop.limit.get()
+        ) {
+          selectedValues.set(selectedValues.get().push(value).sort(M.util.compare))
+
+        } else if (prop.limit.get() == 1) {
+          selectedValues.set(List([value]))
+        }
       }
     } else {
       if (index >= 0) {
