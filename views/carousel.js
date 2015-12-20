@@ -13,8 +13,9 @@ view Carousel {
     sortable: M.defaultAtom(false),
     initialSelectedIndex: atom(),
     selectedIndex: atom(),
+    shadows: M.defaultAtom(false),
     showButtons: M.defaultAtom(true),
-    wrap: M.defaultAtom(true),
+    wrapMode: M.defaultAtom('rewind'), // 'rewind'|'cylinder'|false
     style: M.mergeAtom({
       button: {
         border: 'none',
@@ -77,22 +78,23 @@ view Carousel {
   const desiredIndex = atom(prop.initialSelectedIndex.get() || 0)
 
   prop.selectedIndex.react(propSelectedIndex => {
-    desiredIndex.set(propSelectedIndex)
+    const inc = (
+      M.util.mod(propSelectedIndex, prop.children.get().length) -
+      M.util.mod(desiredIndex.get(), prop.children.get().length)
+    )
+    desiredIndex.set(desiredIndex.get() + inc)
   }, {
     when: () => prop.selectedIndex.get() != null
   })
 
   const selectedIndex = lens({
-    get: () => Math.min(
-      prop.selectedIndex.get() == null? desiredIndex.get() : prop.selectedIndex.get(),
-      prop.children.get().length - 1
-    ),
+    get: () => M.util.mod(desiredIndex.get(), prop.children.get().length),
     set: val => {
       if (prop.selectedIndex.get() == null) {
         desiredIndex.set(val)
       }
       view.props.onSelect && view.props.onSelect({
-        selectedIndex: val
+        selectedIndex: M.util.mod(val, prop.children.get().length)
       })
     }
   })
@@ -108,11 +110,7 @@ view Carousel {
   })
 
   const advance = (inc) => {
-    let nextIndex = (selectedIndex.get() + inc) % prop.children.get().length
-    if (nextIndex < 0) {
-      nextIndex = prop.children.get().length + nextIndex
-    }
-    selectedIndex.set(nextIndex)
+    selectedIndex.set(desiredIndex.get() + inc)
   }
 
   const panning = atom(false)
@@ -136,11 +134,14 @@ view Carousel {
     hammer.on('panend', e => {
       transact(() => {
         if (panDeltaX.get() <= -innerWidth.get() / 2) {
-          if (selectedIndex.get() < prop.children.get().length - 1) {
+          if (
+            prop.wrapMode.get() == 'cylinder' ||
+            selectedIndex.get() < prop.children.get().length - 1
+          ) {
             advance(1)
           }
         } else if (panDeltaX.get() >= innerWidth.get() / 2) {
-          if (selectedIndex.get() > 0) {
+          if (prop.wrapMode.get() == 'cylinder' || selectedIndex.get() > 0) {
             advance(-1)
           }
         }
@@ -158,7 +159,7 @@ view Carousel {
   <leftSection>
     <button class="leftButton"
       if={prop.showButtons.get() && prop.children.get().length > 1 && (
-        prop.wrap.get() || selectedIndex.get() > 0
+        prop.wrapMode.get() || selectedIndex.get() > 0
       )}
       onClick={() => advance(-1)}
       onMouseEnter={() => hoveringLeft.set(true)}
@@ -169,17 +170,43 @@ view Carousel {
     </button>
   </leftSection>
   <midSection>
+    <leftShadow if={
+      prop.shadows.get() && (
+        selectedIndex.get() > 0 || prop.wrapMode.get() == 'cylinder'
+      )
+    } />
+    <rightShadow if={
+      prop.shadows.get() && (
+        selectedIndex.get() < prop.children.get().length - 1 ||
+        prop.wrapMode.get() == 'cylinder'
+      )
+    } />
     <TransitionMotion
       styles={() => {
-        const styles = {}
-        prop.children.get().forEach((child, i) => {
-          styles[i] = {
+        const makeStyle = (i) => {
+          return {
             x: spring(
-              (i - selectedIndex.get()) * innerWidth.get()
+              (i - desiredIndex.get()) * innerWidth.get()
             ),
             dx: panning.get()? panDeltaX.get() : spring(0)
           }
-        })
+        }
+
+        const styles = {}
+        const start = desiredIndex.get() - (
+          prop.wrapMode.get() == 'cylinder'?
+          prop.children.get().length - 1 :
+          selectedIndex.get()
+        )
+        const end = desiredIndex.get() + (
+          prop.wrapMode.get() == 'cylinder'?
+          prop.children.get().length - 1 :
+          prop.children.get().length - 1 - selectedIndex.get()
+        )
+        for (let i = start; i <= end; i++) {
+          styles[i] = makeStyle(i)
+        }
+
         return styles
       }()}
     >
@@ -191,7 +218,10 @@ view Carousel {
             left: styles[_].x + styles[_].dx
           }}
         >
-          {prop.children.get()[_]}
+          {_}
+          {prop.children.get()[
+            M.util.mod(parseInt(_), prop.children.get().length)
+          ]}
         </thing>
       }
     </TransitionMotion>
@@ -214,18 +244,28 @@ view Carousel {
         }}
       >
         <dot repeat={prop.children.get()}
-          onClick={() => {selectedIndex.set(_index)}}
+          onClick={() => {
+            const inc = _index - (
+              M.util.mod(desiredIndex.get(), prop.children.get().length)
+            )
+            selectedIndex.set(desiredIndex.get() + inc)
+          }}
         />
       </Sortable>
       <dot if={!prop.sortable.get()} repeat={prop.children.get()}
-        onClick={() => {selectedIndex.set(_index)}}
+        onClick={() => {
+          const inc = _index - (
+            M.util.mod(desiredIndex.get(), prop.children.get().length)
+          )
+          selectedIndex.set(desiredIndex.get() + inc)
+        }}
       />
     </dotsSection>
   </midSection>
   <rightSection>
     <button class="rightButton"
       if={prop.showButtons.get() && prop.children.get().length > 1 && (
-        prop.wrap.get() || selectedIndex.get() < prop.children.get().length - 1
+        prop.wrapMode.get() || selectedIndex.get() < prop.children.get().length - 1
       )}
       onClick={() => advance(1)}
       onMouseEnter={() => hoveringRight.set(true)}
@@ -249,7 +289,28 @@ view Carousel {
     flexDirection: 'row',
     width: innerWidth.get(),
     height: innerHeight.get(),
-    overflow: 'hidden'
+    // overflow: 'hidden',
+    position: 'relative'
+  }
+
+  $leftShadow = {
+    position: 'absolute',
+    zIndex: 2,
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: 30,
+    background: 'linear-gradient(to right, rgba(100, 100, 100, 0.8) 0%, rgba(150, 150, 150, 0) 100%)'
+  }
+
+  $rightShadow = {
+    position: 'absolute',
+    zIndex: 2,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    width: 30,
+    background: 'linear-gradient(to left, rgba(100, 100, 100, 0.8) 0%, rgba(150, 150, 150, 0) 100%)'
   }
 
   $rightSection = {
