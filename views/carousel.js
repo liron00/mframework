@@ -110,7 +110,13 @@ view Carousel {
   })
 
   const advance = (inc) => {
-    selectedIndex.set(desiredIndex.get() + inc)
+    if (prop.wrapMode.get() == 'cylinder') {
+      selectedIndex.set(desiredIndex.get() + inc)
+    } else {
+      selectedIndex.set(
+        M.util.mod(selectedIndex.get() + inc, prop.children.get().length)
+      )
+    }
   }
 
   const panning = atom(false)
@@ -288,7 +294,7 @@ view Carousel {
     flexDirection: 'row',
     width: innerWidth.get(),
     height: innerHeight.get(),
-    // overflow: 'hidden',
+    overflow: 'hidden',
     position: 'relative'
   }
 
