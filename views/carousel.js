@@ -32,6 +32,14 @@ view Carousel {
       },
       buttonHover: {
         background: '#f9e7f2'
+      },
+      dots: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 12,
+        flexDirection: 'row',
+        justifyContent: 'center'
       }
     })
   })
@@ -187,50 +195,54 @@ view Carousel {
         prop.wrapMode.get() == 'cylinder'
       )
     } />
-    <TransitionMotion
-      styles={() => {
-        const makeStyle = (i) => {
-          return {
-            x: spring(
-              (i - desiredIndex.get()) * innerWidth.get()
-            ),
-            dx: panning.get()? panDeltaX.get() : spring(0)
+    <things>
+      <TransitionMotion
+        styles={() => {
+          const makeStyle = (i) => {
+            return {
+              x: spring(
+                (i - desiredIndex.get()) * innerWidth.get()
+              ),
+              dx: panning.get()? panDeltaX.get() : spring(0)
+            }
           }
-        }
 
-        const styles = {}
-        const start = desiredIndex.get() - (
-          prop.wrapMode.get() == 'cylinder'?
-          prop.children.get().length - 1 :
-          selectedIndex.get()
-        )
-        const end = desiredIndex.get() + (
-          prop.wrapMode.get() == 'cylinder'?
-          prop.children.get().length - 1 :
-          prop.children.get().length - 1 - selectedIndex.get()
-        )
-        for (let i = start; i <= end; i++) {
-          styles[i] = makeStyle(i)
-        }
+          const styles = {}
+          const start = desiredIndex.get() - (
+            prop.wrapMode.get() == 'cylinder'?
+            prop.children.get().length - 1 :
+            selectedIndex.get()
+          )
+          const end = desiredIndex.get() + (
+            prop.wrapMode.get() == 'cylinder'?
+            prop.children.get().length - 1 :
+            prop.children.get().length - 1 - selectedIndex.get()
+          )
+          for (let i = start; i <= end; i++) {
+            styles[i] = makeStyle(i)
+          }
 
-        return styles
-      }()}
+          return styles
+        }()}
+      >
+        {styles =>
+          <thing repeat={Object.keys(styles)}
+            key={_}
+            ref={elem => setThing(_index, elem)}
+            style={{
+              left: styles[_].x + styles[_].dx
+            }}
+          >
+            {prop.children.get()[
+              M.util.mod(parseInt(_), prop.children.get().length)
+            ]}
+          </thing>
+        }
+      </TransitionMotion>
+    </things>
+    <dotsSection if={prop.children.get().length > 1}
+      style={prop.style.get().get('dots').toJS()}
     >
-      {styles =>
-        <thing repeat={Object.keys(styles)}
-          key={_}
-          ref={elem => setThing(_index, elem)}
-          style={{
-            left: styles[_].x + styles[_].dx
-          }}
-        >
-          {prop.children.get()[
-            M.util.mod(parseInt(_), prop.children.get().length)
-          ]}
-        </thing>
-      }
-    </TransitionMotion>
-    <dotsSection if={prop.children.get().length > 1}>
       <Sortable if={prop.sortable.get()}
         key={prop.children.get().map(c => c.key).join('\n') + '\n' + selectedIndex.get()}
         onSort={e => {
@@ -294,8 +306,13 @@ view Carousel {
     flexDirection: 'row',
     width: innerWidth.get(),
     height: innerHeight.get(),
-    overflow: 'hidden',
     position: 'relative'
+  }
+
+  $things = {
+    width: innerWidth.get(),
+    height: innerHeight.get(),
+    overflow: 'hidden'
   }
 
   $leftShadow = {
@@ -320,14 +337,6 @@ view Carousel {
 
   $rightSection = {
     width: prop.buttonWidth.get()
-  }
-
-  $dotsSection = {
-    flexDirection: 'row',
-    alignSelf: 'flex-end',
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    marginBottom: 12
   }
 
   $Sortable = {
