@@ -218,7 +218,6 @@ view Carousel {
             left: styles[_].x + styles[_].dx
           }}
         >
-          {_}
           {prop.children.get()[
             M.util.mod(parseInt(_), prop.children.get().length)
           ]}
