@@ -50,6 +50,11 @@ export default {
     return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
   },
 
+  mod: (a, b) => {
+    // Like a % b but behaves properly when a is negative
+    return ((a % b) + b) % b
+  },
+
   objToParamString: obj => {
     let str = ""
     for (let key in obj) {
