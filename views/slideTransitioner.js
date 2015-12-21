@@ -6,9 +6,7 @@ view SlideTransitioner {
     selectedIndex: M.defaultAtom(-1),
     springStiffness: M.defaultAtom(290),
     springDamping: M.defaultAtom(29),
-    style: M.mergeAtom({
-      width: 100
-    })
+    width: M.defaultAtom(100)
   })
 
   const desiredIndex = atom()
@@ -35,7 +33,7 @@ view SlideTransitioner {
     defaultStyles={() => {
       return selectedIndex.get() == -1? {} : {
         [selectedIndex.get()]: {
-          left: -prop.style.get().get('width')
+          left: -prop.width.get()
         }
       }
     }()}
@@ -48,12 +46,12 @@ view SlideTransitioner {
     }()}
     willEnter={i => {
       return {
-        left: -prop.style.get().get('width')
+        left: -prop.width.get()
       }
     }}
     willLeave={i => {
       return {
-        left: makeSpring(-prop.style.get().get('width'))
+        left: makeSpring(-prop.width.get())
       }
     }}
   >
@@ -65,7 +63,6 @@ view SlideTransitioner {
   </TransitionMotion>
 
   $ = {
-    width: prop.style.get().width
   }
 
   $thing = {
