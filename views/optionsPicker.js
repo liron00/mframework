@@ -16,19 +16,13 @@ view OptionsPicker {
 
   const selectedValues = atom(pro.initialValues.get())
 
-  pro.values.react(values => {
-    if (values != null) {
-      selectedValues.set(values)
-    }
-  })
-
-  selectedValues.reactor(selectedValues => {
-    if (view.props.onChange) {
-      view.props.onChange({selectedValues})
-    }
-  }).start()
+  pro.values.react(propValues => {
+    selectedValues.set(propValues)
+  }, {when: () => pro.values.get() != null})
 
   const onChange = (value, selected) => {
+    let nextSelectedValues = selectedValues.get()
+
     const index = selectedValues.get().indexOf(value)
     if (selected) {
       if (index == -1) {
@@ -36,16 +30,24 @@ view OptionsPicker {
           pro.limit.get() == null ||
           selectedValues.get().size < pro.limit.get()
         ) {
-          selectedValues.set(selectedValues.get().push(value).sort(M.util.compare))
+          nextSelectedValues = selectedValues.get().push(value).sort(M.util.compare)
 
         } else if (pro.limit.get() == 1) {
-          selectedValues.set(List([value]))
+          nextSelectedValues = List([value])
         }
       }
     } else {
       if (index >= 0) {
-        selectedValues.set(selectedValues.get().splice(index, 1))
+        nextSelectedValues = selectedValues.get().splice(index, 1)
       }
+    }
+
+    if (pro.values.get() == null) {
+      selectedValues.set(nextSelectedValues)
+    }
+
+    if (view.props.onChange) {
+      view.props.onChange({selectedValues: nextSelectedValues})
     }
   }
 

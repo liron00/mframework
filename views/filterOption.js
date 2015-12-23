@@ -5,20 +5,28 @@ view FilterOption {
 
   const pro = initPro(view, {
     children: atom(),
+    initialSelected: atom(),
     selected: M.defaultAtom(false),
     innerStyle: M.mapAtom({})
   })
 
-  const selected = atom()
+  const selected = atom(pro.initialSelected.get())
+
   pro.selected.react(propSelected => {
     selected.set(propSelected)
-  })
+  }, {when: () => pro.selected.get() != null})
 
-  selected.reactor(selected => {
-    if (view.props.onChange) {
-      view.props.onChange({selected})
+  const onClick = (e) => {
+    const nextSelected = !selected.get()
+
+    if (pro.selected.get() == null) {
+      selected.set(nextSelected)
     }
-  }).start()
+
+    if (view.props.onChange) {
+      view.props.onChange({selected: nextSelected})
+    }
+  }
 
   const hovering = atom(false)
   hovering.reactor(hovering => {
@@ -26,7 +34,7 @@ view FilterOption {
   }).start()
 
   <filterOption
-    onClick={() => selected.set(!selected.get())}
+    onClick={onClick}
     onMouseEnter={() => hovering.set(true)}
     onMouseLeave={() => hovering.set(false)}
     style={
