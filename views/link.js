@@ -43,7 +43,6 @@ view Link {
 
   $ = {
     textDecoration: 'none',
-    display: 'flex',
-    flexDirection: 'row'
+    display: 'inline-flex'
   }
 }
