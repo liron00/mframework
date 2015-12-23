@@ -1,5 +1,5 @@
 view UploadPicChooser {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     initialPicKey: M.defaultAtom(null),
     editable: M.defaultAtom(true),
     width: M.defaultAtom(300),
@@ -11,7 +11,7 @@ view UploadPicChooser {
     zoomable: M.defaultAtom(false)
   })
 
-  const picKey = atom(prop.initialPicKey.get())
+  const picKey = atom(pro.initialPicKey.get())
   const uploading = atom(false)
 
   picKey.reactor(picKey => {
@@ -22,48 +22,48 @@ view UploadPicChooser {
 
   const noPicStyle = derivation(() => {
     return IMap({
-      width: prop.width.get(),
-      height: prop.height.get(),
+      width: pro.width.get(),
+      height: pro.height.get(),
       alignItems: 'center',
       justifyContent: 'center',
       background: 'white',
       border: '1px dashed #ccc',
-      borderRadius: prop.circle.get()? '50%' : 8
-    }).merge(prop.noPicStyle.get())
+      borderRadius: pro.circle.get()? '50%' : 8
+    }).merge(pro.noPicStyle.get())
   })
 
   <picSection>
     <Pic if={picKey.get() && !uploading.get()}
       picKey={picKey.get()}
       faces={true}
-      zoomable={prop.zoomable.get()}
+      zoomable={pro.zoomable.get()}
       style={
         IMap({
-          width: prop.width.get(),
-          height: prop.height.get(),
-          borderRadius: prop.circle.get()? '50%' : null
+          width: pro.width.get(),
+          height: pro.height.get(),
+          borderRadius: pro.circle.get()? '50%' : null
         }).merge(
-          prop.picStyle.get()
+          pro.picStyle.get()
         ).toJS()
       }
     />
-    <S3Uploader if={prop.editable.get() && !picKey.get() && !uploading.get()}
+    <S3Uploader if={pro.editable.get() && !picKey.get() && !uploading.get()}
       accept="image/*"
       onStartUpload={() => uploading.set(true)}
       onUploaded={({s3Key}) => {uploading.set(false); picKey.set(s3Key)}}
     >
       <noPic style={noPicStyle.get().toJS()}>
-        {prop.children.get()}
+        {pro.children.get()}
       </noPic>
     </S3Uploader>
-    <noPic if={!prop.editable.get() && !picKey.get() && !uploading.get()}
+    <noPic if={!pro.editable.get() && !picKey.get() && !uploading.get()}
       style={noPicStyle.get().toJS()}
     />
     <noPic if={uploading.get()} style={noPicStyle.get().toJS()}>
       <Loader />
     </noPic>
   </picSection>
-  <actionRow if={picKey.get() && prop.editable.get()}>
+  <actionRow if={picKey.get() && pro.editable.get()}>
     <S3Uploader
       accept="image/*"
       onStartUpload={() => uploading.set(true)}

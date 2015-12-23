@@ -1,5 +1,5 @@
 view Pic {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     picKey: atom(),
     style: M.mapAtom({}),
 
@@ -15,16 +15,16 @@ view Pic {
 
   const imgixUrl = derivation(() => {
     const params = {
-      auto: prop.enhance.get()? 'enhance': null,
-      crop: prop.faces.get()? 'faces' : (
-        prop.entropy.get()? 'entropy': null
+      auto: pro.enhance.get()? 'enhance': null,
+      crop: pro.faces.get()? 'faces' : (
+        pro.entropy.get()? 'entropy': null
       ),
-      fit: prop.fit.get(),
-      w: prop.style.get().get('width') || prop.style.get().get('maxWidth'),
-      h: prop.style.get().get('height') || prop.style.get().get('maxHeight')
+      fit: pro.fit.get(),
+      w: pro.style.get().get('width') || pro.style.get().get('maxWidth'),
+      h: pro.style.get().get('height') || pro.style.get().get('maxHeight')
     }
     const paramString = M.util.objToParamString(params)
-    return `${M.config.imgixPrefix}${prop.picKey.get()}?${paramString}`
+    return `${M.config.imgixPrefix}${pro.picKey.get()}?${paramString}`
   })
 
   <pic
@@ -32,9 +32,9 @@ view Pic {
       IMap({
         alignItems: 'center',
         justifyContent: 'center',
-        cursor: prop.zoomable.get()? 'zoom-in': null
+        cursor: pro.zoomable.get()? 'zoom-in': null
       }).merge(
-        prop.style.get()
+        pro.style.get()
       ).toJS()
     }
     onClick={e => {
@@ -47,7 +47,7 @@ view Pic {
     <img
       src={imgixUrl.get()}
       style={
-        prop.style.get().merge({
+        pro.style.get().merge({
           width: null,
           height: null
         }).toJS()
@@ -55,7 +55,7 @@ view Pic {
     />
     <Lightbox if={zoomedIn.get()}
       onClose={() => zoomedIn.set(false)}
-      picKeys={[prop.picKey.get()]}
+      picKeys={[pro.picKey.get()]}
     />
   </pic>
 }

@@ -96,9 +96,9 @@ Object.assign(M, {
             throw new Error(`Can't double-set frozenAtom` +
               `${frozenA.name? ' ' + JSON.stringify(frozenA.name) : ''}` +
               ` from ${JSON.stringify(firstValue)} to ${JSON.stringify(value)}.` +
-              ` If you're passing in a component prop, try passing a 'key'` +
+              ` If you're passing in a component pro, try passing a 'key'` +
               ` attribute in order to re-create a component instance rather` +
-              ` than modifying prop values on the existing instance.`
+              ` than modifying pro values on the existing instance.`
             )
           }
         } else {

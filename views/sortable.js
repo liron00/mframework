@@ -4,7 +4,7 @@
 */
 
 view Sortable {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     children: atom(),
     animation: M.defaultAtom(150),
     enabled: M.defaultAtom(true),
@@ -14,7 +14,7 @@ view Sortable {
     group: atom()
   })
 
-  const children = prop.children.derive(propChildren => {
+  const children = pro.children.derive(propChildren => {
     if (propChildren instanceof Array) {
       return propChildren
     } else {
@@ -30,11 +30,11 @@ view Sortable {
       sortable.get().destroy()
     }
     sortable.set(window.Sortable.create(wrapper.get(), {
-      animation: prop.animation.get(),
-      ghostClass: prop.ghostClass.get(),
-      handle: prop.handle.get(),
-      filter: prop.filter.get(),
-      group: prop.group.get(),
+      animation: pro.animation.get(),
+      ghostClass: pro.ghostClass.get(),
+      handle: pro.handle.get(),
+      filter: pro.filter.get(),
+      group: pro.group.get(),
 
       onStart: view.props.onStart,
       onEnd: view.props.onEnd,
@@ -49,7 +49,7 @@ view Sortable {
 
   wrapper.react(wrapper => {
     if (wrapper) {
-      if (prop.enabled.get()) {
+      if (pro.enabled.get()) {
         initSortable()
       }
     } else {
@@ -61,7 +61,7 @@ view Sortable {
   })
 
   <sortable key={
-    prop.enabled.get()? children.get().map(c => c.key).join('\n') : 'frozen'
+    pro.enabled.get()? children.get().map(c => c.key).join('\n') : 'frozen'
   }
     ref={wrapper.set.bind(wrapper)}
   >

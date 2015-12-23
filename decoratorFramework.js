@@ -12,18 +12,18 @@ window.derivation = derivation
 window.transact = transact
 window.lens = lens
 
-window.initProp = (view, prop) => {
-  view.prop = prop
-  for (propName in view.prop) {
-    // Tag the prop atom/lens with its propName for debugging
-    view.prop[propName].name = `${view.name}.${propName}`
+window.initPro = (view, pro) => {
+  view.pro = pro
+  for (propName in view.pro) {
+    // Tag the pro atom/lens with its propName for debugging
+    view.pro[propName].name = `${view.name}.${propName}`
   }
   for (propName in view.props) {
-    if (view.prop[propName]) {
-      view.prop[propName].set(view.props[propName])
+    if (view.pro[propName]) {
+      view.pro[propName].set(view.props[propName])
     }
   }
-  return view.prop
+  return view.pro
 }
 
 window.initContext = (view, context) => {
@@ -287,7 +287,7 @@ const decorator = (view) => {
       )
     }
 
-    // Update view.prop atoms
+    // Update view.pro atoms
     if (!view.mounted) {
       if (!view.firstRender && view.debug) {
         console.log(`Ignoring ${view.name}#${view.id}.on.props`)
@@ -296,10 +296,10 @@ const decorator = (view) => {
     }
 
     transact(() => {
-      if (view.prop) {
+      if (view.pro) {
         for (propName in view.props) {
-          if (view.prop[propName]) {
-            view.prop[propName].set(view.props[propName])
+          if (view.pro[propName]) {
+            view.pro[propName].set(view.props[propName])
           }
         }
       }

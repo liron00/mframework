@@ -1,7 +1,7 @@
 import {spring} from 'react-motion'
 
 view FadeTransitioner {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     children: atom(),
     preloadChildren: M.defaultAtom(true),
     selectedIndex: atom(),
@@ -11,13 +11,13 @@ view FadeTransitioner {
   })
 
   const desiredIndex = atom()
-  prop.selectedIndex.react(propSelectedIndex => {
+  pro.selectedIndex.react(propSelectedIndex => {
     if (propSelectedIndex !== undefined) {
       desiredIndex.set(propSelectedIndex)
     }
   })
 
-  const children = prop.children.derive(c => List(React.Children.toArray(c)))
+  const children = pro.children.derive(c => List(React.Children.toArray(c)))
 
   const selectedIndex = derivation(() => {
     return Math.min(desiredIndex.get(), children.get().size)
@@ -25,14 +25,14 @@ view FadeTransitioner {
 
   const makeSpring = (targetValue) => {
     return spring(targetValue, [
-      prop.springStiffness.get(),
-      prop.springDamping.get()
+      pro.springStiffness.get(),
+      pro.springDamping.get()
     ])
   }
 
   <TransitionMotion
     defaultStyles={() => {
-      if (prop.preloadChildren.get()) {
+      if (pro.preloadChildren.get()) {
         const ret = {}
         children.get().forEach((child, i) => {
           ret[i] = {
@@ -50,7 +50,7 @@ view FadeTransitioner {
       }
     }()}
     styles={() => {
-      if (prop.preloadChildren.get()) {
+      if (pro.preloadChildren.get()) {
         const ret = {}
         children.get().forEach((child, i) => {
           ret[i] = {
@@ -86,8 +86,8 @@ view FadeTransitioner {
   </TransitionMotion>
 
   $ = {
-    width: prop.style.get().width,
-    height: prop.style.get().height
+    width: pro.style.get().width,
+    height: pro.style.get().height
   }
 
   $thing = {

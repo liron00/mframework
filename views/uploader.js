@@ -1,5 +1,5 @@
 view Uploader {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     accept: atom(),
     children: atom()
   })
@@ -7,11 +7,11 @@ view Uploader {
   <label>
     <input
       type="file"
-      accept={prop.accept.get()}
+      accept={pro.accept.get()}
       onChange={view.props.onChange}
     />
     <friendly>
-      {prop.children.get() || "Choose file..."}
+      {pro.children.get() || "Choose file..."}
     </friendly>
   </label>
   

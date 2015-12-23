@@ -1,5 +1,5 @@
 view FacebookPhotoChooser {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     width: M.defaultAtom(300),
     height: M.defaultAtom(168),
     circle: M.defaultAtom(false),
@@ -31,9 +31,9 @@ view FacebookPhotoChooser {
 
   <selectedPhoto if={selectedPhoto.get()}>
     <FacebookPhotoImage photo={selectedPhoto.get()}
-      width={prop.width.get()}
-      height={prop.height.get()}
-      style={prop.style.get()}
+      width={pro.width.get()}
+      height={pro.height.get()}
+      style={pro.style.get()}
     />
     <actionRow>
       <EditLink onClick={showFbPhotos} />
@@ -42,11 +42,11 @@ view FacebookPhotoChooser {
   </selectedPhoto>
   <noPhoto if={!selectedPhoto.get()}
     style={IMap({
-      borderRadius: prop.circle.get()? '50%' : 8
-    }).merge(prop.noPicStyle.get()).toJS()}
+      borderRadius: pro.circle.get()? '50%' : 8
+    }).merge(pro.noPicStyle.get()).toJS()}
     onClick={showFbPhotos}
   >
-    {prop.children.get()}
+    {pro.children.get()}
   </noPhoto>
   <MModal if={showingFbPhotos.get()}
     onRequestClose={() => showingFbPhotos.set(false)}
@@ -75,8 +75,8 @@ view FacebookPhotoChooser {
 
   $noPhoto = {
     cursor: 'pointer',
-    width: prop.width.get(),
-    height: prop.height.get(),
+    width: pro.width.get(),
+    height: pro.height.get(),
     alignItems: 'center',
     justifyContent: 'center',
     background: 'white',

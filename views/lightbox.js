@@ -1,5 +1,5 @@
 view Lightbox {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     picKeys: M.listAtom(),
     isOpen: M.defaultAtom(true),
     selectedIndex: atom(),
@@ -24,18 +24,18 @@ view Lightbox {
     }
   }).start()
 
-  prop.isOpen.react(propIsOpen => {
+  pro.isOpen.react(propIsOpen => {
     openCloseReactor.stop()
     isOpen.set(propIsOpen)
     openCloseReactor.start()
   })
 
-  const selectedIndex = atom(prop.initialSelectedIndex.get() || 0)
+  const selectedIndex = atom(pro.initialSelectedIndex.get() || 0)
   const selectReactor = selectedIndex.reactor(selectedIndex => {
     view.props.onSelect && view.props.onSelect({selectedIndex})
   }).start()
 
-  prop.selectedIndex.react(propSelectedIndex => {
+  pro.selectedIndex.react(propSelectedIndex => {
     if (propSelectedIndex != null) {
       selectReactor.stop()
       selectedIndex.set(propSelectedIndex)
@@ -47,11 +47,11 @@ view Lightbox {
     if (e.keyCode == 37) {
       // Left
       selectedIndex.set(
-        (selectedIndex.get() + prop.picKeys.get().size - 1) % prop.picKeys.get().size
+        (selectedIndex.get() + pro.picKeys.get().size - 1) % pro.picKeys.get().size
       )
     } else if (e.keyCode == 39) {
       // Right
-      selectedIndex.set((selectedIndex.get() + 1) % prop.picKeys.get().size)
+      selectedIndex.set((selectedIndex.get() + 1) % pro.picKeys.get().size)
     }
   })
 
@@ -66,14 +66,14 @@ view Lightbox {
       borderRadius: 8
     }}
   >
-    <Carousel if={prop.picKeys.get().size >= 2}
+    <Carousel if={pro.picKeys.get().size >= 2}
       selectedIndex={selectedIndex.get()}
       onSelect={e => selectedIndex.set(e.selectedIndex)}
       width={.8 * bodyWidth.get()}
       height={.9 * bodyHeight.get()}
       buttonWidth={60}
     >
-      <Pic repeat={prop.picKeys.get()}
+      <Pic repeat={pro.picKeys.get()}
         picKey={_}
         fit="clip"
         style={{
@@ -83,8 +83,8 @@ view Lightbox {
         }}
       />
     </Carousel>
-    <Pic if={prop.picKeys.get().size == 1}
-      picKey={prop.picKeys.get().get(0)}
+    <Pic if={pro.picKeys.get().size == 1}
+      picKey={pro.picKeys.get().get(0)}
       fit="clip"
       style={{
         maxWidth: .8 * bodyWidth.get(),

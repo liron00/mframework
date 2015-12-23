@@ -5,7 +5,7 @@ view WistiaVideo {
     colors: atom()
   })
 
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     videoKey: M.requiredAtom(),
 
     // Wrapping Wistia config
@@ -37,16 +37,16 @@ view WistiaVideo {
     volume: atom()
   })
 
-  const wistiaId = prop.videoKey.derive(videoKey => {
+  const wistiaId = pro.videoKey.derive(videoKey => {
     if (!videoKey.startsWith('videos/wistia/')) {
       throw new Error(`Invalid Wistia video key: ${videoKey}`)
     }
     return videoKey.split('/')[2]
   })
 
-  const wantToPlay = atom(prop.autoPlay.get())
-  const targetVolume = atom(prop.initialVolume.get())
-  const time = atom(prop.initialTime.get())
+  const wantToPlay = atom(pro.autoPlay.get())
+  const targetVolume = atom(pro.initialVolume.get())
+  const time = atom(pro.initialTime.get())
   const wistiaTime = atom()
 
   // Controlled by <Motion> as a function of targetVolume
@@ -75,24 +75,24 @@ view WistiaVideo {
     }
   }).start()
 
-  prop.playing.react(propPlaying => {
+  pro.playing.react(propPlaying => {
     if (propPlaying != null) {
       wantToPlay.set(propPlaying)
     }
   })
-  prop.time.react(propTime => {
+  pro.time.react(propTime => {
     if (propTime != null) {
       time.set(propTime)
     }
   })
-  prop.volume.react(propVolume => {
+  pro.volume.react(propVolume => {
     if (propVolume !== undefined) {
       targetVolume.set(propVolume)
     }
   })
 
   const playing = derivation(() => {
-    return prop.enabled.get() && wantToPlay.get()
+    return pro.enabled.get() && wantToPlay.get()
   })
   playing.react(playing => {
     if (wistia.get()) {
@@ -127,22 +127,22 @@ view WistiaVideo {
   })
 
   const diameter = derivation(() => {
-    return Math.min(prop.width.get(), prop.height.get())
+    return Math.min(pro.width.get(), pro.height.get())
   })
   const width = derivation(() => {
-    if (prop.circle.get()) {
+    if (pro.circle.get()) {
       const aspectGuess = aspect.get() || 16 / 9
       return Math.max(diameter.get(), diameter.get() * aspectGuess)
     } else {
-      return prop.width.get()
+      return pro.width.get()
     }
   })
   const height = derivation(() => {
-    if (prop.circle.get()) {
+    if (pro.circle.get()) {
       const aspectGuess = aspect.get() || 16 / 9
       return Math.max(diameter.get(), diameter.get() / aspectGuess)
     } else {
-      return prop.height.get()
+      return pro.height.get()
     }
   })
 
@@ -163,7 +163,7 @@ view WistiaVideo {
         } else {
           // Since our state would have had the video stay paused, this must
           // be a user-triggered event.
-          if (prop.allowPlay.get()) {
+          if (pro.allowPlay.get()) {
             wantToPlay.set(true)
           } else {
             wistia.pause()
@@ -176,7 +176,7 @@ view WistiaVideo {
       if (playing.get()) {
         // Since our state would have had the video keep playing, this must
         // be a user-triggered event.
-        if (prop.allowPause.get()) {
+        if (pro.allowPause.get()) {
           wantToPlay.set(false)
         } else {
           wistia.play()
@@ -224,7 +224,7 @@ view WistiaVideo {
     })
   }
 
-  prop.videoKey.react(videoKey => {
+  pro.videoKey.react(videoKey => {
     if (view.mounted) {
       lastRenderedWistiaConfig.set(null)
     }
@@ -233,14 +233,14 @@ view WistiaVideo {
   const wistiaConfig = derivation(() => {
     return IMap({
       autoPlay: playing.get(),
-      controlsVisibleOnLoad: prop.controlsVisibleOnLoad.get(),
-      endVideoBehavior: prop.endVideoBehavior.get(),
-      playbar: prop.showPlaybar.get(),
-      playerColor: prop.playerColor.get(),
+      controlsVisibleOnLoad: pro.controlsVisibleOnLoad.get(),
+      endVideoBehavior: pro.endVideoBehavior.get(),
+      playbar: pro.showPlaybar.get(),
+      playerColor: pro.playerColor.get(),
       time: time.get(),
-      volumeControl: prop.showVolume.get(),
+      volumeControl: pro.showVolume.get(),
       volume: targetVolume.get(),
-      wmode: prop.wmode.get()
+      wmode: pro.wmode.get()
     })
   })
 
@@ -251,11 +251,11 @@ view WistiaVideo {
     }
     return !immutable.is(
       IMap({
-        endVideoBehavior: prop.endVideoBehavior.get(),
-        playbar: prop.showPlaybar.get(),
-        playerColor: prop.playerColor.get(),
-        volumeControl: prop.showVolume.get(),
-        wmode: prop.wmode.get()
+        endVideoBehavior: pro.endVideoBehavior.get(),
+        playbar: pro.showPlaybar.get(),
+        playerColor: pro.playerColor.get(),
+        volumeControl: pro.showVolume.get(),
+        wmode: pro.wmode.get()
       }),
       IMap({
         endVideoBehavior: lastConfig.get('endVideoBehavior'),
@@ -291,7 +291,7 @@ view WistiaVideo {
     defaultStyle={{v: targetVolume.get() || 0}}
     style={{
       v: (
-        prop.smoothVolume.get() && targetVolume.get() != null &&
+        pro.smoothVolume.get() && targetVolume.get() != null &&
         targetVolume.get() != volume.get()
       )? spring(targetVolume.get()) : targetVolume.get()
     }}
@@ -303,7 +303,7 @@ view WistiaVideo {
         }, 1)
       }
 
-      return <wrapper style={prop.videoStyle.get().toJS()}>
+      return <wrapper style={pro.videoStyle.get().toJS()}>
         <div
           key={`render_${refreshCount.get()}`}
           id={`video_${VIEW_ID}_${refreshCount.get()}`}
@@ -320,10 +320,10 @@ view WistiaVideo {
 
   $wrapper = {
     overflow: 'hidden',
-    width: prop.circle.get()? diameter.get() : prop.width.get(),
-    height: prop.circle.get()? diameter.get() : prop.height.get(),
+    width: pro.circle.get()? diameter.get() : pro.width.get(),
+    height: pro.circle.get()? diameter.get() : pro.height.get(),
     alignItems: 'center',
     zIndex: 1,
-    borderRadius: prop.circle.get()? '50%' : 8
+    borderRadius: pro.circle.get()? '50%' : 8
   }
 }

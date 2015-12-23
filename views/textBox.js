@@ -2,13 +2,13 @@
 
 // FIXME:
 // When parent sets a value and reacts to onChange by editing it, then if
-// types too quickly, their cursor moves to the end because prop.value gets
+// types too quickly, their cursor moves to the end because pro.value gets
 // changed to a stale copy of valueFromUser.
 // Idea: Make it not-directly-editable when it's a controlled component,
 // i.e. React's move
 
 view TextBox {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     autoFocus: M.defaultAtom(false),
     autoSelect: M.defaultAtom(false),
     enabled: M.defaultAtom(true),
@@ -27,8 +27,8 @@ view TextBox {
     inp.get() && inp.get().focus()
   }
 
-  const value = atom(prop.initialValue.get())
-  prop.value.react(propValue => {
+  const value = atom(pro.initialValue.get())
+  pro.value.react(propValue => {
     if (propValue != null) {
       value.set(propValue)
     }
@@ -45,7 +45,7 @@ view TextBox {
 
   value.react(value => {
     if (value != valueFromUser.get()) {
-      // Prop just momentarily took control of the value from the user
+      // pro just momentarily took control of the value from the user
       if (inp.get()) {
         inp.get().value = value
       }
@@ -63,7 +63,7 @@ view TextBox {
   }
 
   const onFocus = (e) => {
-    if (prop.autoSelect.get()) {
+    if (pro.autoSelect.get()) {
       on.delay(1, () => {
         if (inp.get()) {
           inp.get().select()
@@ -88,36 +88,36 @@ view TextBox {
     if (view.props.onHover) view.props.onHover({hovering})
   })
 
-  <input class="inp" type="text" if={!prop.multiline.get()}
+  <input class="inp" type="text" if={!pro.multiline.get()}
     ref={elem => {if (elem) inp.set(elem)}}
-    autoFocus={prop.autoFocus.get()}
+    autoFocus={pro.autoFocus.get()}
     defaultValue={value.get()}
-    disabled={!prop.enabled.get()}
+    disabled={!pro.enabled.get()}
     onChange={e => valueFromUser.set(e.target.value)}
     onKeyDown={onKeyDown}
     onFocus={onFocus}
     onBlur={onBlur}
     onMouseEnter={onMouseEnter}
     onMouseLeave={onMouseLeave}
-    style={prop.inpStyle.get().toJS()}
-    placeholder={prop.placeholder.get()}
-    tabIndex={prop.tabIndex.get()}
+    style={pro.inpStyle.get().toJS()}
+    placeholder={pro.placeholder.get()}
+    tabIndex={pro.tabIndex.get()}
     onClick={view.props.onClick}
   />
-  <textarea class="inp" if={prop.multiline.get()}
+  <textarea class="inp" if={pro.multiline.get()}
     ref={elem => {if (elem) inp.set(elem)}}
-    autoFocus={prop.autoFocus.get()}
+    autoFocus={pro.autoFocus.get()}
     defaultValue={value.get()}
-    disabled={!prop.enabled.get()}
+    disabled={!pro.enabled.get()}
     onChange={e => valueFromUser.set(e.target.value)}
     onKeyDown={onKeyDown}
     onFocus={onFocus}
     onBlur={onBlur}
     onMouseEnter={onMouseEnter}
     onMouseLeave={onMouseLeave}
-    placeholder={prop.placeholder.get()}
-    style={prop.inpStyle.get().toJS()}
-    tabIndex={prop.tabIndex.get()}
+    placeholder={pro.placeholder.get()}
+    style={pro.inpStyle.get().toJS()}
+    tabIndex={pro.tabIndex.get()}
     onClick={view.props.onClick}
   />
 

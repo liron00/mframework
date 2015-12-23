@@ -3,14 +3,14 @@ view FilterOption {
     colors: atom()
   })
 
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     children: atom(),
     selected: M.defaultAtom(false),
     innerStyle: M.mapAtom({})
   })
 
   const selected = atom()
-  prop.selected.react(propSelected => {
+  pro.selected.react(propSelected => {
     selected.set(propSelected)
   })
 
@@ -47,10 +47,10 @@ view FilterOption {
         ),
         color: selected.get()? 'white' : 'black'
       }).merge(
-        prop.innerStyle.get()
+        pro.innerStyle.get()
       ).toJS()
     }
   >
-    {prop.children.get()}
+    {pro.children.get()}
   </filterOption>
 }

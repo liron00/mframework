@@ -5,12 +5,12 @@ const RTransitionMotion = ReactMotion.TransitionMotion
 const spring = ReactMotion.spring
 
 view Motion {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     defaultStyle: M.mapAtom({}),
     style: M.mapAtom()
   })
 
-  const styleAtom = atom(prop.defaultStyle.get())
+  const styleAtom = atom(pro.defaultStyle.get())
 
   const der = styleAtom.derive(styleMap => {
     return view.props.children(styleMap.toJS())
@@ -22,8 +22,8 @@ view Motion {
   }
 
   <RMotion
-    defaultStyle={prop.defaultStyle.get().toJS()}
-    style={prop.style.get().toJS()}
+    defaultStyle={pro.defaultStyle.get().toJS()}
+    style={pro.style.get().toJS()}
   >
     {() => {
       der.get() // Register derivable dependencies
@@ -33,14 +33,14 @@ view Motion {
 }
 
 view TransitionMotion {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     defaultStyles: M.mapAtom({}),
     styles: M.mapAtom(),
     willEnter: atom(),
     willLeave: atom()
   })
 
-  const stylesAtom = atom(prop.defaultStyles.get())
+  const stylesAtom = atom(pro.defaultStyles.get())
 
   const der = stylesAtom.derive(stylesMap => {
     const ret = view.props.children(stylesMap.toJS())
@@ -57,10 +57,10 @@ view TransitionMotion {
   }
 
   <RTransitionMotion
-    defaultStyles={prop.defaultStyles.get().toJS()}
-    styles={prop.styles.get().toJS()}
-    willEnter={prop.willEnter.get()}
-    willLeave={prop.willLeave.get()}
+    defaultStyles={pro.defaultStyles.get().toJS()}
+    styles={pro.styles.get().toJS()}
+    willEnter={pro.willEnter.get()}
+    willLeave={pro.willLeave.get()}
   >
     {() => {
       der.get() // Register derivable dependencies

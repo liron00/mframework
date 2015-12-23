@@ -1,7 +1,7 @@
 import {spring} from 'react-motion'
 
 view SlideTransitioner {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     children: atom(),
     selectedIndex: M.defaultAtom(-1),
     springStiffness: M.defaultAtom(290),
@@ -10,13 +10,13 @@ view SlideTransitioner {
   })
 
   const desiredIndex = atom()
-  prop.selectedIndex.react(propSelectedIndex => {
+  pro.selectedIndex.react(propSelectedIndex => {
     if (propSelectedIndex != null) {
       desiredIndex.set(propSelectedIndex)
     }
   })
 
-  const children = prop.children.derive(c => List(React.Children.toArray(c)))
+  const children = pro.children.derive(c => List(React.Children.toArray(c)))
 
   const selectedIndex = derivation(() => {
     return Math.min(desiredIndex.get(), children.get().size)
@@ -24,8 +24,8 @@ view SlideTransitioner {
 
   const makeSpring = (targetValue) => {
     return spring(targetValue, [
-      prop.springStiffness.get(),
-      prop.springDamping.get()
+      pro.springStiffness.get(),
+      pro.springDamping.get()
     ])
   }
 
@@ -33,7 +33,7 @@ view SlideTransitioner {
     defaultStyles={() => {
       return selectedIndex.get() == -1? {} : {
         [selectedIndex.get()]: {
-          left: -prop.width.get()
+          left: -pro.width.get()
         }
       }
     }()}
@@ -46,12 +46,12 @@ view SlideTransitioner {
     }()}
     willEnter={i => {
       return {
-        left: -prop.width.get()
+        left: -pro.width.get()
       }
     }}
     willLeave={i => {
       return {
-        left: makeSpring(-prop.width.get())
+        left: makeSpring(-pro.width.get())
       }
     }}
   >

@@ -5,7 +5,7 @@
 */
 
 view S3Uploader {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     accept: atom(),
     children: atom()
   })
@@ -57,11 +57,11 @@ view S3Uploader {
   }
 
   <notUploading if={!uploading.get()}>
-    <Uploader accept={prop.accept.get()} onChange={handleFile}>
-      {prop.children.get()}
+    <Uploader accept={pro.accept.get()} onChange={handleFile}>
+      {pro.children.get()}
     </Uploader>
   </notUploading>
   <uploading if={uploading.get()}>
-    {prop.children.get()}
+    {pro.children.get()}
   </uploading>
 }

@@ -3,7 +3,7 @@ view Blank {
     colors: atom()
   })
 
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     autoSaveOnCharCount: M.defaultAtom(null), // save after typing N chars
     initialValue: atom(),
     type: M.defaultAtom('string'),
@@ -17,39 +17,39 @@ view Blank {
   })
 
   const valueToString = (v) => {
-    if (prop.type.get() == 'number' || prop.type.get() == 'int') {
+    if (pro.type.get() == 'number' || pro.type.get() == 'int') {
       return v == null? '' : '' + v
-    } else if (prop.type.get() == 'string') {
+    } else if (pro.type.get() == 'string') {
       return v
     } else {
-      throw new Error(`Unknown type: ${prop.type.get()}`)
+      throw new Error(`Unknown type: ${pro.type.get()}`)
     }
   }
 
   const stringToValue = (s) => {
-    if (prop.type.get() == 'int' || prop.type.get() == 'number') {
-      const v = (prop.type.get() == 'int')? parseInt(s, 10) : parseFloat(s, 10)
+    if (pro.type.get() == 'int' || pro.type.get() == 'number') {
+      const v = (pro.type.get() == 'int')? parseInt(s, 10) : parseFloat(s, 10)
       if (isNaN(v)) return null
-      if (prop.min.get() != null && v < prop.min.get()) return null
-      if (prop.max.get() != null && v > prop.max.get()) return null
+      if (pro.min.get() != null && v < pro.min.get()) return null
+      if (pro.max.get() != null && v > pro.max.get()) return null
       return v
-    } else if (prop.type.get() == 'string') {
+    } else if (pro.type.get() == 'string') {
       if (s) {
         return s
       } else {
-        return prop.defaultValue.get() || ''
+        return pro.defaultValue.get() || ''
       }
     } else {
-      throw new Error(`Unknown type: ${prop.type.get()}`)
+      throw new Error(`Unknown type: ${pro.type.get()}`)
     }
   }
 
   const hovering = atom(false)
   const editing = atom(false)
 
-  const value = atom(prop.initialValue.get())
+  const value = atom(pro.initialValue.get())
 
-  prop.value.react(propValue => {
+  pro.value.react(propValue => {
     if (propValue !== undefined) {
       value.set(propValue)
     }
@@ -62,11 +62,11 @@ view Blank {
   const autoSaving = atom(false)
   str.react(str => {
     workingValue.set(stringToValue(str))
-    if (prop.autoSaveOnCharCount.get()) {
+    if (pro.autoSaveOnCharCount.get()) {
       if (
         workingValue.get() != null &&
         valueToString(workingValue.get()) == str &&
-        str.length >= prop.autoSaveOnCharCount.get()
+        str.length >= pro.autoSaveOnCharCount.get()
       ) {
         save()
       }
@@ -89,16 +89,16 @@ view Blank {
     let nextValue
 
     if (workingValue.get() == null) {
-      if (prop.defaultValue.get() != null) {
-        nextValue = prop.defaultValue.get()
-      } else if (prop.nullable.get()) {
+      if (pro.defaultValue.get() != null) {
+        nextValue = pro.defaultValue.get()
+      } else if (pro.nullable.get()) {
         nextValue = null
       }
     } else {
       nextValue = workingValue.get()
     }
 
-    if (prop.value.get() === undefined) {
+    if (pro.value.get() === undefined) {
       value.set(nextValue)
     }
 
@@ -140,9 +140,9 @@ view Blank {
           background: hovering.get()? 'rgba(225, 205, 225, 0.25)' : 'none'
         }
       ,
-      prop.inpStyle.get().toJS()
+      pro.inpStyle.get().toJS()
     )}
-    placeholder={prop.placeholder.get()}
+    placeholder={pro.placeholder.get()}
     onChange={e => {if (editing.get()) str.set(e.value)}}
     onEnter={() => {if (editing.get()) save()}}
     onEscape={() => {if (editing.get()) editing.set(false)}}

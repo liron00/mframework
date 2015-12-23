@@ -5,7 +5,7 @@ view VolumeBars {
     colors: atom()
   })
 
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     height: M.defaultAtom(30),
     initialVolume: M.defaultAtom(null),
     numBars: M.defaultAtom(5),
@@ -19,21 +19,21 @@ view VolumeBars {
 
   const barWidth = derivation(() => {
     return (
-      prop.width.get() - spacerWidth.get() * (prop.numBars.get() - 1)
-    ) / prop.numBars.get()
+      pro.width.get() - spacerWidth.get() * (pro.numBars.get() - 1)
+    ) / pro.numBars.get()
   })
   const getBarHeight = (barIndex) => {
-    const heightFraction = (barIndex + 1) / prop.numBars.get()
-    return heightFraction * prop.height.get()
+    const heightFraction = (barIndex + 1) / pro.numBars.get()
+    return heightFraction * pro.height.get()
   }
   const barBorderRadius = derivation(() => {
     return barWidth.get() / 2 + 2
   })
 
-  const desiredVolume = atom(prop.initialVolume.get())
+  const desiredVolume = atom(pro.initialVolume.get())
   const hoveringBarIndex = atom(null)
 
-  prop.volume.react(propVolume => {
+  pro.volume.react(propVolume => {
     if (propVolume !== undefined) {
       desiredVolume.set(propVolume)
     }
@@ -46,11 +46,11 @@ view VolumeBars {
   })
 
   const selectedBarIndex = volume.derive(volume => {
-    return Math.ceil(volume * prop.numBars.get()) - 1
+    return Math.ceil(volume * pro.numBars.get()) - 1
   })
 
   const setSelectedBarIndex = (i) => {
-    const userDesiredVolume = (i + 1) / prop.numBars.get()
+    const userDesiredVolume = (i + 1) / pro.numBars.get()
     transact(() => {
       desiredVolume.set(userDesiredVolume)
       lastVolumeSetting.set(userDesiredVolume)
@@ -61,7 +61,7 @@ view VolumeBars {
     view.props.onChange && view.props.onChange({volume})
   })
 
-  <mouseTarget repeat={prop.numBars.get()}
+  <mouseTarget repeat={pro.numBars.get()}
     onMouseEnter={() => hoveringBarIndex.set(_index)}
     onMouseLeave={() => hoveringBarIndex.set(null)}
     onClick={() => setSelectedBarIndex(_index)}
@@ -76,7 +76,7 @@ view VolumeBars {
 
   $mouseTarget = {
     cursor: 'pointer',
-    height: prop.height.get(),
+    height: pro.height.get(),
     justifyContent: 'flex-end'
   }
 
@@ -97,6 +97,6 @@ view VolumeBars {
     width: barWidth.get(),
     height: getBarHeight(_index),
     borderRadius: [barBorderRadius.get()], // , barBorderRadius.get(), 0, 0],
-    marginRight: _index < prop.numBars.get() - 1? spacerWidth.get() : null
+    marginRight: _index < pro.numBars.get() - 1? spacerWidth.get() : null
   }
 }

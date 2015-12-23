@@ -1,5 +1,5 @@
 view AreYouSure {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     children: atom(),
     prompt: atom()
   })
@@ -7,11 +7,11 @@ view AreYouSure {
   const confirming = atom(false)
 
   <normal if={!confirming.get()} onClick={() => confirming.set(true)}>
-    {prop.children.get()}
+    {pro.children.get()}
   </normal>
   <confirming if={confirming.get()}>
     <prompt>
-      {prop.prompt.get() || "Are you sure?"}
+      {pro.prompt.get() || "Are you sure?"}
     </prompt>
     <LinkButton class="yes" onClick={(e) => {
       if (view.props.onClick) {

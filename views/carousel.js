@@ -5,7 +5,7 @@ view Carousel {
     colors: atom()
   })
 
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     children: atom(),
     width: M.defaultAtom(200),
     buttonWidth: M.defaultAtom(40),
@@ -46,10 +46,10 @@ view Carousel {
 
   const buttonStyle = derivation(() => {
     return IMap({
-      width: prop.buttonWidth.get(),
+      width: pro.buttonWidth.get(),
       height: innerHeight.get()
     }).merge(
-      prop.style.get().get('button')
+      pro.style.get().get('button')
     )
   })
 
@@ -57,9 +57,9 @@ view Carousel {
     return buttonStyle.get().merge({
       borderRadius: [8, 0, 0, 8]
     }).merge(
-      hoveringLeft.get()? prop.style.get().get('buttonHover') : undefined
+      hoveringLeft.get()? pro.style.get().get('buttonHover') : undefined
     ).merge(
-      prop.style.get().get('leftButton')
+      pro.style.get().get('leftButton')
     )
   })
 
@@ -67,62 +67,62 @@ view Carousel {
     return buttonStyle.get().merge({
       borderRadius: [0, 8, 8, 0]
     }).merge(
-      hoveringRight.get()? prop.style.get().get('buttonHover') : undefined
+      hoveringRight.get()? pro.style.get().get('buttonHover') : undefined
     ).merge(
-      prop.style.get().get('rightButton')
+      pro.style.get().get('rightButton')
     )
   })
 
 
   const innerWidth = derivation(() => {
-    return prop.width.get() - (
-      prop.showButtons.get()? 2 * prop.buttonWidth.get() : 0
+    return pro.width.get() - (
+      pro.showButtons.get()? 2 * pro.buttonWidth.get() : 0
     )
   })
   const innerHeight = derivation(() => {
-    return prop.height.get()
+    return pro.height.get()
   })
 
-  const desiredIndex = atom(prop.initialSelectedIndex.get() || 0)
+  const desiredIndex = atom(pro.initialSelectedIndex.get() || 0)
 
-  prop.selectedIndex.react(propSelectedIndex => {
+  pro.selectedIndex.react(propSelectedIndex => {
     const inc = (
-      M.util.mod(propSelectedIndex, prop.children.get().length) -
-      M.util.mod(desiredIndex.get(), prop.children.get().length)
+      M.util.mod(propSelectedIndex, pro.children.get().length) -
+      M.util.mod(desiredIndex.get(), pro.children.get().length)
     )
     desiredIndex.set(desiredIndex.get() + inc)
   }, {
-    when: () => prop.selectedIndex.get() != null
+    when: () => pro.selectedIndex.get() != null
   })
 
   const selectedIndex = lens({
-    get: () => M.util.mod(desiredIndex.get(), prop.children.get().length),
+    get: () => M.util.mod(desiredIndex.get(), pro.children.get().length),
     set: val => {
-      if (prop.selectedIndex.get() == null) {
+      if (pro.selectedIndex.get() == null) {
         desiredIndex.set(val)
       }
       view.props.onSelect && view.props.onSelect({
-        selectedIndex: M.util.mod(val, prop.children.get().length)
+        selectedIndex: M.util.mod(val, pro.children.get().length)
       })
     }
   })
 
   const selectedChild = derivation(() => {
-    return prop.children.get()[selectedIndex.get()] || null
+    return pro.children.get()[selectedIndex.get()] || null
   })
 
-  prop.children.react(children => {
+  pro.children.react(children => {
     if (desiredIndex.get() >= children.length) {
-      desiredIndex.set(prop.children.get().length - 1)
+      desiredIndex.set(pro.children.get().length - 1)
     }
   })
 
   const advance = (inc) => {
-    if (prop.wrapMode.get() == 'cylinder') {
+    if (pro.wrapMode.get() == 'cylinder') {
       selectedIndex.set(desiredIndex.get() + inc)
     } else {
       selectedIndex.set(
-        M.util.mod(selectedIndex.get() + inc, prop.children.get().length)
+        M.util.mod(selectedIndex.get() + inc, pro.children.get().length)
       )
     }
   }
@@ -149,13 +149,13 @@ view Carousel {
       transact(() => {
         if (panDeltaX.get() <= -innerWidth.get() / 2) {
           if (
-            prop.wrapMode.get() == 'cylinder' ||
-            selectedIndex.get() < prop.children.get().length - 1
+            pro.wrapMode.get() == 'cylinder' ||
+            selectedIndex.get() < pro.children.get().length - 1
           ) {
             advance(1)
           }
         } else if (panDeltaX.get() >= innerWidth.get() / 2) {
-          if (prop.wrapMode.get() == 'cylinder' || selectedIndex.get() > 0) {
+          if (pro.wrapMode.get() == 'cylinder' || selectedIndex.get() > 0) {
             advance(-1)
           }
         }
@@ -172,8 +172,8 @@ view Carousel {
 
   <leftSection>
     <button class="leftButton"
-      if={prop.showButtons.get() && prop.children.get().length > 1 && (
-        prop.wrapMode.get() || selectedIndex.get() > 0
+      if={pro.showButtons.get() && pro.children.get().length > 1 && (
+        pro.wrapMode.get() || selectedIndex.get() > 0
       )}
       onClick={() => advance(-1)}
       onMouseEnter={() => hoveringLeft.set(true)}
@@ -185,14 +185,14 @@ view Carousel {
   </leftSection>
   <midSection>
     <leftShadow if={
-      prop.shadows.get() && (
-        selectedIndex.get() > 0 || prop.wrapMode.get() == 'cylinder'
+      pro.shadows.get() && (
+        selectedIndex.get() > 0 || pro.wrapMode.get() == 'cylinder'
       )
     } />
     <rightShadow if={
-      prop.shadows.get() && (
-        selectedIndex.get() < prop.children.get().length - 1 ||
-        prop.wrapMode.get() == 'cylinder'
+      pro.shadows.get() && (
+        selectedIndex.get() < pro.children.get().length - 1 ||
+        pro.wrapMode.get() == 'cylinder'
       )
     } />
     <things>
@@ -209,14 +209,14 @@ view Carousel {
 
           const styles = {}
           const start = desiredIndex.get() - (
-            prop.wrapMode.get() == 'cylinder'?
-            prop.children.get().length - 1 :
+            pro.wrapMode.get() == 'cylinder'?
+            pro.children.get().length - 1 :
             selectedIndex.get()
           )
           const end = desiredIndex.get() + (
-            prop.wrapMode.get() == 'cylinder'?
-            prop.children.get().length - 1 :
-            prop.children.get().length - 1 - selectedIndex.get()
+            pro.wrapMode.get() == 'cylinder'?
+            pro.children.get().length - 1 :
+            pro.children.get().length - 1 - selectedIndex.get()
           )
           for (let i = start; i <= end; i++) {
             styles[i] = makeStyle(i)
@@ -233,18 +233,18 @@ view Carousel {
               left: styles[_].x + styles[_].dx
             }}
           >
-            {prop.children.get()[
-              M.util.mod(parseInt(_), prop.children.get().length)
+            {pro.children.get()[
+              M.util.mod(parseInt(_), pro.children.get().length)
             ]}
           </thing>
         }
       </TransitionMotion>
     </things>
-    <dotsSection if={prop.children.get().length > 1}
-      style={prop.style.get().get('dots').toJS()}
+    <dotsSection if={pro.children.get().length > 1}
+      style={pro.style.get().get('dots').toJS()}
     >
-      <Sortable if={prop.sortable.get()}
-        key={prop.children.get().map(c => c.key).join('\n') + '\n' + selectedIndex.get()}
+      <Sortable if={pro.sortable.get()}
+        key={pro.children.get().map(c => c.key).join('\n') + '\n' + selectedIndex.get()}
         onSort={e => {
           if (e.oldIndex < selectedIndex.get()) {
             if (e.newIndex >= selectedIndex.get()) {
@@ -260,19 +260,19 @@ view Carousel {
           view.props.onSort(e)
         }}
       >
-        <dot repeat={prop.children.get()}
+        <dot repeat={pro.children.get()}
           onClick={() => {
             const inc = _index - (
-              M.util.mod(desiredIndex.get(), prop.children.get().length)
+              M.util.mod(desiredIndex.get(), pro.children.get().length)
             )
             selectedIndex.set(desiredIndex.get() + inc)
           }}
         />
       </Sortable>
-      <dot if={!prop.sortable.get()} repeat={prop.children.get()}
+      <dot if={!pro.sortable.get()} repeat={pro.children.get()}
         onClick={() => {
           const inc = _index - (
-            M.util.mod(desiredIndex.get(), prop.children.get().length)
+            M.util.mod(desiredIndex.get(), pro.children.get().length)
           )
           selectedIndex.set(desiredIndex.get() + inc)
         }}
@@ -281,8 +281,8 @@ view Carousel {
   </midSection>
   <rightSection>
     <button class="rightButton"
-      if={prop.showButtons.get() && prop.children.get().length > 1 && (
-        prop.wrapMode.get() || selectedIndex.get() < prop.children.get().length - 1
+      if={pro.showButtons.get() && pro.children.get().length > 1 && (
+        pro.wrapMode.get() || selectedIndex.get() < pro.children.get().length - 1
       )}
       onClick={() => advance(1)}
       onMouseEnter={() => hoveringRight.set(true)}
@@ -299,7 +299,7 @@ view Carousel {
   }
 
   $leftSection = {
-    width: prop.buttonWidth.get()
+    width: pro.buttonWidth.get()
   }
 
   $midSection = {
@@ -336,7 +336,7 @@ view Carousel {
   }
 
   $rightSection = {
-    width: prop.buttonWidth.get()
+    width: pro.buttonWidth.get()
   }
 
   $Sortable = {
@@ -352,7 +352,7 @@ view Carousel {
     background: (_index == selectedIndex.get()?
       context.colors.get().accent : '#999'
     ),
-    cursor: prop.sortable.get()? 'move' : 'pointer'
+    cursor: pro.sortable.get()? 'move' : 'pointer'
   }
 
   $thing = {

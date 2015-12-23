@@ -1,5 +1,5 @@
 view VideoThumbnail {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     videoKey: M.requiredAtom(),
     width: M.defaultAtom(50),
     height: M.defaultAtom(50),
@@ -7,7 +7,7 @@ view VideoThumbnail {
   })
 
   const wistiaId = derivation(() => {
-    return prop.videoKey.get().split('/')[2]
+    return pro.videoKey.get().split('/')[2]
   })
 
   const oEmbedUrl = derivation(() => {
@@ -21,7 +21,7 @@ view VideoThumbnail {
       thumbnailUrl.set(
         videoJson.thumbnail_url.replace(
           /\bimage_crop_resized=(\d+)x(\d+)\b/,
-          `image_crop_resized=${Math.ceil(prop.width.get())}x${Math.ceil(prop.height.get())}`
+          `image_crop_resized=${Math.ceil(pro.width.get())}x${Math.ceil(pro.height.get())}`
         )
       )
     } else {
@@ -36,8 +36,8 @@ view VideoThumbnail {
   <img if={thumbnailUrl.get()} src={thumbnailUrl.get()} />
 
   $ = {
-    width: prop.width.get(),
-    height: prop.height.get(),
+    width: pro.width.get(),
+    height: pro.height.get(),
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center'
@@ -48,8 +48,8 @@ view VideoThumbnail {
   }
 
   $img = {
-    width: prop.width.get(),
-    height: prop.height.get(),
-    borderRadius: prop.circle.get()? '50%' : 8
+    width: pro.width.get(),
+    height: pro.height.get(),
+    borderRadius: pro.circle.get()? '50%' : 8
   }
 }

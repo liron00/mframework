@@ -5,7 +5,7 @@ view Video {
     colors: atom()
   })
 
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     videoKey: M.requiredAtom(),
 
     // Wrapping Wistia config
@@ -38,30 +38,30 @@ view Video {
   })
 
   <WistiaVideo
-    videoKey={prop.videoKey.get()}
-    allowPause={prop.allowPause.get()}
-    allowPlay={prop.allowPlay.get()}
-    autoPlay={prop.autoPlay.get()}
-    controlsVisibleOnLoad={prop.controlsVisibleOnLoad.get()}
-    endVideoBehavior={prop.endVideoBehavior.get()}
-    initialTime={prop.initialTime.get()}
-    initialVolume={prop.initialVolume.get()}
-    playerColor={prop.playerColor.get()}
-    showPlaybar={prop.showPlaybar.get()}
-    showVolume={prop.showVolume.get()}
-    wmode={prop.wmode.get()}
+    videoKey={pro.videoKey.get()}
+    allowPause={pro.allowPause.get()}
+    allowPlay={pro.allowPlay.get()}
+    autoPlay={pro.autoPlay.get()}
+    controlsVisibleOnLoad={pro.controlsVisibleOnLoad.get()}
+    endVideoBehavior={pro.endVideoBehavior.get()}
+    initialTime={pro.initialTime.get()}
+    initialVolume={pro.initialVolume.get()}
+    playerColor={pro.playerColor.get()}
+    showPlaybar={pro.showPlaybar.get()}
+    showVolume={pro.showVolume.get()}
+    wmode={pro.wmode.get()}
 
-    enabled={prop.enabled.get()}
-    smoothVolume={prop.smoothVolume.get()}
+    enabled={pro.enabled.get()}
+    smoothVolume={pro.smoothVolume.get()}
 
-    circle={prop.circle.get()}
-    height={prop.height.get()}
-    width={prop.width.get()}
-    videoStyle={prop.videoStyle.get()}
+    circle={pro.circle.get()}
+    height={pro.height.get()}
+    width={pro.width.get()}
+    videoStyle={pro.videoStyle.get()}
 
-    playing={prop.playing.get()}
-    time={prop.time.get()}
-    volume={prop.volume.get()}
+    playing={pro.playing.get()}
+    time={pro.time.get()}
+    volume={pro.volume.get()}
 
     onTime={view.props.onTime}
     onVideoData={view.props.onVideoData}

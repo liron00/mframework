@@ -5,17 +5,17 @@ view Timestamp {
     fonts: atom()
   })
 
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     timestamp: atom()
   })
 
   const timestampString = atom(
-    moment(prop.timestamp.get()).fromNow()
+    moment(pro.timestamp.get()).fromNow()
   )
 
   on.every(5000, () => {
     timestampString.set(
-      moment(prop.timestamp.get()).fromNow()
+      moment(pro.timestamp.get()).fromNow()
     )
   })
 

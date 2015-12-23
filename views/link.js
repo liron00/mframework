@@ -1,5 +1,5 @@
 view Link {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     to: atom(),
     target: atom(),
     children: atom()
@@ -22,23 +22,23 @@ view Link {
         oldPreventDefault()
       } else {
         if (
-          prop.target.get() != '_blank' &&
+          pro.target.get() != '_blank' &&
           // Flint.router.go can't handle redirecting to another site
-          prop.to.get().indexOf('://') == -1
+          pro.to.get().indexOf('://') == -1
         ) {
           oldPreventDefault()
-          Flint.router.go(prop.to.get())
+          Flint.router.go(pro.to.get())
         }
       }
     }
   }
 
   <link-a
-    href={prop.to.get()}
-    target={prop.target.get()}
+    href={pro.to.get()}
+    target={pro.target.get()}
     onClick={go}
   >
-    {prop.children.get()}
+    {pro.children.get()}
   </link-a>
 
   $ = {

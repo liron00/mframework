@@ -7,7 +7,7 @@ view Slider {
     colors: atom()
   })
 
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     value: atom(),
     values: M.listAtom(),
 
@@ -27,11 +27,11 @@ view Slider {
   })
 
   const barWidth = derivation(() => {
-    return prop.width.get() - prop.handleWidth.get()
+    return pro.width.get() - pro.handleWidth.get()
   })
 
   const values = M.listAtom(
-    prop.values.get() || List([prop.value.get() || 0])
+    pro.values.get() || List([pro.value.get() || 0])
   )
 
   const hovering = atom(false)
@@ -41,12 +41,12 @@ view Slider {
 
   const rangeStyle = derivation(() => {
     return IMap({
-      height: prop.barHeight.get(),
+      height: pro.barHeight.get(),
       background: 'rgba(221, 19, 123, 0.75)',
       borderRadius: 1,
       zIndex: 2
     }).merge(
-      prop.rangeStyle.get()
+      pro.rangeStyle.get()
     )
   })
 
@@ -55,14 +55,14 @@ view Slider {
       background: 'black',
       borderRadius: '50%',
       cursor: 'pointer',
-      height: prop.handleHeight.get(),
-      width: prop.handleWidth.get(),
+      height: pro.handleHeight.get(),
+      width: pro.handleWidth.get(),
       border: 'none',
-      top: prop.barHeight.get() / 2 - prop.handleHeight.get() / 2,
-      marginLeft: -prop.handleWidth.get() / 2 + 2,
+      top: pro.barHeight.get() / 2 - pro.handleHeight.get() / 2,
+      marginLeft: -pro.handleWidth.get() / 2 + 2,
       zIndex: 2
     }).merge(
-      prop.handleStyle.get()
+      pro.handleStyle.get()
     ).merge(
       hovering.get()?
         {
@@ -78,7 +78,7 @@ view Slider {
       cursor: 'pointer',
       borderRadius: 2
     }).merge(
-      prop.barStyle.get()
+      pro.barStyle.get()
     )
   })
 
@@ -86,11 +86,11 @@ view Slider {
   slider.react(slider => {
     if (slider) {
       jQuery(slider).slider({
-        range: prop.range.get(),
-        min: prop.min.get(),
-        max: prop.max.get(),
-        value: prop.value.get(),
-        values: (prop.value.get() == null)? values.get().toJS() : null,
+        range: pro.range.get(),
+        min: pro.min.get(),
+        max: pro.max.get(),
+        value: pro.value.get(),
+        values: (pro.value.get() == null)? values.get().toJS() : null,
         slide: (event, ui) => {
           if (view.props.onSlide) {
             const ret = view.props.onSlide({
@@ -130,12 +130,12 @@ view Slider {
   ])).reactor(styleJQuery).start()
 
   const getLabelContent = (value) => {
-    if (prop.labelContent.get() instanceof Function) {
-      return prop.labelContent.get()(value)
-    } else if (prop.labelContent.get() === true) {
+    if (pro.labelContent.get() instanceof Function) {
+      return pro.labelContent.get()(value)
+    } else if (pro.labelContent.get() === true) {
       return `${value}`
-    } else if (prop.labelContent.get()) {
-      return prop.labelContent.get()
+    } else if (pro.labelContent.get()) {
+      return pro.labelContent.get()
     } else {
       return null
     }
@@ -145,25 +145,25 @@ view Slider {
     onMouseEnter={() => hovering.set(true)}
     onMouseLeave={() => hovering.set(false)}
   >
-    <notch repeat={prop.max.get() - prop.min.get() - 1} />
+    <notch repeat={pro.max.get() - pro.min.get() - 1} />
   </slider>
-  <valueLabelContainer if={prop.labelContent.get()} repeat={values.get()}>
+  <valueLabelContainer if={pro.labelContent.get()} repeat={values.get()}>
     {getLabelContent(_)}
   </valueLabelContainer>
 
   $ = {
-    paddingTop: Math.max(0, (prop.handleHeight.get() - prop.barHeight.get()) / 2) - 2 + (
-      prop.labelContent.get()? prop.labelHeight.get() : 0
+    paddingTop: Math.max(0, (pro.handleHeight.get() - pro.barHeight.get()) / 2) - 2 + (
+      pro.labelContent.get()? pro.labelHeight.get() : 0
     ),
-    paddingBottom: Math.max(0, (prop.handleHeight.get() - prop.barHeight.get()) / 2) - 2,
-    paddingLeft: prop.handleWidth.get() / 2,
-    paddingRight: prop.handleWidth.get() / 2,
+    paddingBottom: Math.max(0, (pro.handleHeight.get() - pro.barHeight.get()) / 2) - 2,
+    paddingLeft: pro.handleWidth.get() / 2,
+    paddingRight: pro.handleWidth.get() / 2,
     position: 'relative'
   }
 
   $slider = {
-    width: prop.width.get() - prop.handleWidth.get(),
-    height: prop.barHeight.get() + 2,
+    width: pro.width.get() - pro.handleWidth.get(),
+    height: pro.barHeight.get() + 2,
     zIndex: 2,
     borderStyle: 'solid',
     borderWidth: 1,
@@ -175,13 +175,13 @@ view Slider {
 
   $notch = {
     position: 'absolute',
-    height: prop.barHeight.get(),
+    height: pro.barHeight.get(),
     width: 2,
     borderLeft: '1px solid rgba(50, 50, 50, 0.5)', //#6e7a8d',
     borderRight: '1px solid rgba(200, 200, 200, 0.5)',
     zIndex: 2,
     left: (
-      barWidth.get() * (_index + 1) / (prop.max.get() - prop.min.get())
+      barWidth.get() * (_index + 1) / (pro.max.get() - pro.min.get())
     )
   }
 
@@ -189,18 +189,18 @@ view Slider {
     flexDirection: 'row',
     position: 'absolute',
     width: 0,
-    justifyContent: prop.centerLabel.get()? 'center' : null,
-    marginTop: -prop.handleHeight.get() / 2 - prop.labelHeight.get(),
-    left: 4 + (prop.centerLabel.get()?
-      (prop.handleWidth.get() / 2 + (
-        (prop.width.get() - prop.handleWidth.get()) *
-        (values.get().get(_index) - prop.min.get()) /
-        (prop.max.get() - prop.min.get())
+    justifyContent: pro.centerLabel.get()? 'center' : null,
+    marginTop: -pro.handleHeight.get() / 2 - pro.labelHeight.get(),
+    left: 4 + (pro.centerLabel.get()?
+      (pro.handleWidth.get() / 2 + (
+        (pro.width.get() - pro.handleWidth.get()) *
+        (values.get().get(_index) - pro.min.get()) /
+        (pro.max.get() - pro.min.get())
       ))
     :
-      (prop.width.get() - prop.handleWidth.get()) *
-      (values.get().get(_index) - prop.min.get()) /
-      (prop.max.get() - prop.min.get())
+      (pro.width.get() - pro.handleWidth.get()) *
+      (values.get().get(_index) - pro.min.get()) /
+      (pro.max.get() - pro.min.get())
     ),
     fontSize: 13,
     whiteSpace: 'nowrap'

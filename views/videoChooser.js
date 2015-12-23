@@ -1,5 +1,5 @@
 view VideoChooser {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     initialVideoKey: M.defaultAtom(null),
     editable: M.defaultAtom(true),
     circle: M.defaultAtom(false),
@@ -14,7 +14,7 @@ view VideoChooser {
     children: atom()
   })
 
-  const videoKey = atom(prop.initialVideoKey.get())
+  const videoKey = atom(pro.initialVideoKey.get())
 
   const workingVideoKey = atom(null)
 
@@ -25,7 +25,7 @@ view VideoChooser {
   })
 
   videoKey.react(videoKey => {
-    if (prop.editable.get() && !videoKey) {
+    if (pro.editable.get() && !videoKey) {
       editing.set(true)
     }
   })
@@ -62,23 +62,23 @@ view VideoChooser {
     />
   </editSection>
   <noVideo if={!videoKey.get()}
-    style={prop.noVideoStyle.get()}
+    style={pro.noVideoStyle.get()}
   >
   </noVideo>
   <Video if={
-    (!editing.get() && videoKey.get() && !prop.children.get()) ||
+    (!editing.get() && videoKey.get() && !pro.children.get()) ||
     (editing.get() && previewVideoKey.get())
   }
     videoKey={previewVideoKey.get()}
-    width={prop.width.get()}
-    height={prop.height.get()}
-    circle={prop.circle.get()}
-    videoStyle={prop.videoStyle.get()}
+    width={pro.width.get()}
+    height={pro.height.get()}
+    circle={pro.circle.get()}
+    videoStyle={pro.videoStyle.get()}
   />
-  <customViewMode if={!editing.get() && videoKey.get() && prop.children.get()}>
-    {prop.children.get()}
+  <customViewMode if={!editing.get() && videoKey.get() && pro.children.get()}>
+    {pro.children.get()}
   </customViewMode>
-  <actionRow if={prop.editable.get() && !editing.get()}>
+  <actionRow if={pro.editable.get() && !editing.get()}>
     <EditLink onClick={() => editing.set(true)} />
     <DeleteButton if={videoKey.get()} onClick={() => {
       workingVideoKey.set(null)
@@ -87,12 +87,12 @@ view VideoChooser {
   </actionRow>
 
   $inpVideoKey = {
-    width: prop.width.get()
+    width: pro.width.get()
   }
 
   $actionRow = {
     flexDirection: 'row',
-    width: prop.width.get(),
+    width: pro.width.get(),
     justifyContent: 'space-around'
   }
 }

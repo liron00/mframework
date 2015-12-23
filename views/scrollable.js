@@ -1,5 +1,5 @@
 view Scrollable {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     autoBottom: M.defaultAtom(false),
     children: atom()
   })
@@ -25,7 +25,7 @@ view Scrollable {
   })
 
   scrollHeight.react(scrollHeight => {
-    if (elem.get() && prop.autoBottom.get() && (
+    if (elem.get() && pro.autoBottom.get() && (
       scrollHeightAfterAuto.get() == undefined || (
         scrollHeight > scrollHeightAfterAuto.get() &&
         scrollTop.get() >= scrollTopAfterAuto.get() - 5
@@ -57,7 +57,7 @@ view Scrollable {
     }}
   >
     <scrollContent>
-      {prop.children.get()}
+      {pro.children.get()}
     </scrollContent>
   </scrollable>
   <topShadow />

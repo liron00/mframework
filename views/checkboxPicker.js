@@ -6,15 +6,15 @@
 */
 
 view CheckboxPicker {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     options: atom(),
     initialValues: M.listAtom([]),
     values: M.listAtom()
   })
 
-  const selectedValues = atom(prop.initialValues.get())
+  const selectedValues = atom(pro.initialValues.get())
 
-  prop.values.react(values => {
+  pro.values.react(values => {
     if (values != null) {
       selectedValues.set(values)
     }
@@ -37,7 +37,7 @@ view CheckboxPicker {
   }
 
   <content>
-    <label repeat={prop.options.get()}>
+    <label repeat={pro.options.get()}>
       <input type="checkbox"
         value={_.value}
         checked={selectedValues.get().indexOf(_.value) >= 0}

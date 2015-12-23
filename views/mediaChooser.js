@@ -3,7 +3,7 @@ view MediaChooser {
     isAdmin: atom()
   })
 
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     initialMediaKey: M.defaultAtom(null),
     editable: M.defaultAtom(false),
     width: M.defaultAtom(300),
@@ -18,7 +18,7 @@ view MediaChooser {
     children: atom()
   })
 
-  const mediaKey = atom(prop.initialMediaKey.get())
+  const mediaKey = atom(pro.initialMediaKey.get())
   mediaKey.reactor(mediaKey => {
     if (view.props.onSelect) {
       view.props.onSelect({mediaKey})
@@ -36,33 +36,33 @@ view MediaChooser {
 
   <PicChooser if={!videoKey.get()}
     initialPicKey={picKey.get()}
-    editable={prop.editable.get()}
-    width={prop.width.get()}
-    height={prop.height.get()}
-    circle={prop.circle.get()}
-    picStyle={prop.mediaStyle.get()}
-    noPicStyle={prop.noMediaStyle.get()}
-    zoomable={prop.zoomable.get()}
+    editable={pro.editable.get()}
+    width={pro.width.get()}
+    height={pro.height.get()}
+    circle={pro.circle.get()}
+    picStyle={pro.mediaStyle.get()}
+    noPicStyle={pro.noMediaStyle.get()}
+    zoomable={pro.zoomable.get()}
     onSelect={e => picKey.set(e.picKey)}
   >
-    {prop.children.get()}
+    {pro.children.get()}
   </PicChooser>
   <VideoChooser if={!picKey.get()}
     initialVideoKey={videoKey.get()}
     editable={
-      prop.editable.get()
+      pro.editable.get()
 
       // Only admins can edit video media right now because the UI is crude
       && context.isAdmin.get()
     }
-    circle={prop.circle.get()}
-    width={prop.width.get()}
-    height={prop.height.get()}
-    videoStyle={prop.mediaStyle.get()}
-    noVideoStyle={prop.noMediaStyle.get()}
-    zoomable={prop.zoomable.get()}
+    circle={pro.circle.get()}
+    width={pro.width.get()}
+    height={pro.height.get()}
+    videoStyle={pro.mediaStyle.get()}
+    noVideoStyle={pro.noMediaStyle.get()}
+    zoomable={pro.zoomable.get()}
     onSelect={e => videoKey.set(e.videoKey)}
   >
-    {prop.children.get()}
+    {pro.children.get()}
   </VideoChooser>
 }

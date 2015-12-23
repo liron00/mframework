@@ -3,15 +3,15 @@ view Tabs {
     colors: atom()
   })
 
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     options: M.listAtom(),
     initialSelectedValue: atom(),
     selectedValue: atom(),
     style: M.mapAtom({})
   })
 
-  const selectedValue = atom(prop.initialSelectedValue.get())
-  prop.selectedValue.react(propSelectedValue => {
+  const selectedValue = atom(pro.initialSelectedValue.get())
+  pro.selectedValue.react(propSelectedValue => {
     if (propSelectedValue !== undefined) {
       selectedValue.set(propSelectedValue)
     }
@@ -21,14 +21,14 @@ view Tabs {
     if (selectedValue == null) {
       return -1
     }
-    return prop.options.get().findIndex(selectedValue.get())
+    return pro.options.get().findIndex(selectedValue.get())
   })
 
   selectedValue.reactor(selectedValue => {
     if (view.props.onSelect) view.props.onSelect({value: selectedValue})
   }).start()
 
-  <tab repeat={prop.options.get()}
+  <tab repeat={pro.options.get()}
     onClick={() => selectedValue.set(_.value)}
     style={IMap({
       background: selectedValue.get() == _.value? 'white': '#ececf0',
@@ -51,7 +51,7 @@ view Tabs {
       zIndex: 1,
       top: 1
     }).merge(
-      prop.style.get().get('tab') || {}
+      pro.style.get().get('tab') || {}
     ).toJS()}
   >
     {_.label}

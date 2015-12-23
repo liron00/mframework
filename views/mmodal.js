@@ -1,7 +1,7 @@
 import ReactModal from 'react-modal'
 
 view MModal {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     contentStyle: M.mapAtom({}),
     overlayStyle: M.mapAtom({}),
     isOpen: M.defaultAtom(true),
@@ -10,7 +10,7 @@ view MModal {
 
   <ReactModal if={false}
     appElement={document.getElementById('_flintapp')}
-    isOpen={prop.isOpen.get()}
+    isOpen={pro.isOpen.get()}
     onRequestClose={view.props.onRequestClose}
     style={{
       content: IMap({
@@ -21,18 +21,18 @@ view MModal {
         position: null,
         display: 'flex',
         overflow: 'auto'
-      }).merge(prop.contentStyle.get()).toJS(),
+      }).merge(pro.contentStyle.get()).toJS(),
       overlay: IMap({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         overflow: null,
         zIndex: 100
-      }).merge(prop.overlayStyle.get()).toJS()
+      }).merge(pro.overlayStyle.get()).toJS()
     }}
   >
     <hack id="_flintapp">
-      {prop.children.get()}
+      {pro.children.get()}
     </hack>
   </ReactModal>
 

@@ -1,5 +1,5 @@
 view PicChooser {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     initialPicKey: M.defaultAtom(null),
     editable: M.defaultAtom(true),
     circle: M.defaultAtom(false),
@@ -14,17 +14,17 @@ view PicChooser {
 
   const noPicStyle = derivation(() => {
     return IMap({
-      width: prop.width.get(),
-      height: prop.height.get(),
+      width: pro.width.get(),
+      height: pro.height.get(),
       alignItems: 'center',
       justifyContent: 'center',
       background: 'white',
       border: '1px dashed #ccc',
-      borderRadius: prop.circle.get()? '50%' : 8
-    }).merge(prop.noPicStyle.get())
+      borderRadius: pro.circle.get()? '50%' : 8
+    }).merge(pro.noPicStyle.get())
   })
 
-  const picKey = atom(prop.initialPicKey.get())
+  const picKey = atom(pro.initialPicKey.get())
   const pendingFbPhoto = atom(null)
 
   picKey.reactor(picKey => {
@@ -57,16 +57,16 @@ view PicChooser {
     })
   }
 
-  <uploadSection if={prop.allowUpload.get()}>
+  <uploadSection if={pro.allowUpload.get()}>
     <UploadPicChooser
-      initialPicKey={prop.initialPicKey.get()}
-      editable={prop.editable.get()}
-      width={prop.width.get()}
-      height={prop.height.get()}
-      zoomable={prop.zoomable.get()}
-      circle={prop.circle.get()}
-      picStyle={prop.picStyle.get()}
-      noPicStyle={prop.noPicStyle.get()}
+      initialPicKey={pro.initialPicKey.get()}
+      editable={pro.editable.get()}
+      width={pro.width.get()}
+      height={pro.height.get()}
+      zoomable={pro.zoomable.get()}
+      circle={pro.circle.get()}
+      picStyle={pro.picStyle.get()}
+      noPicStyle={pro.noPicStyle.get()}
       onSelect={e => picKey.set(e.picKey)}
     >
       <fromUpload>
@@ -75,18 +75,18 @@ view PicChooser {
       </fromUpload>
     </UploadPicChooser>
   </uploadSection>
-  <orSection if={prop.allowUpload.get() && prop.allowFacebook.get()}>
+  <orSection if={pro.allowUpload.get() && pro.allowFacebook.get()}>
     or
   </orSection>
-  <facebookSection if={prop.allowFacebook.get()}>
+  <facebookSection if={pro.allowFacebook.get()}>
     <FacebookPhotoChooser
       if={!pendingFbPhoto.get()}
-      editable={prop.editable.get()}
-      width={prop.width.get()}
-      height={prop.height.get()}
-      circle={prop.circle.get()}
-      picStyle={prop.picStyle.get()}
-      noPicStyle={prop.noPicStyle.get()}
+      editable={pro.editable.get()}
+      width={pro.width.get()}
+      height={pro.height.get()}
+      circle={pro.circle.get()}
+      picStyle={pro.picStyle.get()}
+      noPicStyle={pro.noPicStyle.get()}
       onSelect={({photo}) => selectFbPhoto(photo)}
     >
       <fromFacebook>
@@ -106,8 +106,8 @@ view PicChooser {
   }
 
   $fbLoading = {
-    width: prop.width.get(),
-    height: prop.height.get(),
+    width: pro.width.get(),
+    height: pro.height.get(),
     border: '1px dashed #ccc',
     alignItems: 'center',
     justifyContent: 'center'

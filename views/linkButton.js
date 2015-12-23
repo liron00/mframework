@@ -1,5 +1,5 @@
 view LinkButton {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     children: atom(),
     style: M.defaultAtom({})
   })
@@ -8,9 +8,9 @@ view LinkButton {
     style={IMap({
       cursor: 'pointer',
       color: 'black'
-    }).merge(prop.style.get()).toJS()}
+    }).merge(pro.style.get()).toJS()}
     onClick={view.props.onClick}
   >
-    {prop.children.get()}
+    {pro.children.get()}
   </linkButton>
 }

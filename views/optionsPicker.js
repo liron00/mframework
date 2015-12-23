@@ -6,7 +6,7 @@
 */
 
 view OptionsPicker {
-  const prop = initProp(view, {
+  const pro = initPro(view, {
     innerStyle: M.mapAtom({}),
     options: M.listAtom(),
     initialValues: M.listAtom([]),
@@ -14,9 +14,9 @@ view OptionsPicker {
     values: M.listAtom()
   })
 
-  const selectedValues = atom(prop.initialValues.get())
+  const selectedValues = atom(pro.initialValues.get())
 
-  prop.values.react(values => {
+  pro.values.react(values => {
     if (values != null) {
       selectedValues.set(values)
     }
@@ -33,12 +33,12 @@ view OptionsPicker {
     if (selected) {
       if (index == -1) {
         if (
-          prop.limit.get() == null ||
-          selectedValues.get().size < prop.limit.get()
+          pro.limit.get() == null ||
+          selectedValues.get().size < pro.limit.get()
         ) {
           selectedValues.set(selectedValues.get().push(value).sort(M.util.compare))
 
-        } else if (prop.limit.get() == 1) {
+        } else if (pro.limit.get() == 1) {
           selectedValues.set(List([value]))
         }
       }
@@ -51,7 +51,7 @@ view OptionsPicker {
 
   const hoveringIndex = atom(-1)
 
-  <FilterOption repeat={prop.options.get()}
+  <FilterOption repeat={pro.options.get()}
     selected={selectedValues.get().indexOf(_.value) >= 0}
     onChange={e => onChange(_.value, e.selected)}
     onHover={e => hoveringIndex.set(e.hovering? _index : -1)}
@@ -60,7 +60,7 @@ view OptionsPicker {
         padding: [4, 8],
         margin: 4
       }).merge(
-        prop.innerStyle.get()
+        pro.innerStyle.get()
       ).merge(
         selectedValues.get().size?
           null :
