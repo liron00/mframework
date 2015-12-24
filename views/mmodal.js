@@ -8,7 +8,7 @@ view MModal {
     children: atom()
   })
 
-  <ReactModal if={false}
+  <ReactModal
     appElement={document.getElementById('_flintapp')}
     isOpen={pro.isOpen.get()}
     onRequestClose={view.props.onRequestClose}

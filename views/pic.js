@@ -38,7 +38,7 @@ view Pic {
       ).toJS()
     }
     onClick={e => {
-      if (view.props.zoomable) {
+      if (pro.zoomable.get()) {
         zoomedIn.set(true)
       }
       view.props.onClick && view.props.onClick(e)
