@@ -51,12 +51,15 @@ view FacebookPhotoChooser {
   <MModal if={showingFbPhotos.get()}
     onRequestClose={() => showingFbPhotos.set(false)}
     contentStyle={{
-      margin: 100,
-      flexGrow: 1
+      margin: 50,
+      flexGrow: 1,
+      border: '1px solid #ccc',
+      orderRadius: 8
     }}
     overlayStyle={{
       alignItems: 'stretch',
-      justifyContent: 'stretch'
+      justifyContent: 'stretch',
+      background: 'white'
     }}
   >
     <topRow>
