@@ -49,6 +49,7 @@ view TextBox {
       if (inp.get()) {
         inp.get().value = value
       }
+      valueFromUser.set(value)
     }
   })
 

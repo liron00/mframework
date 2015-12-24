@@ -60,28 +60,30 @@ view Blank {
   const str = atom(valueToString(value.get()))
 
   const autoSaving = atom(false)
+
   str.react(str => {
     workingValue.set(stringToValue(str))
-    if (pro.autoSaveOnCharCount.get()) {
-      if (
-        workingValue.get() != null &&
-        valueToString(workingValue.get()) == str &&
-        str.length >= pro.autoSaveOnCharCount.get()
-      ) {
-        save()
-      }
+  }, {
+    when: editing
+  })
+
+  workingValue.react(workingValue => {
+    if (
+      workingValue != null &&
+      valueToString(workingValue) == str.get() &&
+      str.get().length >= pro.autoSaveOnCharCount.get()
+    ) {
+      save()
     }
   }, {
-    when: autoSaving
+    when: () => {return pro.autoSaveOnCharCount.get() && autoSaving.get()}
   })
 
   editing.react(editing => {
     if (editing) {
+      autoSaving.set(false)
       workingValue.set(value.get())
       str.set(valueToString(workingValue.get()))
-      autoSaving.set(true)
-    } else {
-      autoSaving.set(false)
     }
   })
 
@@ -106,7 +108,15 @@ view Blank {
       view.props.onChange({value: nextValue})
     }
 
-    editing.set(false)
+    if (pro.value.get() === undefined) {
+      editing.set(false)
+    } else {
+      // In controlled-component mode, give props time to change the value
+      // shown in view mode.
+      on.delay(100, () => {
+        editing.set(false)
+      })
+    }
   }
 
   <TextBox
@@ -143,7 +153,16 @@ view Blank {
       pro.inpStyle.get().toJS()
     )}
     placeholder={pro.placeholder.get()}
-    onChange={e => {if (editing.get()) str.set(e.value)}}
+    onChange={e => {
+      if (editing.get()) {
+        str.set(e.value)
+      }
+    }}
+    onKeyDown={e => {
+      on.delay(1, () => {
+        autoSaving.set(true)
+      })
+    }}
     onEnter={() => {if (editing.get()) save()}}
     onEscape={() => {if (editing.get()) editing.set(false)}}
     onBlur={() => {if (editing.get()) save()}}
