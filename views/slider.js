@@ -18,12 +18,24 @@ view Slider {
     handleHeight: M.defaultAtom(14),
     labelContent: atom(),
     labelHeight: M.defaultAtom(26),
+    notchInterval: M.defaultAtom(1),
     centerLabel: M.defaultAtom(true),
     barHeight: M.defaultAtom(8),
-    range: M.defaultAtom(false), // true, fale, 'min', 'max'
+    range: M.defaultAtom(false), // true, false, 'min', 'max'
     rangeStyle: M.mapAtom({}),
     handleStyle: M.mapAtom({}),
     barStyle: M.mapAtom({}),
+  })
+
+  const numNotches = derivation(() => {
+    if (pro.notchInterval.get()) {
+      return Math.max(
+        0,
+        Math.round((pro.max.get() - pro.min.get()) / pro.notchInterval.get() - 1)
+      )
+    } else {
+      return 0
+    }
   })
 
   const barWidth = derivation(() => {
@@ -33,6 +45,9 @@ view Slider {
   const values = M.listAtom(
     pro.values.get() || List([pro.value.get() || 0])
   )
+  values.react(values => {
+    console.log('values', values.toJS())
+  })
 
   const hovering = atom(false)
   hovering.reactor(hovering => {
@@ -145,7 +160,7 @@ view Slider {
     onMouseEnter={() => hovering.set(true)}
     onMouseLeave={() => hovering.set(false)}
   >
-    <notch repeat={pro.max.get() - pro.min.get() - 1} />
+    <notch repeat={Math.max(0, Math.round((pro.max.get() - pro.min.get()) / pro.notchInterval.get() - 1))} />
   </slider>
   <valueLabelContainer if={pro.labelContent.get()} repeat={values.get()}>
     {getLabelContent(_)}
@@ -181,7 +196,7 @@ view Slider {
     borderRight: '1px solid rgba(200, 200, 200, 0.5)',
     zIndex: 2,
     left: (
-      barWidth.get() * (_index + 1) / (pro.max.get() - pro.min.get())
+      barWidth.get() * (_index + 1) / numNotches.get()
     )
   }
 
