@@ -14,12 +14,6 @@ view UploadPicChooser {
   const picKey = atom(pro.initialPicKey.get())
   const uploading = atom(false)
 
-  picKey.reactor(picKey => {
-    if (view.props.onSelect) {
-      view.props.onSelect({picKey})
-    }
-  }).start()
-
   const noPicStyle = derivation(() => {
     return IMap({
       width: pro.width.get(),
@@ -52,7 +46,14 @@ view UploadPicChooser {
     <S3Uploader if={pro.editable.get() && !picKey.get() && !uploading.get()}
       accept="image/*"
       onStartUpload={() => uploading.set(true)}
-      onUploaded={({s3Key}) => {uploading.set(false); picKey.set(s3Key)}}
+      onUploaded={e => {
+        uploading.set(false)
+        picKey.set(e.s3Key)
+        if (view.props.onSelect) {
+          view.props.onSelect({picKey: e.s3Key})
+        }
+        M.mixpanel.track("UploadPicChooserSelect", {picKey: e.s3Key})
+      }}
     >
       <noPic style={noPicStyle.get().toJS()}>
         {pro.children.get()}

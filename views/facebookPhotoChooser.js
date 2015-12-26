@@ -11,18 +11,20 @@ view FacebookPhotoChooser {
   const showingFbPhotos = atom(false)
   const selectedPhoto = M.mapAtom(null)
 
-  selectedPhoto.reactor(selectedPhoto => {
+  selectedPhoto.react(selectedPhoto => {
     if (view.props.onSelect) {
       view.props.onSelect({photo: selectedPhoto.toJS()})
     }
-  }).start()
+  }, {skipFirst: true})
 
   const showFbPhotos = () => {
     FB.login(response => {
       if (response.authResponse) {
         showingFbPhotos.set(true)
+        M.mixpanel.track("FacebookPhotoChooserView")
       } else {
         console.log("Denied Facebook photos permission.")
+        M.mixpanel.track("FacebookPhotoChooserPermissionDenied")
       }
     }, {
       scope: 'user_photos'
@@ -49,7 +51,10 @@ view FacebookPhotoChooser {
     {pro.children.get()}
   </noPhoto>
   <MModal if={showingFbPhotos.get()}
-    onRequestClose={() => showingFbPhotos.set(false)}
+    onRequestClose={() => {
+      showingFbPhotos.set(false)
+      M.mixpanel.track("FacebookPhotoChooserCancel")
+    }}
     contentStyle={{
       margin: 50,
       flexGrow: 1,
@@ -67,12 +72,16 @@ view FacebookPhotoChooser {
         Choose a Facebook photo.
       </tip>
       <CancelLink class="cancelModal"
-        onClick={() => showingFbPhotos.set(false)}
+        onClick={() => {
+          showingFbPhotos.set(false)
+          M.mixpanel.track("FacebookPhotoChooserCancel")
+        }}
       />
     </topRow>
     <FacebookPhotos onSelect={({photo}) => {
       selectedPhoto.set(photo)
       showingFbPhotos.set(false)
+      M.mixpanel.track("FacebookPhotoChooserSelect")
     }} />
   </MModal>
 
