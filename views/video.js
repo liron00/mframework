@@ -63,6 +63,7 @@ view Video {
     time={pro.time.get()}
     volume={pro.volume.get()}
 
+    onEnd={view.props.onEnd}
     onTime={view.props.onTime}
     onVideoData={view.props.onVideoData}
   />

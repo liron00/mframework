@@ -31,7 +31,7 @@ view Slider {
     if (pro.notchInterval.get()) {
       return Math.max(
         0,
-        Math.round((pro.max.get() - pro.min.get()) / pro.notchInterval.get() - 1)
+        Math.floor((pro.max.get() - pro.min.get()) / pro.notchInterval.get() - 1)
       )
     } else {
       return 0
@@ -45,9 +45,6 @@ view Slider {
   const values = M.listAtom(
     pro.values.get() || List([pro.value.get() || 0])
   )
-  values.react(values => {
-    console.log('values', values.toJS())
-  })
 
   const hovering = atom(false)
   hovering.reactor(hovering => {
@@ -125,6 +122,10 @@ view Slider {
     }
   })
 
+  pro.value.react(propValue => {
+    jQuery(slider.get()).slider({value: propValue})
+  }, {when: () => pro.value.get() != null && slider.get()})
+
   const styleJQuery = () => {
     if (!slider.get()) return
 
@@ -157,10 +158,13 @@ view Slider {
   }
 
   <slider ref={elem => slider.set(elem)}
+    onClick={view.props.onClick}
+    onMouseDown={view.props.onMouseDown}
+    onMouseUp={view.props.onMouseUp}
     onMouseEnter={() => hovering.set(true)}
     onMouseLeave={() => hovering.set(false)}
   >
-    <notch repeat={Math.max(0, Math.round((pro.max.get() - pro.min.get()) / pro.notchInterval.get() - 1))} />
+    <notch repeat={numNotches.get()} />
   </slider>
   <valueLabelContainer if={pro.labelContent.get()} repeat={values.get()}>
     {getLabelContent(_)}
@@ -196,7 +200,7 @@ view Slider {
     borderRight: '1px solid rgba(200, 200, 200, 0.5)',
     zIndex: 2,
     left: (
-      barWidth.get() * (_index + 1) / numNotches.get()
+      barWidth.get() * (_index + 1) / (numNotches.get() + 1)
     )
   }
 

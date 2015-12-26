@@ -106,17 +106,17 @@ view WistiaVideo {
 
   wistiaTime.reactor(wistiaTime => {
     time.set(wistiaTime)
+
+    if (view.props.onTime) {
+      view.props.onTime({time: wistiaTime})
+    }
   }).start()
 
   time.react(time => {
     if (wistia.get()) {
-      if (Math.abs(time - wistiaTime.get()) > 0.25) {
+      if (wistiaTime.get() === undefined || Math.abs(time - wistiaTime.get()) > 0.25) {
         wistia.get().time(time)
       }
-    }
-
-    if (view.props.onTime) {
-      view.props.onTime({time})
     }
   })
 
@@ -176,7 +176,12 @@ view WistiaVideo {
       if (playing.get()) {
         // Since our state would have had the video keep playing, this must
         // be a user-triggered event.
-        if (pro.allowPause.get()) {
+        if (duration.get() && time.get() >= duration.get() - 0.5) {
+          // Ignore this because it's probably justfrom the video ending
+          return
+        }
+
+        if (pro.allowPause.get() && !pro.playing.get()) {
           wantToPlay.set(false)
         } else {
           wistia.play()
@@ -194,6 +199,12 @@ view WistiaVideo {
 
     wistia.bind('timechange', t => {
       wistiaTime.set(t)
+    })
+
+    wistia.bind('end', () => {
+      if (view.props.onEnd) {
+        view.props.onEnd()
+      }
     })
   }).start()
 
