@@ -23,7 +23,10 @@ view Link {
         oldPreventDefault()
       } else {
         if (pro.track.get()) {
-          M.mixpanel.track("LinkClick", {to: pro.to.get()})
+          M.mixpanel.track("LinkClick", {
+            to: pro.to.get(),
+            linkId: pro.track.get() === true? null : pro.track.get()
+          })
         }
 
         if (
