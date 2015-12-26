@@ -44,6 +44,9 @@ view VolumeBars {
       lastVolumeSetting.get() :
       desiredVolume.get()
   })
+  volume.react(initialVolume => {
+    view.props.onInit && view.props.onInit({volume: initialVolume})
+  }, {once: true})
 
   const selectedBarIndex = volume.derive(volume => {
     return Math.ceil(volume * pro.numBars.get()) - 1
@@ -55,11 +58,10 @@ view VolumeBars {
       desiredVolume.set(userDesiredVolume)
       lastVolumeSetting.set(userDesiredVolume)
     })
+    if (view.props.onChange) {
+      view.props.onChange({volume: volume.get()})
+    }
   }
-
-  volume.react(volume => {
-    view.props.onChange && view.props.onChange({volume})
-  })
 
   <mouseTarget repeat={pro.numBars.get()}
     onMouseEnter={() => hoveringBarIndex.set(_index)}
