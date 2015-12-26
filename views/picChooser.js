@@ -68,6 +68,8 @@ view PicChooser {
       picStyle={pro.picStyle.get()}
       noPicStyle={pro.noPicStyle.get()}
       onSelect={e => picKey.set(e.picKey)}
+      onZoomIn={view.props.onZoomIn}
+      onZoomOut={view.props.onZoomOut}
     >
       <fromUpload>
         <img class="computerIcon" src="/images/computerIconGray.png" />

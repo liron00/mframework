@@ -40,6 +40,11 @@ view Pic {
     onClick={e => {
       if (pro.zoomable.get()) {
         zoomedIn.set(true)
+        if (zoomedIn.get() && view.props.onZoomIn) {
+          view.props.onZoomIn({})
+        } else if (!zoomedIn.get() && view.props.onZoomOut) {
+          view.props.onZoomOut({})
+        }
       }
       view.props.onClick && view.props.onClick(e)
     }}

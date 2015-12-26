@@ -44,6 +44,8 @@ view MediaChooser {
     noPicStyle={pro.noMediaStyle.get()}
     zoomable={pro.zoomable.get()}
     onSelect={e => picKey.set(e.picKey)}
+    onZoomIn={view.props.onZoomIn}
+    onZoomOut={view.props.onZoomOut}
   >
     {pro.children.get()}
   </PicChooser>
@@ -62,6 +64,8 @@ view MediaChooser {
     noVideoStyle={pro.noMediaStyle.get()}
     zoomable={pro.zoomable.get()}
     onSelect={e => videoKey.set(e.videoKey)}
+    onZoomIn={view.props.onZoomIn}
+    onZoomOut={view.props.onZoomOut}
   >
     {pro.children.get()}
   </VideoChooser>

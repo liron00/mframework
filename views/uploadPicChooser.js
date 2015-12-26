@@ -37,6 +37,8 @@ view UploadPicChooser {
       picKey={picKey.get()}
       faces={true}
       zoomable={pro.zoomable.get()}
+      onZoomIn={view.props.onZoomIn}
+      onZoomOut={view.props.onZoomOut}
       style={
         IMap({
           width: pro.width.get(),
