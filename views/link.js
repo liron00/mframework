@@ -2,7 +2,8 @@ view Link {
   const pro = initPro(view, {
     to: atom(),
     target: atom(),
-    children: atom()
+    children: atom(),
+    track: M.defaultAtom(true)
   })
 
   const go = (e) => {
@@ -21,6 +22,10 @@ view Link {
       if (defaultPrevented) {
         oldPreventDefault()
       } else {
+        if (pro.track.get()) {
+          M.mixpanel.track("LinkClick", {to: pro.to.get()})
+        }
+
         if (
           pro.target.get() != '_blank' &&
           // Flint.router.go can't handle redirecting to another site
