@@ -74,13 +74,13 @@ view Slider {
       marginLeft: -pro.handleWidth.get() / 2 + 2,
       zIndex: 2
     }).merge(
-      pro.handleStyle.get()
-    ).merge(
       hovering.get()?
         {
           background: 'black'
         } :
         null
+    ).merge(
+      pro.handleStyle.get()
     )
   })
 
