@@ -107,6 +107,10 @@ view Carousel {
     }
   })
 
+  selectedIndex.react(selectedIndex => {
+    M.mixpanel.track("CarouselThingView", {selectedIndex})
+  })
+
   const selectedChild = derivation(() => {
     return pro.children.get()[selectedIndex.get()] || null
   })
@@ -117,7 +121,7 @@ view Carousel {
     }
   })
 
-  const advance = (inc) => {
+  const advance = (inc, inputMethod) => {
     if (pro.wrapMode.get() == 'cylinder') {
       selectedIndex.set(desiredIndex.get() + inc)
     } else {
@@ -125,6 +129,8 @@ view Carousel {
         M.util.mod(selectedIndex.get() + inc, pro.children.get().length)
       )
     }
+
+    M.mixpanel.track("CarouselAdvance", {inc, inputMethod})
   }
 
   const panning = atom(false)
@@ -152,11 +158,11 @@ view Carousel {
             pro.wrapMode.get() == 'cylinder' ||
             selectedIndex.get() < pro.children.get().length - 1
           ) {
-            advance(1)
+            advance(1, 'swipe')
           }
         } else if (panDeltaX.get() >= innerWidth.get() / 2) {
           if (pro.wrapMode.get() == 'cylinder' || selectedIndex.get() > 0) {
-            advance(-1)
+            advance(-1, 'swipe')
           }
         }
 
@@ -175,7 +181,7 @@ view Carousel {
       if={pro.showButtons.get() && pro.children.get().length > 1 && (
         pro.wrapMode.get() || selectedIndex.get() > 0
       )}
-      onClick={() => advance(-1)}
+      onClick={() => advance(-1, 'button')}
       onMouseEnter={() => hoveringLeft.set(true)}
       onMouseLeave={() => hoveringLeft.set(false)}
       style={leftButtonStyle.get().toJS()}
@@ -275,6 +281,7 @@ view Carousel {
             M.util.mod(desiredIndex.get(), pro.children.get().length)
           )
           selectedIndex.set(desiredIndex.get() + inc)
+          M.mixpanel.track("CarouselDotClick", {dotIndex: _index})
         }}
       />
     </dotsSection>
@@ -284,7 +291,7 @@ view Carousel {
       if={pro.showButtons.get() && pro.children.get().length > 1 && (
         pro.wrapMode.get() || selectedIndex.get() < pro.children.get().length - 1
       )}
-      onClick={() => advance(1)}
+      onClick={() => advance(1, 'button')}
       onMouseEnter={() => hoveringRight.set(true)}
       onMouseLeave={() => hoveringRight.set(false)}
       style={rightButtonStyle.get().toJS()}
