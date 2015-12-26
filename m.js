@@ -3,6 +3,7 @@ import immutable from 'immutable'
 import Firebase from 'firebase'
 const Fireproof = require('fireproof')
 Fireproof.bless(Promise)
+import mixpanel from 'mixpanel-browser'
 
 import config from '../config'
 import records from '../records'
@@ -13,9 +14,11 @@ window.M = M
 
 const firebase = new Firebase(`https://${config.firebaseAppName}.firebaseio.com`)
 const ref = new Fireproof(firebase)
+mixpanel.init(config.mixpanelToken)
 
 Object.assign(M, {
   config,
+  mixpanel,
   ref,
   records,
   util
@@ -223,6 +226,13 @@ Object.assign(M, {
             fbAccessToken: response.authResponse.accessToken
           }
         }).then(apiResponse => {
+          if (apiResponse.isNew) {
+            M.mixpanel.alias(apiResponse.uid)
+          } else {
+            M.mixpanel.identify(apiResponse.uid)
+          }
+          M.mixpanel.track("Login")
+
           M._setFirebaseToken(apiResponse.firebaseToken)
           return ref.authWithCustomToken(apiResponse.firebaseToken)
 
@@ -243,11 +253,17 @@ Object.assign(M, {
   },
 
   loginAs: (uid) => {
+    const wasUid = M.context.uid.get()
+    M.mixpanel.track("LoginAs", {uid})
+
     return M.apiPost('loginAs', {
       params: {
         uid
       }
     }).then(apiResponse => {
+      M.mixpanel.identify(uid)
+      M.mixpanel.track("Login", {wasUid})
+
       M._setFirebaseToken(apiResponse.firebaseToken)
       return ref.authWithCustomToken(apiResponse.firebaseToken)
 
@@ -260,6 +276,9 @@ Object.assign(M, {
   },
 
   logout: () => {
+    M.mixpanel.track("Logout")
+    M.mixpanel.cookie.clear()
+
     const logoutPromise = M.apiPost('logout').then(apiResponse => {
       M.context.sessionId.set(apiResponse.newSessionId)
     }, err => {
