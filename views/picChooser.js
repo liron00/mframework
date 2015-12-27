@@ -27,11 +27,11 @@ view PicChooser {
   const picKey = atom(pro.initialPicKey.get())
   const pendingFbPhoto = atom(null)
 
-  picKey.reactor(picKey => {
+  picKey.react(picKey => {
     if (view.props.onSelect) {
       view.props.onSelect({picKey})
     }
-  }).start()
+  }, {skipFirst: true})
 
   const selectFbPhoto = (photo) => {
     pendingFbPhoto.set(photo)
