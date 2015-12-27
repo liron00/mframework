@@ -108,7 +108,10 @@ view Carousel {
   })
 
   selectedIndex.react(selectedIndex => {
-    M.mixpanel.track("CarouselThingView", {selectedIndex})
+    M.mixpanel.track("CarouselThingView", {
+      selectedIndex,
+      numThings: pro.children.get().length
+    })
   })
 
   const selectedChild = derivation(() => {
@@ -130,7 +133,11 @@ view Carousel {
       )
     }
 
-    M.mixpanel.track("CarouselAdvance", {inc, inputMethod})
+    M.mixpanel.track("CarouselAdvance", {
+      inc,
+      inputMethod,
+      numThings: pro.children.get().length
+    })
   }
 
   const panning = atom(false)
@@ -281,7 +288,10 @@ view Carousel {
             M.util.mod(desiredIndex.get(), pro.children.get().length)
           )
           selectedIndex.set(desiredIndex.get() + inc)
-          M.mixpanel.track("CarouselDotClick", {dotIndex: _index})
+          M.mixpanel.track("CarouselDotClick", {
+            dotIndex: _index,
+            numThings: pro.children.get().length
+          })
         }}
       />
     </dotsSection>
