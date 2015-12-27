@@ -335,6 +335,7 @@ view WistiaVideo {
     height: pro.circle.get()? diameter.get() : pro.height.get(),
     alignItems: 'center',
     zIndex: 1,
+    position: 'relative',
     borderRadius: pro.circle.get()? '50%' : 8
   }
 }
