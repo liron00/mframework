@@ -23,6 +23,7 @@ view Carousel {
         position: 'relative',
         fontSize: 48,
         display: 'flex',
+        flexDirection: 'row',
         cursor: 'pointer',
         alignItems: 'center',
         justifyContent: 'center',
