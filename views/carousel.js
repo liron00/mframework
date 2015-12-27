@@ -22,7 +22,7 @@ view Carousel {
         background: '#f6f6f6',
         position: 'relative',
         fontSize: 48,
-        display: 'flex',
+        display: 'block',
         flexDirection: 'row',
         cursor: 'pointer',
         alignItems: 'center',
