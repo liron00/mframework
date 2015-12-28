@@ -1,6 +1,7 @@
 view Blank {
   const context = initContext(view, {
-    colors: atom()
+    colors: atom(),
+    isMobile: atom()
   })
 
   const pro = initPro(view, {
@@ -117,17 +118,36 @@ view Blank {
         editing.set(false)
       })
     }
+
+    inp.get().blur()
   }
 
+  const inp = atom()
+
   <TextBox
-    key={'editing-' + editing.get()}
-    autoSelect={true}
+    key={context.isMobile.get()? '' : 'editing-' + editing.get()}
+    type={
+      (
+        window.navigator.userAgent.match(/iPad|iPhone/i) && (
+          pro.type.get() == 'number' || pro.type.get() == 'int'
+        )
+      )? 'number' : null
+    }
+    pattern={
+      window.navigator.userAgent.match(/iPad|iPhone/i)? (
+        pro.type.get() == 'number'? '\\d+(\\.\\d*)?' : (
+          pro.type.get() == 'int'? '\\d*' : null
+        )
+      ) : null
+    }
+    onInit={v => inp.set(v)}
     value={editing.get()?
       str.get() :
       valueToString(value.get()) || ' '
     }
-    enabled={editing.get()}
+    enabled={context.isMobile.get() || editing.get()}
     autoFocus={editing.get()}
+    autoSelect={true}
     inpStyle={Object.assign(
       {
         cursor: editing.get()? 'text' : 'pointer',
@@ -159,15 +179,21 @@ view Blank {
       }
     }}
     onKeyDown={e => {
-      on.delay(1, () => {
+      on.delay(context.isMobile.get()? 500 : 1, () => {
         autoSaving.set(true)
       })
     }}
     onEnter={() => {if (editing.get()) save()}}
     onEscape={() => {if (editing.get()) editing.set(false)}}
     onBlur={() => {if (editing.get()) save()}}
-    onClick={() => {if (!editing.get()) editing.set(true)}}
-    onHover={(e) => hovering.set(e.hovering)}
+    onClick={() => {
+      editing.set(true)
+    }}
+    onHover={(e) => {
+      if (!context.isMobile.get()) {
+        hovering.set(e.hovering)
+      }
+    }}
   />
 
   $ = {

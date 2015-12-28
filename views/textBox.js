@@ -17,14 +17,24 @@ view TextBox {
     value: atom(),
     inpStyle: M.mapAtom({}),
     placeholder: atom(),
-    tabIndex: atom()
+    tabIndex: atom(),
+    type: M.defaultAtom('text'),
+    pattern: atom()
   })
+
+  if (view.props.onInit) {
+    view.props.onInit(view)
+  }
 
   const inp = atom()
   const hovering = atom(false)
 
   view.focus = () => {
     inp.get() && inp.get().focus()
+  }
+
+  view.blur = () => {
+    inp.get() && inp.get().blur()
   }
 
   const value = atom(pro.initialValue.get())
@@ -89,8 +99,10 @@ view TextBox {
     if (view.props.onHover) view.props.onHover({hovering})
   })
 
-  <input class="inp" type="text" if={!pro.multiline.get()}
+  <input class="inp" if={!pro.multiline.get()}
     ref={elem => {if (elem) inp.set(elem)}}
+    type={pro.type.get() || 'text'}
+    pattern={pro.pattern.get()}
     autoFocus={pro.autoFocus.get()}
     defaultValue={value.get()}
     disabled={!pro.enabled.get()}
