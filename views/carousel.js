@@ -34,6 +34,9 @@ view Carousel {
       buttonHover: {
         background: '#f9e7f2'
       },
+      dot: {
+        size: 10
+      },
       dots: {
         position: 'absolute',
         left: 0,
@@ -41,6 +44,9 @@ view Carousel {
         bottom: 12,
         flexDirection: 'row',
         justifyContent: 'center'
+      },
+      shadow: {
+        width: 30
       }
     })
   })
@@ -184,9 +190,9 @@ view Carousel {
   const hoveringLeft = atom(false)
   const hoveringRight = atom(false)
 
-  <leftSection>
+  <leftSection if={pro.showButtons.get()}>
     <button class="leftButton"
-      if={pro.showButtons.get() && pro.children.get().length > 1 && (
+      if={pro.children.get().length > 1 && (
         pro.wrapMode.get() || selectedIndex.get() > 0
       )}
       onClick={() => advance(-1, 'button')}
@@ -297,9 +303,9 @@ view Carousel {
       />
     </dotsSection>
   </midSection>
-  <rightSection>
+  <rightSection if={pro.showButtons.get()}>
     <button class="rightButton"
-      if={pro.showButtons.get() && pro.children.get().length > 1 && (
+      if={pro.children.get().length > 1 && (
         pro.wrapMode.get() || selectedIndex.get() < pro.children.get().length - 1
       )}
       onClick={() => advance(1, 'button')}
@@ -335,21 +341,23 @@ view Carousel {
 
   $leftShadow = {
     position: 'absolute',
+    pointerEvents: 'none',
     zIndex: 2,
     top: 0,
     left: 0,
     bottom: 0,
-    width: 30,
+    width: pro.style.get().get('shadow').get('width'),
     background: 'linear-gradient(to right, rgba(100, 100, 100, 0.8) 0%, rgba(150, 150, 150, 0) 100%)'
   }
 
   $rightShadow = {
     position: 'absolute',
+    pointerEvents: 'none',
     zIndex: 2,
     top: 0,
     right: 0,
     bottom: 0,
-    width: 30,
+    width: pro.style.get().get('shadow').get('width'),
     background: 'linear-gradient(to left, rgba(100, 100, 100, 0.8) 0%, rgba(150, 150, 150, 0) 100%)'
   }
 
@@ -363,8 +371,8 @@ view Carousel {
 
   $dot = {
     zIndex: 1,
-    width: 10,
-    height: 10,
+    width: pro.style.get().get('dot').get('size'),
+    height: pro.style.get().get('dot').get('size'),
     margin: [0, 4],
     borderRadius: '50%',
     background: (_index == selectedIndex.get()?
