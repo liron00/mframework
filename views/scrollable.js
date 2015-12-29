@@ -88,6 +88,7 @@ view Scrollable {
 
   $topShadow = {
     position: 'absolute',
+    pointerEvents: 'none',
     zIndex: 2,
     top: 0,
     visibility: atTop.get()? 'hidden': 'visible',
@@ -99,6 +100,7 @@ view Scrollable {
 
   $bottomShadow = {
     position: 'absolute',
+    pointerEvents: 'none',
     zIndex: 2,
     bottom: 0,
     visibility: atBottom.get()? 'hidden' : 'visible',
