@@ -4,7 +4,9 @@ view Tabs {
   })
 
   const pro = initPro(view, {
+    // [{value, label}]
     options: M.listAtom(),
+
     initialSelectedValue: atom(),
     selectedValue: atom(),
     style: M.mapAtom({})
