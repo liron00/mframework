@@ -31,6 +31,7 @@ view AreYouSure {
 
   $confirming = {
     flexDirection: 'row',
+    alignItems: 'center',
     color: '#999',
     fontSize: 12
   }
