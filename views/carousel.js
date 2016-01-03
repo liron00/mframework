@@ -167,14 +167,14 @@ view Carousel {
 
     hammer.on('panend', e => {
       transact(() => {
-        if (panDeltaX.get() <= -innerWidth.get() / 2) {
+        if (panDeltaX.get() <= 0.15 * -innerWidth.get()) {
           if (
             pro.wrapMode.get() == 'cylinder' ||
             selectedIndex.get() < pro.children.get().length - 1
           ) {
             advance(1, 'swipe')
           }
-        } else if (panDeltaX.get() >= innerWidth.get() / 2) {
+        } else if (panDeltaX.get() >= 0.15 * innerWidth.get()) {
           if (pro.wrapMode.get() == 'cylinder' || selectedIndex.get() > 0) {
             advance(-1, 'swipe')
           }
