@@ -8,7 +8,12 @@ view Uploader {
     children: atom()
   })
 
-  <label>
+  const dragging = atom(false)
+
+  <label
+    onDragEnter={() => dragging.set(true)}
+    onDragLeave={() => dragging.set(false)}
+  >
     <childrenSec>
       {pro.children.get() || "Choose file..."}
     </childrenSec>
@@ -22,22 +27,23 @@ view Uploader {
 
   $label = {
     position: 'relative',
-    cursor: 'pointer'
+    overflow: 'hidden'
   }
 
   $input = {
     position: 'absolute',
-    zIndex: -1,
-    width: '100%',
-    left: 0,
+    cursor: 'pointer',
+    borderRadius: 0,
+
+    // Get the button+text UI out of the visible container area because
+    // e.g. the button doesn't have the cursor:'pointer' style we want.
+    width: 2000,
+    left: -500,
     right: 0,
     top: 0,
     bottom: 0,
-    borderRadius: 0,
-    opacity: 0
-  }
 
-  $childrenSec = {
-    pointerEvents: 'none'
+    background: 'yellow',
+    opacity: dragging.get()? 0.3 : 0
   }
 }
