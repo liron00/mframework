@@ -1,4 +1,8 @@
 view PicChooser {
+  const context = initContext(view, {
+    isMobile: atom()
+  })
+
   const pro = initPro(view, {
     initialPicKey: M.defaultAtom(null),
     editable: M.defaultAtom(true),
@@ -72,8 +76,16 @@ view PicChooser {
       onZoomOut={view.props.onZoomOut}
     >
       <fromUpload>
-        <img class="computerIcon" src="/images/computerIconGray.png" />
-        pic from your computer
+        <img class="deviceIcon"
+          src={context.isMobile.get()?
+            "/images/device.png" :
+            "/images/computerIconGray.png"
+          }
+        />
+        {context.isMobile.get()?
+            "pic from your device" :
+            "pic from your computer"
+        }
       </fromUpload>
     </UploadPicChooser>
   </uploadSection>
@@ -142,8 +154,9 @@ view PicChooser {
     fontSize: 12
   }
 
-  $computerIcon = {
-    width: 80,
+  $deviceIcon = {
+    width: context.isMobile.get()? 50 : 80,
+    marginBottom: context.isMobile.get()? 10 : 0,
     opacity: 0.7
   }
 
