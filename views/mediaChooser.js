@@ -26,11 +26,11 @@ view MediaChooser {
   }).start()
 
   const picKey = mediaKey.lens({
-    get: mediaKey => mediaKey && mediaKey.startsWith('pics/')? mediaKey : null,
+    get: mediaKey => mediaKey && mediaKey.indexOf('pics/') == 0? mediaKey : null,
     set: (mediaKey, picKey) => picKey
   })
   const videoKey = mediaKey.lens({
-    get: mediaKey => mediaKey && mediaKey.startsWith('videos/')? mediaKey : null,
+    get: mediaKey => mediaKey && mediaKey.indexOf('videos/') == 0? mediaKey : null,
     set: (mediaKey, videoKey) => videoKey
   })
 

@@ -2,7 +2,6 @@ import queryString from 'query-string'
 import immutable from 'immutable'
 import Firebase from 'firebase'
 const Fireproof = require('fireproof')
-Fireproof.bless(Promise)
 import mixpanel from 'mixpanel-browser'
 
 import config from '../config'

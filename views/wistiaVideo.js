@@ -38,7 +38,7 @@ view WistiaVideo {
   })
 
   const wistiaId = pro.videoKey.derive(videoKey => {
-    if (!videoKey.startsWith('videos/wistia/')) {
+    if (videoKey.indexOf('videos/wistia/') != 0) {
       throw new Error(`Invalid Wistia video key: ${videoKey}`)
     }
     return videoKey.split('/')[2]
