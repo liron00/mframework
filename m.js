@@ -203,7 +203,7 @@ Object.assign(M, {
     }
   },
 
-  login: () => {
+  login: ({fbPermissions = config.facebookLoginPermissions || ['public_profile']}) => {
     transact(() => {
       M.context.uid.set(undefined)
       M.context.user.set(undefined)
@@ -246,7 +246,7 @@ Object.assign(M, {
         })
 
       }, {
-        scope: 'public_profile,email'
+        scope: fbPermissions.join(',')
       })
     })
   },

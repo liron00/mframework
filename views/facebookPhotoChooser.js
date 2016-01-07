@@ -19,15 +19,19 @@ view FacebookPhotoChooser {
 
   const showFbPhotos = () => {
     FB.login(response => {
-      if (response.authResponse) {
+      if (
+        response.authResponse &&
+        response.authResponse.grantedScopes.split(',').indexOf('user_photos') >= 0
+      ) {
         showingFbPhotos.set(true)
         M.mixpanel.track("FacebookPhotoChooserView")
       } else {
-        console.log("Denied Facebook photos permission.")
         M.mixpanel.track("FacebookPhotoChooserPermissionDenied")
       }
     }, {
-      scope: 'user_photos'
+      scope: 'user_photos',
+      auth_type: 'rerequest',
+      return_scopes: true
     })
   }
 
