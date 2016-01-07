@@ -17,6 +17,9 @@ window.initPro = (view, pro) => {
   if (!view.pro.style) {
     view.pro.style = M.mergeAtom({})
   }
+  if (!view.pro.children) {
+    view.pro.children = atom()
+  }
   for (propName in view.pro) {
     // Tag the pro atom/lens with its propName for debugging
     view.pro[propName].name = `${view.name}.${propName}`
