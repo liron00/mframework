@@ -216,7 +216,13 @@ const decorator = (view) => {
     }
   }
 
-  const contentMakers = view.renders
+  const contentMakers = view.renders.length? view.renders : [
+    // We need at least one fake render to do the auto-style-dependency-tracking
+    // below. Flint's RadiumEnhancer code gets weird about one render function
+    // returning null so we'll make two.
+    () => null,
+    () => null
+  ]
   const NOT_RENDERING_YET = {}
 
   const renderDerivations = contentMakers.map((contentMaker, i) => {
