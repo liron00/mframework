@@ -41,10 +41,19 @@ view Link {
     }
   }
 
+  const hovering = atom(false)
+  hovering.react(hovering => {
+    if (view.props.onHover) {
+      view.props.onHover({hovering})
+    }
+  }, {skipFirst: true})
+
   <link-a
     href={pro.to.get()}
     target={pro.target.get()}
     onClick={go}
+    onMouseEnter={() => hovering.set(true)}
+    onMouseLeave={() => hovering.set(false)}
   >
     {pro.children.get()}
   </link-a>

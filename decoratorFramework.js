@@ -14,6 +14,9 @@ window.lens = lens
 
 window.initPro = (view, pro) => {
   view.pro = pro
+  if (!view.pro.style) {
+    view.pro.style = M.mergeAtom({})
+  }
   for (propName in view.pro) {
     // Tag the pro atom/lens with its propName for debugging
     view.pro[propName].name = `${view.name}.${propName}`
@@ -177,6 +180,10 @@ const decorator = (view) => {
   nextId += 1
   view.id = nextId
 
+  if (!view.pro) {
+    initPro(view, {})
+  }
+
   if (view.name != 'Main' && !view.mContext) {
     initContext(view, {})
   }
@@ -220,6 +227,12 @@ const decorator = (view) => {
         }
 
         const tree = contentMaker.call(view)
+
+        // In case contentMaker never calls pro.style.get(), call it here to
+        // register the dependency that the view's container needs to rerender
+        // when the parent changes its style.
+        view.pro.style.get()
+
         if (view.debug) {
           console.log(`Add context to ${view.name}#${view.id}[${i}]`, tree)
         }
