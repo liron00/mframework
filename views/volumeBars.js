@@ -8,7 +8,6 @@ view VolumeBars {
   const pro = initPro(view, {
     height: M.defaultAtom(30),
     initialVolume: M.defaultAtom(null),
-    inverted: M.defaultAtom(false),
     numBars: M.defaultAtom(5),
     volume: atom(),
     width: M.defaultAtom(30)
@@ -73,13 +72,14 @@ view VolumeBars {
   </mouseTarget>
 
   $ = {
-    flexDirection: 'row'
+    flexDirection: 'row',
+    alignItems: 'flex-end'
   }
 
   $mouseTarget = {
     cursor: 'pointer',
     height: pro.height.get(),
-    justifyContent: pro.inverted.get()? 'flex-start' : 'flex-end'
+    justifyContent: 'flex-end'
   }
 
   $bar = {
@@ -98,10 +98,7 @@ view VolumeBars {
     borderWidth: 1,
     width: barWidth.get(),
     height: getBarHeight(_index),
-    borderRadius: (pro.inverted.get()?
-      [0, 0, barBorderRadius.get(), barBorderRadius.get()] :
-      [barBorderRadius.get(), barBorderRadius.get(), 0, 0]
-    ),
+    borderRadius: [barBorderRadius.get()], // , barBorderRadius.get(), 0, 0],
     marginRight: _index < pro.numBars.get() - 1? spacerWidth.get() : null
   }
 }
