@@ -36,6 +36,7 @@ view Link {
         ) {
           oldPreventDefault()
           Flint.router.go(pro.to.get())
+          document.body.scrollTop = 0
         }
       }
     }
@@ -60,6 +61,6 @@ view Link {
 
   $ = {
     textDecoration: 'none',
-    display: 'inline-flex'
+    display: 'flex'
   }
 }
