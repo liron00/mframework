@@ -311,16 +311,11 @@ Object.assign(M, {
   },
 
   routeIsActive: (path) => {
+    if (path.match(/^https?:\/\//)) return false
     if (path[0] != '/') {
       path = '/' + path
     }
-    if (M.context.route.get() == path) {
-      return true
-    } else if (path.indexOf(':') >= 0) {
-      return true
-    } else {
-      return false
-    }
+    return M.context.route.get() == path
   }
 })
 
