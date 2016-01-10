@@ -1,13 +1,14 @@
 'use strict'
 
 import immutable from 'immutable'
-import {atom, derivation, lens, transact} from 'derivable'
+import {atom, derivation, isDerivable, lens, transact} from 'derivable'
 
 window.immutable = immutable
 window.Record = immutable.Record
 window.List = immutable.List
 window.IMap = immutable.Map
 window.atom = atom
+window.isDerivable = isDerivable
 window.derivation = derivation
 window.transact = transact
 window.lens = lens
@@ -20,15 +21,28 @@ window.initPro = (view, pro) => {
   if (!view.pro.children) {
     view.pro.children = atom()
   }
-  for (propName in view.pro) {
+  for (let propName in view.pro) {
     // Tag the pro atom/lens with its propName for debugging
     view.pro[propName].name = `${view.name}.${propName}`
   }
-  for (propName in view.props) {
+
+  view._derivableProps = {}
+  view._derivablePropReactors = {}
+  for (let propName in view.props) {
     if (view.pro[propName]) {
-      view.pro[propName].set(view.props[propName])
+      if (isDerivable(view.props[propName])) {
+        view._derivableProps[propName] = view.props[propName]
+        view._derivablePropReactors[propName] = view.props[propName].reactor(
+          propValue => view.pro[propName].set(propValue)
+        )
+        view._derivablePropReactors[propName].start().force()
+
+      } else {
+        view.pro[propName].set(view.props[propName])
+      }
     }
   }
+
   return view.pro
 }
 
@@ -195,7 +209,7 @@ const decorator = (view) => {
     let contextValues
     if (view.name == 'Main') {
       contextValues = {}
-      for (contextName in M.context) {
+      for (let contextName in M.context) {
         contextValues[contextName] = M.context[contextName].get()
       }
       contextValues = IMap(contextValues)
@@ -319,9 +333,31 @@ const decorator = (view) => {
 
     transact(() => {
       if (view.pro) {
-        for (propName in view.props) {
+        for (let propName in view.props) {
           if (view.pro[propName]) {
-            view.pro[propName].set(view.props[propName])
+            const oldDerivable = view._derivableProps[propName]
+
+            if (oldDerivable && view.props[propName] === oldDerivable) {
+              // No-op
+
+            } else {
+              if (oldDerivable) {
+                view._derivablePropReactors[propName].stop()
+                delete view._derivablePropReactors[propName]
+                delete view._derivableProps[propName]
+              }
+
+              if (isDerivable(view.props[propName])) {
+                view._derivableProps[propName] = view.props[propName]
+                view._derivablePropReactors[propName] = view.props[propName].reactor(
+                  propValue => view.pro[propName].set(propValue)
+                )
+                view._derivablePropReactors[propName].start().force()
+
+              } else {
+                view.pro[propName].set(view.props[propName])
+              }
+            }
           }
         }
       }
