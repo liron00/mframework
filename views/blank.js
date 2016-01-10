@@ -18,7 +18,9 @@ view Blank {
   })
 
   const valueToString = (v) => {
-    if (pro.type.get() == 'number' || pro.type.get() == 'int') {
+    if (view.props.valueToString) {
+      return view.props.valueToString(v)
+    } else if (pro.type.get() == 'number' || pro.type.get() == 'int') {
       return v == null? '' : '' + v
     } else if (pro.type.get() == 'string') {
       return v
