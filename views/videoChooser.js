@@ -54,11 +54,14 @@ view VideoChooser {
   })
 
   <editSection if={editing.get()}>
-    <input class="inpVideoKey"
+    <TextBox class="inpVideoKey"
       placeholder="Wistia video hash-id"
-      value={wistiaId.get() || ''}
-      onChange={e => wistiaId.set(e.target.value || null)}
+      value={wistiaId.or('')}
+      onChange={e => wistiaId.set(e.value.trim() || null)}
       onEnter={select}
+      inpStyle={{
+        width: pro.width.get()
+      }}
     />
   </editSection>
   <noVideo if={!videoKey.get()}
@@ -85,10 +88,6 @@ view VideoChooser {
       select()
     }} />
   </actionRow>
-
-  $inpVideoKey = {
-    width: pro.width.get()
-  }
 
   $actionRow = {
     flexDirection: 'row',

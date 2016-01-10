@@ -1,12 +1,5 @@
 'use strict'
 
-// FIXME:
-// When parent sets a value and reacts to onChange by editing it, then if
-// types too quickly, their cursor moves to the end because pro.value gets
-// changed to a stale copy of valueFromUser.
-// Idea: Make it not-directly-editable when it's a controlled component,
-// i.e. React's move
-
 view TextBox {
   const pro = initPro(view, {
     autoFocus: M.defaultAtom(false),
@@ -44,24 +37,19 @@ view TextBox {
     }
   })
 
-  const valueFromUser = atom(value.get())
-  valueFromUser.react(valueFromUser => {
-    value.set(valueFromUser)
-
-    if (view.props.onChange) {
-      view.props.onChange({value: valueFromUser})
-    }
-  })
-
   value.react(value => {
-    if (value != valueFromUser.get()) {
-      // pro just momentarily took control of the value from the user
-      if (inp.get()) {
-        inp.get().value = value
-      }
-      valueFromUser.set(value)
+    if (inp.get() && inp.get().value != value) {
+      inp.get().value = value
     }
   })
+
+  const onChange = (newValueFromUser) => {
+    if (pro.value.get() == null) {
+      value.set(newValueFromUser)
+    }
+
+    view.props.onChange && view.props.onChange({value: newValueFromUser})
+  }
 
   const onKeyDown = (e) => {
     if (e.key == 'Enter' && view.props.onEnter) {
@@ -106,7 +94,7 @@ view TextBox {
     autoFocus={pro.autoFocus.get()}
     defaultValue={value.get()}
     disabled={!pro.enabled.get()}
-    onChange={e => valueFromUser.set(e.target.value)}
+    onChange={e => onChange(e.target.value)}
     onKeyDown={onKeyDown}
     onFocus={onFocus}
     onBlur={onBlur}
@@ -122,7 +110,7 @@ view TextBox {
     autoFocus={pro.autoFocus.get()}
     defaultValue={value.get()}
     disabled={!pro.enabled.get()}
-    onChange={e => valueFromUser.set(e.target.value)}
+    onChange={e => onChange(e.target.value)}
     onKeyDown={onKeyDown}
     onFocus={onFocus}
     onBlur={onBlur}

@@ -144,8 +144,8 @@ view Blank {
     }
     onInit={v => inp.set(v)}
     value={editing.get()?
-      str.get() :
-      valueToString(value.get()) || ' '
+      str :
+      value.derive(valueToString).or('')
     }
     enabled={context.isMobile.get() || editing.get()}
     autoFocus={editing.get()}
