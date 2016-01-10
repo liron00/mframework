@@ -315,7 +315,7 @@ view WistiaVideo {
       }
 
       return <wrapper style={pro.videoStyle.get().toJS()}>
-        <div
+        <div if={refreshCount.get()}
           key={`render_${refreshCount.get()}`}
           id={`video_${VIEW_ID}_${refreshCount.get()}`}
           class={`wistia_embed wistia_async_${wistiaId.get()}`}
