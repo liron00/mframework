@@ -3,8 +3,10 @@ import immutable from 'immutable'
 import Firebase from 'firebase'
 const Fireproof = require('fireproof')
 import mixpanel from 'mixpanel-browser'
+import uuid from 'node-uuid'
 
 import config from '../config'
+import splitTests from '../splitTests'
 import records from '../records'
 import util from './util'
 
@@ -25,6 +27,28 @@ Object.assign(M, {
 
 Object.assign(M, {
   _refs: {},
+
+  _splitTestUuid4: undefined,
+  splitTests,
+  getUserSplit (testId) {
+    if (!(testId in splitTests)) {
+      throw new Error(`Unknown split test ID: ${testId}`)
+    }
+    if (!M._splitTestUuid4) {
+      M._splitTestUuid4 = M.context.uid.get() || M.context.sessionId.get() || (
+        // Either we're not tracking sessions, or a new browser session just got
+        // pointed to the page and the ensureSession round trip didn't finish
+        // before a component called getUserSplit. So just use a random
+        // uuid4 until the next refresh.
+        uuid.v4()
+      )
+    }
+    const splitIndex = (
+      parseInt(M._splitTestUuid4.substring(0, 8), 16) %
+      splitTests[testId].length
+    )
+    return splitTests[testId][splitIndex]
+  },
 
   defaultAtom (defaultValue) {
     return atom().lens({
