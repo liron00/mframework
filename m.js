@@ -13,9 +13,12 @@ import util from './util'
 const M = {}
 window.M = M
 
-const firebase = new Firebase(`https://${config.firebaseAppName}.firebaseio.com`)
-const ref = new Fireproof(firebase)
-mixpanel.init(config.mixpanelToken)
+const firebase = (config.firebaseAppName?
+  new Firebase(`https://${config.firebaseAppName}.firebaseio.com`) :
+  null
+)
+const ref = firebase && new Fireproof(firebase)
+if (config.mixpanelToken) mixpanel.init(config.mixpanelToken)
 
 Object.assign(M, {
   config,
@@ -359,7 +362,7 @@ M.context.uid.reactor(uid => {
   }
 }).start()
 
-ref.onAuth(authData => {
+ref && ref.onAuth(authData => {
   if (!authData && M.context.uid.get()) {
     console.info("Firebase-triggered logout")
     // In case the Firebase session randomly expires,
