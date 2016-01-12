@@ -58,7 +58,7 @@ view TextBox {
       view.props.onEscape({value: value.get()})
     }
 
-    if (view.props.onKeyDown) view.props.onKeyDown(e)
+    if (view.props.onKeyDown) view.props.onKeyDown({event: e})
   }
 
   const onFocus = (e) => {
