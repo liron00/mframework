@@ -18,7 +18,14 @@ const firebase = (config.firebaseAppName?
   null
 )
 const ref = firebase && new Fireproof(firebase)
-if (config.mixpanelToken) mixpanel.init(config.mixpanelToken)
+if (config.mixpanelToken) {
+  mixpanel.init(config.mixpanelToken)
+} else {
+  mixpanel.track = () => {
+    // Monkey patch Mixpanel tracking to be a no-op
+    // since some MFramework components use it
+  }
+}
 
 Object.assign(M, {
   config,
