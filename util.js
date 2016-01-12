@@ -50,6 +50,15 @@ export default {
     return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
   },
 
+  makeUrl: (pathParams, queryParams) => {
+    let url = '/' + (pathParams || []).join('/')
+    const queryParamsStr = M.util.objToParamString(queryParams)
+    if (queryParamsStr) {
+      url += '?' + queryParamsStr
+    }
+    return url
+  },
+
   mod: (a, b) => {
     // Like a % b but behaves properly when a is negative
     return ((a % b) + b) % b
