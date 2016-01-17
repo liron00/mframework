@@ -27,6 +27,16 @@ if (config.mixpanelToken) {
   }
 }
 
+// Facebook SDK
+window.fbAsyncInit = function() {
+  FB.init({
+    appId: config.facebookAppId,
+    xfbml: true,
+    version: 'v2.5'
+  });
+  M._onFacebookInit()
+};
+
 Object.assign(M, {
   config,
   mixpanel,
@@ -162,6 +172,25 @@ Object.assign(M, {
     route: atom(document.location.pathname)
   },
 
+  _facebookInitCallbacks: [],
+  _onFacebookInit: () => {
+    M._facebookInitCallbacks.forEach(callback => {
+      callback(FB)
+    })
+  },
+  getFB: () => {
+    if (window.FB) {
+      return Promise.resolve(FB)
+    } else {
+      let resolveFunc
+      const promise = new Promise((resolve, reject) => {
+        resolveFunc = resolve
+      })
+      M._facebookInitCallbacks.push(resolveFunc)
+      return promise
+    }
+  },
+
   apiCall: (endpoint, options) => {
     options = Object.assign({}, options)
 
@@ -244,43 +273,45 @@ Object.assign(M, {
     })
 
     return new Promise((resolve, reject) => {
-      FB.login(response => {
-        if (!response.authResponse) {
-          // User cancelled login.
-          // Don't throw an error but hope the caller
-          // checks M.context.uid to see that login was cancelled
-          M.context.uid.set(null)
-          resolve()
-          return
-        }
-
-        M.apiPost('login', {
-          params: {
-            fbAccessToken: response.authResponse.accessToken
+      M.getFB().then(FB => {
+        FB.login(response => {
+          if (!response.authResponse) {
+            // User cancelled login.
+            // Don't throw an error but hope the caller
+            // checks M.context.uid to see that login was cancelled
+            M.context.uid.set(null)
+            resolve()
+            return
           }
-        }).then(apiResponse => {
-          if (apiResponse.isNew) {
-            M.mixpanel.alias(apiResponse.uid)
-          } else {
-            M.mixpanel.identify(apiResponse.uid)
-          }
-          M.mixpanel.track("Login")
 
-          M._setFirebaseToken(apiResponse.firebaseToken)
-          return ref.authWithCustomToken(apiResponse.firebaseToken)
+          M.apiPost('login', {
+            params: {
+              fbAccessToken: response.authResponse.accessToken
+            }
+          }).then(apiResponse => {
+            if (apiResponse.isNew) {
+              M.mixpanel.alias(apiResponse.uid)
+            } else {
+              M.mixpanel.identify(apiResponse.uid)
+            }
+            M.mixpanel.track("Login")
 
-        }).then(authData => {
-          M.context.uid.set(authData.uid)
-          resolve()
+            M._setFirebaseToken(apiResponse.firebaseToken)
+            return ref.authWithCustomToken(apiResponse.firebaseToken)
 
-        }).catch(err => {
-          console.error('Problem during login', err)
-          M.context.uid.set(null)
-          reject(err)
+          }).then(authData => {
+            M.context.uid.set(authData.uid)
+            resolve()
+
+          }).catch(err => {
+            console.error('Problem during login', err)
+            M.context.uid.set(null)
+            reject(err)
+          })
+
+        }, {
+          scope: fbPermissions.join(',')
         })
-
-      }, {
-        scope: fbPermissions.join(',')
       })
     })
   },
