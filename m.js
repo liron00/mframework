@@ -96,17 +96,22 @@ Object.assign(M, {
   },
 
   mergeAtom (defaultValue, deep = true) {
-    // defaultValue can be an IMap, an object, or missing/undefined
-    return atom(immutable.fromJS(defaultValue)).lens({
+    defaultValue = immutable.fromJS(defaultValue)
+    if (defaultValue === undefined) {
+      defaultValue = IMap({})
+    } else if (!(defaultValue instanceof IMap)) {
+      throw new Error(`mergeAtom defaultValue must be IMap, object or undefined`)
+    }
+    return atom(defaultValue).lens({
       get: value => value,
       set: (oldValue, value) => {
         if (value === undefined) {
           return oldValue
         } else if (value) {
           if (deep) {
-            return oldValue.mergeDeep(value)
+            return defaultValue.mergeDeep(value)
           } else {
-            return oldValue.merge(value)
+            return defaultValue.merge(value)
           }
         } else {
           throw new Error("Invalid value for mergeAtom")
