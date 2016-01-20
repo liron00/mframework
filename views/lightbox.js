@@ -44,6 +44,11 @@ view Lightbox {
   })
 
   on.keydown(e => {
+    if (!view.mounted) {
+      // This code path is due to a Flint bug
+      return
+    }
+
     if (e.keyCode == 37) {
       // Left
       selectedIndex.set(
