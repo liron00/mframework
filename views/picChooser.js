@@ -163,6 +163,7 @@ view PicChooser {
 
   $fbIcon = {
     width: 40,
+    height: 40,
     opacity: 0.8,
     marginBottom: 16
   }
