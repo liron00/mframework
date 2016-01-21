@@ -83,8 +83,8 @@ view PicChooser {
           }
         />
         {context.isMobile.get()?
-            "pic from your device" :
-            "pic from your computer"
+            "upload a pic" :
+            "upload a pic"
         }
       </fromUpload>
     </UploadPicChooser>
@@ -156,6 +156,7 @@ view PicChooser {
 
   $deviceIcon = {
     width: context.isMobile.get()? 50 : 80,
+    height: context.isMobile.get()? 50 : 80,
     marginBottom: context.isMobile.get()? 10 : 0,
     opacity: 0.7
   }
