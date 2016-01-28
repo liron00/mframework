@@ -9,7 +9,7 @@ view Lightbox {
   const bodyWidth = atom(document.body.offsetWidth)
   const bodyHeight = atom(document.body.offsetHeight)
 
-  on.resize(e => {
+  on.resize(window, e => {
     bodyWidth.set(document.body.offsetWidth)
     bodyHeight.set(document.body.offsetHeight)
   })
@@ -43,7 +43,7 @@ view Lightbox {
     }
   })
 
-  on.keydown(e => {
+  on.keydown(window, e => {
     if (!view.mounted) {
       // This code path is due to a Flint bug
       return

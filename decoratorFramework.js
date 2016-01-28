@@ -214,7 +214,9 @@ const decorator = (view) => {
     // The only place that calls this is Flint's rerendering pathway, which
     // we want to turn into a no-op because we have our own rerendering
     // pathway
-    console.warn('Flint tried to call view.update on', view.name)
+    if (view.debug) {
+      console.info('Flint tried to call view.update on', view.name)
+    }
   }
 
   if (!view.pro) {
