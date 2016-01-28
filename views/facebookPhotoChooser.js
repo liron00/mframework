@@ -4,7 +4,7 @@ view FacebookPhotoChooser {
     height: M.defaultAtom(168),
     circle: M.defaultAtom(false),
     children: atom(),
-    style: M.mapAtom({}),
+    style: M.mergeAtom({}),
     noPicStyle: M.mapAtom({})
   })
 

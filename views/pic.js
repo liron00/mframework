@@ -1,7 +1,7 @@
 view Pic {
   const pro = initPro(view, {
     picKey: atom(),
-    style: M.mapAtom({}),
+    style: M.mergeAtom({}),
 
     enhance: M.defaultAtom(true),
     faces: M.defaultAtom(false),

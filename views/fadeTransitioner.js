@@ -7,7 +7,7 @@ view FadeTransitioner {
     selectedIndex: atom(),
     springStiffness: M.defaultAtom(290),
     springDamping: M.defaultAtom(29),
-    style: M.mapAtom({})
+    style: M.mergeAtom({})
   })
 
   const desiredIndex = atom()

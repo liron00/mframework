@@ -9,7 +9,7 @@ view Tabs {
 
     initialSelectedValue: atom(),
     selectedValue: atom(),
-    style: M.mapAtom({})
+    style: M.mergeAtom({})
   })
 
   const selectedValue = atom(pro.initialSelectedValue.get())

@@ -105,7 +105,7 @@ Object.assign(M, {
     return atom(defaultValue).lens({
       get: value => value,
       set: (oldValue, value) => {
-        if (value === undefined) {
+        if (value == null) {
           return oldValue
         } else if (value) {
           if (deep) {
@@ -113,8 +113,6 @@ Object.assign(M, {
           } else {
             return defaultValue.merge(value)
           }
-        } else {
-          throw new Error("Invalid value for mergeAtom")
         }
       }
     })

@@ -7,7 +7,7 @@ const spring = ReactMotion.spring
 view Motion {
   const pro = initPro(view, {
     defaultStyle: M.mapAtom({}),
-    style: M.mapAtom()
+    style: M.mergeAtom()
   })
 
   const styleAtom = atom(pro.defaultStyle.get())

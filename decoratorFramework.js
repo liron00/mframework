@@ -197,6 +197,26 @@ const decorator = (view) => {
   nextId += 1
   view.id = nextId
 
+  view._syncUpdate = view.update
+  view._asyncUpdate = () => {
+    if (view._willUpdate) return
+    view._willUpdate = true
+
+    setTimeout(
+      () => {
+        view._syncUpdate()
+        view._willUpdate = false
+      },
+      1
+    )
+  }
+  view.update = () => {
+    // The only place that calls this is Flint's rerendering pathway, which
+    // we want to turn into a no-op because we have our own rerendering
+    // pathway
+    console.warn('Flint tried to call view.update on', view.name)
+  }
+
   if (!view.pro) {
     initPro(view, {})
   }
@@ -276,7 +296,7 @@ const decorator = (view) => {
           console.log(`Premature ${view.name}#${view.id}[${i}]`)
         }
         renderDerivationI.fakeEntropy.get()
-        view.update()
+        view._asyncUpdate()
         return NOT_RENDERING_YET
       }
     })
@@ -302,7 +322,7 @@ const decorator = (view) => {
   })
 
   const renderReactors = renderDerivations.map((d, i) => d.reactor(() => {
-    view.update()
+    view._asyncUpdate()
   }))
 
   view.on.mount(() => {
@@ -387,4 +407,4 @@ const decorator = (view) => {
   }
 }
 
-Flint.decorateViews(decorator)
+Flint._onViewInstance(decorator)

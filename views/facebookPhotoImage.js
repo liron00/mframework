@@ -3,7 +3,7 @@ view FacebookPhotoImage {
     photo: M.mapAtom(),
     width: M.defaultAtom(400),
     height: M.defaultAtom(300),
-    style: M.mapAtom({})
+    style: M.mergeAtom({})
   })
 
   const bestImage = pro.photo.derive(photo => {
