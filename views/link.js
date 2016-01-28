@@ -49,7 +49,7 @@ view Link {
     }
   }, {skipFirst: true})
 
-  <link-a
+  <a root
     href={pro.to.get()}
     target={pro.target.get()}
     onClick={go}
@@ -57,7 +57,7 @@ view Link {
     onMouseLeave={() => hovering.set(false)}
   >
     {pro.children.get()}
-  </link-a>
+  </a>
 
   $ = {
     textDecoration: 'none',
