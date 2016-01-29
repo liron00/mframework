@@ -269,52 +269,62 @@ Object.assign(M, {
     }
   },
 
-  login: ({fbPermissions = config.facebookLoginPermissions || ['public_profile']}) => {
+  login: (options = {}) => {
+    const fbPermissions = (
+      options.fbPermissions ||
+      M.config.facebookLoginPermissions ||
+      ['public_profile']
+    )
+
     transact(() => {
       M.context.uid.set(undefined)
       M.context.user.set(undefined)
     })
 
     return new Promise((resolve, reject) => {
-      M.getFB().then(FB => {
-        FB.login(response => {
-          if (!response.authResponse) {
-            // User cancelled login.
-            // Don't throw an error but hope the caller
-            // checks M.context.uid to see that login was cancelled
-            M.context.uid.set(null)
-            resolve()
-            return
+      if (!window.FB) {
+        M.context.uid.set(null)
+        console.warn("Tried to log in before FB library loaded.")
+        resolve()
+        return
+      }
+
+      FB.login(response => {
+        if (!response.authResponse) {
+          // User cancelled login.
+          // Don't throw an error but hope the caller
+          // checks M.context.uid to see that login was cancelled
+          M.context.uid.set(null)
+          resolve()
+          return
+        }
+
+        M.apiPost('login', {
+          params: {
+            fbAccessToken: response.authResponse.accessToken
           }
+        }).then(apiResponse => {
+          if (apiResponse.isNew) {
+            M.mixpanel.alias(apiResponse.uid)
+          } else {
+            M.mixpanel.identify(apiResponse.uid)
+          }
+          M.mixpanel.track("Login")
 
-          M.apiPost('login', {
-            params: {
-              fbAccessToken: response.authResponse.accessToken
-            }
-          }).then(apiResponse => {
-            if (apiResponse.isNew) {
-              M.mixpanel.alias(apiResponse.uid)
-            } else {
-              M.mixpanel.identify(apiResponse.uid)
-            }
-            M.mixpanel.track("Login")
+          M._setFirebaseToken(apiResponse.firebaseToken)
+          return ref.authWithCustomToken(apiResponse.firebaseToken)
 
-            M._setFirebaseToken(apiResponse.firebaseToken)
-            return ref.authWithCustomToken(apiResponse.firebaseToken)
+        }).then(authData => {
+          M.context.uid.set(authData.uid)
+          resolve()
 
-          }).then(authData => {
-            M.context.uid.set(authData.uid)
-            resolve()
-
-          }).catch(err => {
-            console.error('Problem during login', err)
-            M.context.uid.set(null)
-            reject(err)
-          })
-
-        }, {
-          scope: fbPermissions.join(',')
+        }).catch(err => {
+          M.context.uid.set(null)
+          reject(err)
         })
+
+      }, {
+        scope: fbPermissions.join(',')
       })
     })
   },

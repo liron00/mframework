@@ -86,8 +86,8 @@ view FadeTransitioner {
   </TransitionMotion>
 
   $ = {
-    width: pro.style.get().width,
-    height: pro.style.get().height
+    width: pro.style.get().get('width'),
+    height: pro.style.get().get('height')
   }
 
   $thing = {
