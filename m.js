@@ -382,9 +382,9 @@ Object.assign(M, {
 
   _setFirebaseToken: (firebaseToken) => {
     if (firebaseToken) {
-      localStorage.setItem('firebaseToken', firebaseToken)
+      M.localStorageSet('firebaseToken', firebaseToken)
     } else {
-      localStorage.removeItem('firebaseToken')
+      M.localStorageRemove('firebaseToken')
     }
   },
 
@@ -397,19 +397,47 @@ Object.assign(M, {
   }
 })
 
+M._LOCALSTORAGE_WORKS = false
+try {
+  localStorage.setItem('mframework_test_key', 'test_value')
+  localStorage.removeItem('mframework_test_key')
+  M._LOCALSTORAGE_WORKS = true
+} catch (ex) {
+  console.info("LocalStorage doesn't work.")
+}
+
+M._fakeLocalStorage = M._LOCALSTORAGE_WORKS? null : {}
+M.localStorageGet = (key) => {
+  return M._LOCALSTORAGE_WORKS? localStorage.getItem(key) : M._fakeLocalStorage[key]
+}
+M.localStorageSet = (key, value) => {
+  if (M._LOCALSTORAGE_WORKS) {
+    localStorage.setItem(key, value)
+  } else {
+    M._fakeLocalStorage[key] = value
+  }
+}
+M.localStorageRemove = (key) => {
+  if (M._LOCALSTORAGE_WORKS) {
+    localStorage.removeItem(key)
+  } else {
+    delete M._fakeLocalStorage[key]
+  }
+}
+
 M.context.sessionId.reactor(sessionId => {
   if (sessionId) {
-    localStorage.setItem('sessionId', sessionId)
+    M.localStorageSet('sessionId', sessionId)
   } else {
-    localStorage.removeItem('sessionId')
+    M.localStorageRemove('sessionId')
   }
 }).start()
 
 M.context.uid.reactor(uid => {
   if (uid) {
-    localStorage.setItem('uid', uid)
+    M.localStorageSet('uid', uid)
   } else {
-    localStorage.removeItem('uid')
+    M.localStorageRemove('uid')
   }
 }).start()
 
@@ -424,6 +452,7 @@ ref && ref.onAuth(authData => {
 })
 
 window.addEventListener('storage', e => {
+  // Handle localStorage change triggered from another tab/window
   if (e.key == "sessionId") {
     M.context.sessionId.set(e.newValue || undefined)
   } else if (e.key == "firebaseToken") {
