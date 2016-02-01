@@ -13,6 +13,13 @@ view Pic {
 
   const zoomedIn = atom(false)
 
+  const width = derivation(() => {
+    return pro.style.get().get('width') || pro.style.get().get('maxWidth')
+  })
+  const height = derivation(() => {
+    return pro.style.get().get('height') || pro.style.get().get('maxHeight')
+  })
+
   const imgixUrl = derivation(() => {
     const params = {
       auto: pro.enhance.get()? 'enhance': null,
@@ -20,8 +27,8 @@ view Pic {
         pro.entropy.get()? 'entropy': null
       ),
       fit: pro.fit.get(),
-      w: pro.style.get().get('width') || pro.style.get().get('maxWidth'),
-      h: pro.style.get().get('height') || pro.style.get().get('maxHeight')
+      w: width.get(),
+      h: height.get()
     }
     const paramString = M.util.objToParamString(params)
     return `${M.config.imgixPrefix}${pro.picKey.get()}?${paramString}`
@@ -54,7 +61,9 @@ view Pic {
       style={
         pro.style.get().merge({
           width: null,
-          height: null
+          height: null,
+          maxWidth: width.get(),
+          maxHeight: height.get()
         }).toJS()
       }
     />
