@@ -63,7 +63,9 @@ view Pic {
           width: null,
           height: null,
           maxWidth: width.get(),
-          maxHeight: height.get()
+          maxHeight: height.get(),
+          minWidth: 0,
+          minHeight: 0
         }).toJS()
       }
     />
