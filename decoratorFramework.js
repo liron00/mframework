@@ -76,7 +76,9 @@ window.initData = (view, data) => {
     view._data[dataKey].derPathParts = derivation(() => {
       if (typeof view._data[dataKey].ref == 'function') {
         const pathParts = view._data[dataKey].ref()
-        if (!pathParts || pathParts.findIndex(pp => pp === undefined) >= 0) {
+        if (pathParts === null) {
+          return null
+        } else if (pathParts === undefined || pathParts.findIndex(pp => pp === undefined) >= 0) {
           return undefined
         } else if (pathParts.findIndex(pp => !pp) >= 0) {
           throw new Error(`Invalid path part for ${view.name}.data.${dataKey}:`
@@ -112,13 +114,13 @@ window.initData = (view, data) => {
         // console.debug(`*off ${view.name} ${refKey} ${eventType}`)
       }
 
-      view.data[dataKey].set(undefined)
-
       const refOptions = view._data[dataKey].refOptions || (ref => ref)
 
       const ref = pathParts? refOptions(M.ref.child(pathParts.join('/'))) : null
 
       view._data[dataKey].oldRef = ref
+
+      view.data[dataKey].set(pathParts === null? null : undefined)
 
       if (!ref) return
 
