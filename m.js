@@ -63,10 +63,13 @@ Object.assign(M, {
         uuid.v4()
       )
     }
-    const splitIndex = (
-      parseInt(M._splitTestUuid4.substring(0, 8), 16) %
-      splitTests[testId].length
-    )
+
+    const userEntropy = parseInt(M._splitTestUuid4.substring(0, 8), 16)
+    let testEntropy = 0
+    for (let i = 0; i < testId.length; i++) {
+      testEntropy += testId.charCodeAt(i)
+    }
+    const splitIndex = (userEntropy + testEntropy) % splitTests[testId].length
     return splitTests[testId][splitIndex]
   },
 
