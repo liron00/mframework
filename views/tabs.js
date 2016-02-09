@@ -20,15 +20,15 @@ view Tabs {
   })
 
   const selectedIndex = derivation(() => {
-    if (selectedValue == null) {
+    if (selectedValue.get() == null) {
       return -1
     }
     return pro.options.get().findIndex(selectedValue.get())
   })
 
-  selectedValue.reactor(selectedValue => {
+  selectedValue.react(selectedValue => {
     if (view.props.onSelect) view.props.onSelect({value: selectedValue})
-  }).start()
+  }, {skipFirst: true})
 
   <tab repeat={pro.options.get()}
     onClick={() => selectedValue.set(_.value)}
