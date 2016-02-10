@@ -289,17 +289,22 @@ Object.assign(M, {
       if (!window.FB) {
         M.context.uid.set(null)
         console.warn("Tried to log in before FB library loaded.")
-        resolve()
+        resolve({uid: null})
         return
       }
+
+      M.mixpanel.track('LoginFbPopupShow', {
+        fbPermissions: fbPermissions
+      })
 
       FB.login(response => {
         if (!response.authResponse) {
           // User cancelled login.
-          // Don't throw an error but hope the caller
-          // checks M.context.uid to see that login was cancelled
+          M.mixpanel.track('LoginFbPopupDecline', {
+            fbPermissions: fbPermissions
+          })
           M.context.uid.set(null)
-          resolve()
+          resolve({uid: null})
           return
         }
 
@@ -313,14 +318,14 @@ Object.assign(M, {
           } else {
             M.mixpanel.identify(apiResponse.uid)
           }
-          M.mixpanel.track("Login")
+          M.mixpanel.track('Login')
 
           M._setFirebaseToken(apiResponse.firebaseToken)
           return ref.authWithCustomToken(apiResponse.firebaseToken)
 
         }).then(authData => {
           M.context.uid.set(authData.uid)
-          resolve()
+          resolve({uid: authData.uid})
 
         }).catch(err => {
           M.context.uid.set(null)
