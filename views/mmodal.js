@@ -8,6 +8,14 @@ view MModal {
     children: atom()
   })
 
+  pro.isOpen.react(() => {
+    document.body.style.overflow = pro.isOpen.get()? 'hidden' : null
+  })
+
+  on.unmount(() => {
+    document.body.style.overflow = null
+  })
+
   <ReactModal
     appElement={document.getElementById('_flintapp')}
     isOpen={pro.isOpen.get()}
