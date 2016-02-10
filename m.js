@@ -4,6 +4,7 @@ import Firebase from 'firebase'
 const Fireproof = require('fireproof')
 import mixpanel from 'mixpanel-browser'
 import uuid from 'node-uuid'
+import md5 from 'md5'
 
 import config from '../config'
 import splitTests from '../splitTests'
@@ -64,12 +65,12 @@ Object.assign(M, {
       )
     }
 
-    const userEntropy = parseInt(M._splitTestUuid4.substring(0, 8), 16)
-    let testEntropy = 0
-    for (let i = 0; i < testId.length; i++) {
-      testEntropy += testId.charCodeAt(i)
+    const entropy = M._splitTestUuid4 + testId
+    const md5Hash = md5(entropy)
+    let splitIndex = 0
+    for (let i = 0; i < md5Hash.length; i++) {
+      splitIndex = (splitIndex + md5Hash.charCodeAt(i)) % splitTests[testId].length
     }
-    const splitIndex = (userEntropy + testEntropy) % splitTests[testId].length
     return splitTests[testId][splitIndex]
   },
 
