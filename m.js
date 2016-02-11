@@ -104,9 +104,16 @@ Object.assign(M, {
       return M.splitTests[testId][splitIndex]
     }
   },
-  _randomizeSplits: () => {
+  _testSplits: (seed) => {
     // For debugging
-    M._splitTestUuid4 = uuid.v4()
+    M._splitTestUuid4 = seed
+
+    // This query param is never read. This is just a hack to
+    // cause a refresh to propagate, since normally we don't put
+    // M._splitTestUuid4 directly in M.context.
+    M.context.queryParams.set(
+      M.context.queryParams.get().set('_splitSeed', seed)
+    )
   },
 
   defaultAtom (defaultValue) {
