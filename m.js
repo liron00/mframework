@@ -63,15 +63,50 @@ Object.assign(M, {
         // uuid4 until the next refresh.
         uuid.v4()
       )
+
+      // While we're here initializing, check to make sure all splits' fractions
+      // add up to 1
+      for (let tid in M.splitTests) {
+        const splits = M.splitTests[tid]
+        const fractionSum = splits.reduce((a, b) => {
+          // Default split fraction value is 1 / splits.length
+          return a + (b.fraction == null? 1 / splits.length : b.fraction)
+        }, 0)
+        if (fractionSum != 1) {
+          throw new Error(`Split test fractions for ${JSON.stringify(tid)}` +
+            ` don't add up to 1`)
+        }
+      }
     }
 
     const entropy = M._splitTestUuid4 + testId
     const md5Hash = md5(entropy)
-    let splitIndex = 0
-    for (let i = 0; i < md5Hash.length; i++) {
-      splitIndex = (splitIndex + md5Hash.charCodeAt(i)) % splitTests[testId].length
+    if (M.splitTests[testId].find(t => t.fraction != null)) {
+      // Use the entropy to pick 0 <= n < 100
+      let percent = 0
+      for (let i = 0; i < md5Hash.length; i++) {
+        percent = (percent + md5Hash.charCodeAt(i)) % 100
+      }
+      let tempSum = 0
+      for (let t of M.splitTests[testId]) {
+        tempSum += t.fraction == null? 1 / M.splitTests[testId].length : t.fraction
+        if (percent < tempSum * 100) {
+          return t
+        }
+      }
+      throw new Error('Error in split test fractions')
+    } else {
+      // Use the entropy to pick a number between 0 <= n < # of splits
+      let splitIndex = 0
+      for (let i = 0; i < md5Hash.length; i++) {
+        splitIndex = (splitIndex + md5Hash.charCodeAt(i)) % M.splitTests[testId].length
+      }
+      return M.splitTests[testId][splitIndex]
     }
-    return splitTests[testId][splitIndex]
+  },
+  _randomizeSplits: () => {
+    // For debugging
+    M._splitTestUuid4 = uuid.v4()
   },
 
   defaultAtom (defaultValue) {
@@ -318,7 +353,9 @@ Object.assign(M, {
           } else {
             M.mixpanel.identify(apiResponse.uid)
           }
-          M.mixpanel.track('Login')
+          M.mixpanel.track('Login', {
+            fbPermissions: fbPermissions
+          })
 
           M._setFirebaseToken(apiResponse.firebaseToken)
           return ref.authWithCustomToken(apiResponse.firebaseToken)
