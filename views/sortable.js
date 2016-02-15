@@ -67,8 +67,4 @@ view Sortable {
   >
     {children.get()}
   </sortable>
-
-  $ghost = {
-    opacity: 0
-  }
 }

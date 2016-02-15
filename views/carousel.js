@@ -386,4 +386,8 @@ view Carousel {
     width: innerWidth.get(),
     height: innerHeight.get()
   }
+  
+  $ghost = {
+    visibility: 'hidden'
+  }
 }
