@@ -520,7 +520,7 @@ window.addEventListener('storage', e => {
   }
 })
 
-Flint.router.onChange(() => {
+Motion.router.onChange(() => {
   M.context.route.set(window.location.pathname)
   M.context.queryParams.set(IMap(queryString.parse(window.location.search)))
 })

@@ -192,7 +192,7 @@ const decorator = (view) => {
   if ([
     'Installer', 'Modal', 'Menu', 'Errors'
   ].indexOf(view.name) >= 0) {
-    // Ignore special Flint components
+    // Ignore special Motion components
     return
   }
 
@@ -213,11 +213,11 @@ const decorator = (view) => {
     )
   }
   view.update = () => {
-    // The only place that calls this is Flint's rerendering pathway, which
+    // The only place that calls this is Motion's rerendering pathway, which
     // we want to turn into a no-op because we have our own rerendering
     // pathway
     if (view.debug) {
-      console.info('Flint tried to call view.update on', view.name)
+      console.info('Motion tried to call view.update on', view.name)
     }
   }
 
@@ -409,4 +409,4 @@ const decorator = (view) => {
   }
 }
 
-Flint._onViewInstance(decorator)
+Motion._onViewInstance(decorator)

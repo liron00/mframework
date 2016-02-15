@@ -17,7 +17,7 @@ view MModal {
   })
 
   <ReactModal
-    appElement={document.getElementById('_flintapp')}
+    appElement={document.getElementById('_motionapp')}
     isOpen={pro.isOpen.get()}
     onRequestClose={view.props.onRequestClose}
     style={{
@@ -39,14 +39,14 @@ view MModal {
       }).merge(pro.overlayStyle.get()).toJS()
     }}
   >
-    <hack id="_flintapp">
+    <hack id="_motionapp">
       {pro.children.get()}
     </hack>
   </ReactModal>
 
   // The <hack> tag addresses two problems:
-  // 1. Flint's styles only work inside a tag with id="_flintapp"
+  // 1. Motion's styles only work inside a tag with id="_motionapp"
   // 2. ReactModal.setAppElement appears to be totally broken.
   // Therefore we'll just wrap the modal's elements in a second
-  // component with id="_flintapp".
+  // component with id="_motionapp".
 }

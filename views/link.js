@@ -31,11 +31,11 @@ view Link {
 
         if (
           pro.target.get() != '_blank' &&
-          // Flint.router.go can't handle redirecting to another site
+          // Motion.router.go can't handle redirecting to another site
           pro.to.get().indexOf('://') == -1
         ) {
           oldPreventDefault()
-          Flint.router.go(pro.to.get())
+          Motion.router.go(pro.to.get())
           document.body.scrollTop = 0
         }
       }

@@ -45,7 +45,7 @@ view Lightbox {
 
   on.keydown(window, e => {
     if (!view.mounted) {
-      // This code path is due to a Flint bug
+      // This code path is due to a Motion bug
       return
     }
 
