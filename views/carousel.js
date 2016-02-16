@@ -260,7 +260,7 @@ view Carousel {
         }
       </TransitionMotion>
     </things>
-    <dotsSection if={pro.children.get().length > 1}
+    <dotsSection if={React.Children.count(pro.children.get()) > 1}
       style={pro.style.get().get('dots').toJS()}
     >
       <Sortable if={pro.sortable.get()}
@@ -280,24 +280,24 @@ view Carousel {
           view.props.onSort(e)
         }}
       >
-        <dot repeat={pro.children.get()}
+        <dot repeat={React.Children.toArray(pro.children.get())}
           onClick={() => {
             const inc = _index - (
-              M.util.mod(desiredIndex.get(), pro.children.get().length)
+              M.util.mod(desiredIndex.get(), React.Children.count(pro.children.get()))
             )
             selectedIndex.set(desiredIndex.get() + inc)
           }}
         />
       </Sortable>
-      <dot if={!pro.sortable.get()} repeat={pro.children.get()}
+      <dot if={!pro.sortable.get()} repeat={React.Children.toArray(pro.children.get())}
         onClick={() => {
           const inc = _index - (
-            M.util.mod(desiredIndex.get(), pro.children.get().length)
+            M.util.mod(desiredIndex.get(), React.Children.count(pro.children.get()))
           )
           selectedIndex.set(desiredIndex.get() + inc)
           M.mixpanel.track("CarouselDotClick", {
             dotIndex: _index,
-            numThings: pro.children.get().length
+            numThings: React.Children.count(pro.children.get())
           })
         }}
       />
@@ -305,8 +305,8 @@ view Carousel {
   </midSection>
   <rightSection if={pro.showButtons.get()}>
     <button class="rightButton"
-      if={pro.children.get().length > 1 && (
-        pro.wrapMode.get() || selectedIndex.get() < pro.children.get().length - 1
+      if={React.Children.count(pro.children.get()) > 1 && (
+        pro.wrapMode.get() || selectedIndex.get() < React.Children.count(pro.children.get()) - 1
       )}
       onClick={() => advance(1, 'button')}
       onMouseEnter={() => hoveringRight.set(true)}
