@@ -1,7 +1,8 @@
 view Scrollable {
   const pro = initPro(view, {
     autoBottom: M.defaultAtom(false),
-    children: atom()
+    children: atom(),
+    shadowHeight: M.defaultAtom(3)
   })
 
   const elem = atom()
@@ -94,7 +95,7 @@ view Scrollable {
     visibility: atTop.get()? 'hidden': 'visible',
     left: 0,
     right: 0,
-    height: 3,
+    height: pro.shadowHeight.get(),
     background: 'linear-gradient(to bottom, rgba(150, 150, 150, 0.8) 0%, rgba(150, 150, 150, 0) 100%)'
   }
 
@@ -106,7 +107,7 @@ view Scrollable {
     visibility: atBottom.get()? 'hidden' : 'visible',
     left: 0,
     right: 0,
-    height: 3,
+    height: pro.shadowHeight.get(),
     background: 'linear-gradient(to bottom, rgba(150, 150, 150, 0) 0%, rgba(150, 150, 150, 0.8) 100%)'
   }
 }
