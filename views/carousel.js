@@ -94,8 +94,8 @@ view Carousel {
 
   pro.selectedIndex.react(propSelectedIndex => {
     const inc = (
-      M.util.mod(propSelectedIndex, pro.children.get().length) -
-      M.util.mod(desiredIndex.get(), pro.children.get().length)
+      M.util.mod(propSelectedIndex, React.Children.count(pro.children.get())) -
+      M.util.mod(desiredIndex.get(), React.Children.count(pro.children.get()))
     )
     desiredIndex.set(desiredIndex.get() + inc)
   }, {
@@ -103,13 +103,13 @@ view Carousel {
   })
 
   const selectedIndex = lens({
-    get: () => M.util.mod(desiredIndex.get(), pro.children.get().length),
+    get: () => M.util.mod(desiredIndex.get(), React.Children.count(pro.children.get())),
     set: val => {
       if (pro.selectedIndex.get() == null) {
         desiredIndex.set(val)
       }
       view.props.onSelect && view.props.onSelect({
-        selectedIndex: M.util.mod(val, pro.children.get().length)
+        selectedIndex: M.util.mod(val, React.Children.count(pro.children.get()))
       })
     }
   })
@@ -117,17 +117,17 @@ view Carousel {
   selectedIndex.react(selectedIndex => {
     M.mixpanel.track("CarouselThingView", {
       selectedIndex,
-      numThings: pro.children.get().length
+      numThings: React.Children.count(pro.children.get())
     })
   })
 
   const selectedChild = derivation(() => {
-    return pro.children.get()[selectedIndex.get()] || null
+    return React.Children.toArray(pro.children.get())[selectedIndex.get()] || null
   })
 
-  pro.children.react(children => {
-    if (desiredIndex.get() >= children.length) {
-      desiredIndex.set(pro.children.get().length - 1)
+  pro.children.react(() => {
+    if (desiredIndex.get() >= React.Children.count(pro.children.get())) {
+      desiredIndex.set(React.Children.count(pro.children.get()) - 1)
     }
   })
 
@@ -136,14 +136,14 @@ view Carousel {
       selectedIndex.set(desiredIndex.get() + inc)
     } else {
       selectedIndex.set(
-        M.util.mod(selectedIndex.get() + inc, pro.children.get().length)
+        M.util.mod(selectedIndex.get() + inc, React.Children.count(pro.children.get()))
       )
     }
 
     M.mixpanel.track("CarouselAdvance", {
       inc,
       inputMethod,
-      numThings: pro.children.get().length
+      numThings: React.Children.count(pro.children.get())
     })
   }
 
@@ -170,7 +170,7 @@ view Carousel {
         if (panDeltaX.get() <= 0.15 * -innerWidth.get()) {
           if (
             pro.wrapMode.get() == 'cylinder' ||
-            selectedIndex.get() < pro.children.get().length - 1
+            selectedIndex.get() < React.Children.count(pro.children.get()) - 1
           ) {
             advance(1, 'swipe')
           }
@@ -192,7 +192,7 @@ view Carousel {
 
   <leftSection if={pro.showButtons.get()}>
     <button class="leftButton"
-      if={pro.children.get().length > 1 && (
+      if={React.Children.count(pro.children.get()) > 1 && (
         pro.wrapMode.get() || selectedIndex.get() > 0
       )}
       onClick={() => advance(-1, 'button')}
@@ -211,7 +211,7 @@ view Carousel {
     } />
     <rightShadow if={
       pro.shadows.get() && (
-        selectedIndex.get() < pro.children.get().length - 1 ||
+        selectedIndex.get() < React.Children.count(pro.children.get()) - 1 ||
         pro.wrapMode.get() == 'cylinder'
       )
     } />
@@ -230,13 +230,13 @@ view Carousel {
           const styles = {}
           const start = desiredIndex.get() - (
             pro.wrapMode.get() == 'cylinder'?
-            pro.children.get().length - 1 :
+            React.Children.count(pro.children.get()) - 1 :
             selectedIndex.get()
           )
           const end = desiredIndex.get() + (
             pro.wrapMode.get() == 'cylinder'?
-            pro.children.get().length - 1 :
-            pro.children.get().length - 1 - selectedIndex.get()
+            React.Children.count(pro.children.get()) - 1 :
+            React.Children.count(pro.children.get()) - 1 - selectedIndex.get()
           )
           for (let i = start; i <= end; i++) {
             styles[i] = makeStyle(i)
@@ -253,8 +253,8 @@ view Carousel {
               left: styles[_].x + styles[_].dx
             }}
           >
-            {pro.children.get()[
-              M.util.mod(parseInt(_), pro.children.get().length)
+            {React.Children.toArray(pro.children.get())[
+              M.util.mod(parseInt(_), React.Children.count(pro.children.get()))
             ]}
           </thing>
         }
@@ -386,7 +386,7 @@ view Carousel {
     width: innerWidth.get(),
     height: innerHeight.get()
   }
-  
+
   $ghost = {
     visibility: 'hidden'
   }
