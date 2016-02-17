@@ -51,6 +51,12 @@ view Scrollable {
     })
   })
 
+  scrollTop.react(() => {
+    if (view.props.onScroll) {
+      view.props.onScroll({scrollTop: scrollTop.get()})
+    }
+  }, {skipFirst: true})
+
   <scrollable
     ref={el => elem.set(el)}
     onScroll={e => {
