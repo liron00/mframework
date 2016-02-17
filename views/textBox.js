@@ -30,6 +30,10 @@ view TextBox {
     inp.get() && inp.get().blur()
   }
 
+  if (view.props.methodsHack) {
+    view.props.methodsHack({focus: view.focus, blur: view.blur})
+  }
+
   const value = atom(pro.initialValue.get())
   pro.value.react(propValue => {
     if (propValue != null) {
