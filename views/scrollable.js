@@ -25,6 +25,16 @@ view Scrollable {
     }
   })
 
+  if (view.props.methodsHack) {
+    view.props.methodsHack({
+      scrollTo: y => {
+        if (elem.get()) {
+          elem.get().scrollTop = y
+        }
+      }
+    })
+  }
+
   scrollHeight.react(scrollHeight => {
     if (elem.get() && pro.autoBottom.get() && (
       scrollHeightAfterAuto.get() == undefined || (
