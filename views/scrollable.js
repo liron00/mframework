@@ -77,7 +77,8 @@ view Scrollable {
   }
 
   $scrollable = {
-    overflow: 'auto',
+    overflowX: 'hidden',
+    overflowY: 'auto',
     alignItems: 'stretch',
     flexGrow: 1
   }
