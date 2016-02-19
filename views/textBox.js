@@ -5,6 +5,7 @@ view TextBox {
     autoFocus: M.defaultAtom(false),
     autoSelect: M.defaultAtom(false),
     enabled: M.defaultAtom(true),
+    maxLength: M.defaultAtom(null),
     multiline: M.defaultAtom(false),
     initialValue: M.defaultAtom(''),
     value: atom(),
@@ -108,6 +109,7 @@ view TextBox {
     placeholder={pro.placeholder.get()}
     tabIndex={pro.tabIndex.get()}
     onClick={view.props.onClick}
+    maxLength={pro.maxLength.get()}
   />
   <textarea class="inp" if={pro.multiline.get()}
     ref={elem => {if (elem) inp.set(elem)}}
@@ -124,6 +126,7 @@ view TextBox {
     style={pro.inpStyle.get().toJS()}
     tabIndex={pro.tabIndex.get()}
     onClick={view.props.onClick}
+    maxLength={pro.maxLength.get()}
   />
 
   $ = {
