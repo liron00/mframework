@@ -26,6 +26,7 @@ if (config.mixpanelToken) {
     // Monkey patch Mixpanel tracking to be a no-op
     // since some MFramework components use it
   }
+  mixpanel.cookie = {clear: () => {}}
 }
 
 // Facebook SDK
