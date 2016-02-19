@@ -2,6 +2,8 @@
 
 view TextBox {
   const pro = initPro(view, {
+    autoCorrect: M.defaultAtom(null),
+    autoCapitalize: M.defaultAtom(null),
     autoFocus: M.defaultAtom(false),
     autoSelect: M.defaultAtom(false),
     enabled: M.defaultAtom(true),
@@ -96,6 +98,8 @@ view TextBox {
     ref={elem => {if (elem) inp.set(elem)}}
     type={pro.type.get() || 'text'}
     pattern={pro.pattern.get()}
+    autoCorrect={pro.autoCorrect.get()}
+    autoCapitalize={pro.autoCapitalize.get()}
     autoFocus={pro.autoFocus.get()}
     defaultValue={value.get()}
     disabled={!pro.enabled.get()}
@@ -113,6 +117,8 @@ view TextBox {
   />
   <textarea class="inp" if={pro.multiline.get()}
     ref={elem => {if (elem) inp.set(elem)}}
+    autoCorrect={pro.autoCorrect.get()}
+    autoCapitalize={pro.autoCapitalize.get()}
     autoFocus={pro.autoFocus.get()}
     defaultValue={value.get()}
     disabled={!pro.enabled.get()}
