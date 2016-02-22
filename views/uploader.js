@@ -5,7 +5,9 @@ view Uploader {
 
   const pro = initPro(view, {
     accept: atom(),
-    children: atom()
+    capture: M.defaultAtom('camera'),
+    children: atom(),
+    multiple: M.defaultAtom(false)
   })
 
   const dragging = atom(false)
@@ -19,8 +21,9 @@ view Uploader {
     </childrenSec>
     <input
       type="file"
-      capture="camera"
+      capture={pro.capture.get()}
       accept={pro.accept.get()}
+      multiple={pro.multiple.get()}
       onChange={view.props.onChange}
     />
   </label>

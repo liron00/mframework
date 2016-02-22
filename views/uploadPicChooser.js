@@ -1,24 +1,41 @@
 view UploadPicChooser {
   const pro = initPro(view, {
+    capture: atom(),
     initialPicKey: M.defaultAtom(null),
+    initialPicKeys: M.defaultAtom(null),
     editable: M.defaultAtom(true),
     width: M.defaultAtom(300),
     height: M.defaultAtom(168),
     circle: M.defaultAtom(false),
     children: atom(),
+    multiple: M.defaultAtom(false),
     picStyle: M.mapAtom({}),
     noPicStyle: M.mapAtom({}),
     zoomable: M.defaultAtom(false)
   })
 
-  const picKey = atom(pro.initialPicKey.get())
+  const picKeys = M.listAtom(pro.initialPicKeys.get() || (
+    pro.initialPicKey.get()? [pro.initialPicKey.get()] : null
+  ))
+  const picKey = derivation(() => picKeys.get() && picKeys.get().get(0))
   const uploading = atom(false)
 
-  picKey.react(picKey => {
-    if (view.props.onSelect) {
-      view.props.onSelect({picKey})
+  picKeys.react(picKeys => {
+    if (pro.multiple.get()) {
+      if (view.props.onSelect) {
+        view.props.onSelect({picKeys})
+      }
+      M.mixpanel.track("UploadPicChooserSelect", {picKeys})
     }
-    M.mixpanel.track("UploadPicChooserSelect", {picKey})
+  }, {skipFirst: true})
+
+  picKey.react(picKey => {
+    if (!pro.multiple.get()) {
+      if (view.props.onSelect) {
+        view.props.onSelect({picKey})
+      }
+      M.mixpanel.track("UploadPicChooserSelect", {picKey})
+    }
   }, {skipFirst: true})
 
   const noPicStyle = derivation(() => {
@@ -52,10 +69,12 @@ view UploadPicChooser {
     />
     <S3Uploader if={pro.editable.get() && !picKey.get() && !uploading.get()}
       accept="image/*"
+      capture={pro.capture.get()}
+      multiple={pro.multiple.get()}
       onStartUpload={() => uploading.set(true)}
       onUploaded={e => {
         uploading.set(false)
-        picKey.set(e.s3Key)
+        picKeys.set(e.s3Keys || [e.s3Key])
       }}
     >
       <noPic style={noPicStyle.get().toJS()}>
@@ -72,10 +91,12 @@ view UploadPicChooser {
   <actionRow if={picKey.get() && pro.editable.get()}>
     <S3Uploader
       accept="image/*"
+      capture={pro.capture.get()}
+      multiple={pro.multiple.get()}
       onStartUpload={() => uploading.set(true)}
       onUploaded={e => {
         uploading.set(false)
-        picKey.set(e.s3Key)
+        picKeys.set(e.s3Keys || [e.s3Key])
       }}
     >
       <EditLink />
