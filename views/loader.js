@@ -3,7 +3,7 @@ view Loader {
 
   $ = {
     opacity: 0.5,
-    width: 50,
+    width: 16,
     alignItems: 'center',
     justifyContent: 'center'
   }
