@@ -79,6 +79,7 @@ view S3Uploader {
   <notUploading if={!uploading.get()}>
     <Uploader
       accept={pro.accept.get()}
+      capture={pro.capture.get()}
       onChange={handleFiles}
       multiple={pro.multiple.get()}
     >
