@@ -3,6 +3,7 @@ import URI from 'urijs'
 import { firebase } from './index'
 
 import config from './config'
+import facebook from './facebook'
 import util from './util'
 import LiveQuery from './liveQuery'
 import storage from './storage'
@@ -13,6 +14,7 @@ class Auth {
   @observable isAdmin = undefined
   @observable _fiUser = undefined
   _loggingIn = false
+  _loggedInWithFacebook = false
 
   initialize() {
     autorun(() => {
@@ -153,6 +155,46 @@ class Auth {
     }
   }
 
+  async loginWithFacebook() {
+    this._loggingIn = true
+    transaction(() => {
+      this.uid = undefined
+      this.isAdmin = undefined
+    })
+
+    const FB = await facebook()
+    const response = await new Promise(resolve => FB.login(resolve))
+    if (!response.authResponse) {
+      // User cancelled login
+      this.uid = null
+      this._loggingIn = false
+      return
+    }
+
+    let apiResponse
+    try {
+      apiResponse = await util.apiPost('loginWithFacebook', {
+        fbToken: response.authResponse.accessToken
+      })
+    } catch (err) {
+      transaction(() => {
+        this.uid = null
+        this.isAdmin = null
+      })
+      throw err
+    }
+
+    this._setFirebaseToken(apiResponse.firebaseToken)
+    await firebase.auth().signInWithCustomToken(apiResponse.firebaseToken)
+
+    this._loggingIn = false
+    this._loggedInWithFacebook = true
+    transaction(() => {
+      this.uid = firebase.auth().currentUser.uid
+      this.isAdmin = apiResponse.isAdmin
+    })
+  }
+
   redirectToLinkedInOauth(nextUrl = window.location.href) {
     window.location = `https://www.linkedin.com/uas/oauth2/authorization?${
       util.objToParamString({
@@ -166,7 +208,7 @@ class Auth {
     }`
   }
 
-  async loginOrRegister(linkedInCode, nextUrl) {
+  async loginOrRegisterWithLinkedIn(linkedInCode, nextUrl) {
     this._loggingIn = true
     transaction(() => {
       this.uid = undefined
@@ -175,7 +217,7 @@ class Auth {
 
     let apiResponse
     try {
-      apiResponse = await util.apiPost('loginOrRegister', {
+      apiResponse = await util.apiPost('loginOrRegisterWithLinkedIn', {
         linkedInCode,
         redirectUri: config.linkedInRedirectUri + '?' + util.objToParamString({
           next: nextUrl
@@ -233,7 +275,12 @@ class Auth {
       this.sessionId = undefined
     })
     this._setFirebaseToken(null)
-    await firebase.auth().signOut()
+    await Promise.all([
+      firebase.auth().signOut(),
+      this._loggedInWithFacebook && facebook().then(FB => {
+        return new Promise(resolve => FB.logout(resolve))
+      })
+    ])
 
     let apiResponse
     try {
@@ -247,6 +294,8 @@ class Auth {
       console.error(err)
       return
     }
+
+    this._loggedInWithFacebook = false
     this.sessionId = apiResponse.newSessionId
   }
 }
