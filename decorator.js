@@ -3,6 +3,7 @@ import { asStructure, autorun, computed, extendObservable, observable, transacti
 import { observer } from 'mobx-react'
 
 import LiveQuery from './liveQuery'
+import MultiLiveQuery from './multiLiveQuery'
 
 let nextId = 1
 
@@ -48,11 +49,17 @@ export default function m(NewComponent) {
           specCopy = Object.assign({}, this.dataSpec[dataKey])
         }
         if (this.active) {
-          const refFunc = specCopy.ref
-          specCopy.ref = () => this.active()? refFunc() : undefined
+          if (specCopy.ref) {
+            const refFunc = specCopy.ref
+            specCopy.ref = () => this.active()? refFunc() : undefined
+          } else if (specCopy.refs) {
+            const refsFunc = specCopy.refs
+            specCopy.refs = () => this.active()? refsFunc() : undefined
+          }
         }
 
-        this.liveQueries[dataKey] = new LiveQuery(
+        const isMulti = !!specCopy.refs
+        this.liveQueries[dataKey] = new (isMulti? MultiLiveQuery : LiveQuery)(
           specCopy,
           {
             start: false,

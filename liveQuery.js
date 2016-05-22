@@ -1,12 +1,80 @@
 import { extendObservable } from 'mobx'
-import { asStructure, autorun, observable, computed, untracked } from 'mobx'
+import { asStructure, autorun, computed, observable, transaction,
+  untracked } from 'mobx'
 import { observer } from 'mobx-react'
 
 import { firebase } from './index'
 
 export default class LiveQuery {
+  name
+  dataConfig
   @observable _value
   @observable isActive
+  _disposer
+  _reallyStarted
+  _oldQuery
+
+  static compileValueFunc = valueFunc => {
+    if (valueFunc === true) {
+      return (snap) => snap.val()
+    } else if (valueFunc == 'WITH_ID') {
+      return (snap) => {
+        const ret = snap.val()
+        if (ret) ret.id = snap.key
+        return ret
+      }
+    } else if (valueFunc == 'ID_ARR') {
+      return (snap) => {
+        const ret = []
+        if (snap.val()) {
+          snap.forEach(childRef => ret.push(childRef.key))
+        }
+        return ret
+      }
+    } else if (valueFunc == 'ARR') {
+      return (snap) => {
+        const ret = []
+        if (snap.val()) {
+          snap.forEach(childRef => ret.push(childRef.val()))
+        }
+        return ret
+      }
+    } else if (valueFunc == 'ARR_WITH_IDS') {
+      return (snap) => {
+        const ret = []
+        if (snap.val()) {
+          snap.forEach(childRef => {
+            const childObj = childRef.val()
+            childObj.id = childRef.key
+            ret.push(childObj)
+          })
+        }
+        return ret
+      }
+    }
+  }
+
+  constructor(dataSpec, {start = true, name = null} = {}) {
+    if (typeof dataSpec == 'function') {
+      // Shorthand syntax
+      this.dataConfig = {
+        ref: dataSpec,
+        value: true
+      }
+    } else {
+      this.dataConfig = dataSpec
+    }
+    if (this.dataConfig.value && typeof this.dataConfig.value != 'function') {
+      this.dataConfig.value =
+        this.constructor.compileValueFunc(this.dataConfig.value)
+    }
+
+    this._oldQuery = null
+    this._queryHandlers = {} // eventType: handler
+
+    this.name = name
+    if (start) this.start()
+  }
 
   @computed({asStructure: true}) get value() {
     if (!this.isActive) {
@@ -27,24 +95,6 @@ export default class LiveQuery {
     return this._value
   }
 
-  constructor(dataSpec, options = {start: true, name: null}) {
-    if (typeof dataSpec == 'function') {
-      // Shorthand syntax
-      this.dataConfig = {
-        ref: dataSpec,
-        value: true
-      }
-    } else {
-      this.dataConfig = dataSpec
-    }
-
-    this._oldQuery = null
-    this._queryHandlers = {} // eventType: handler
-
-    this.name = options.name
-    if (options.start) this.start()
-  }
-
   @computed({asStructure: true}) get pathSpec() {
     const pathParts = this.dataConfig.ref()
     if (pathParts === null) {
@@ -61,20 +111,29 @@ export default class LiveQuery {
   @computed get query() {
     if (this.pathSpec === undefined) return undefined
     if (this.pathSpec === null) return null
+
+    // Return Firebase.Query
     const rawRef = firebase.database().ref().child(this.pathSpec.join('/'))
     const refOptionsFunc = this.dataConfig.refOptions || (ref => ref)
     return refOptionsFunc(rawRef)
   }
 
   start() {
-    this._queryDisposer = autorun(() => {
+    if (this.isActive) {
+      throw new Error(`${this} already started`)
+    }
+
+    this._disposer = autorun(() => {
       this._reallyStarted = true
 
-      for (let eventType of Object.keys(this._queryHandlers)) {
-        const handler = this._queryHandlers[eventType]
-        this._oldQuery.off(eventType, handler)
-        delete this._queryHandlers[eventType]
+      if (this._oldQuery) {
+        for (let eventType of Object.keys(this._queryHandlers)) {
+          const handler = this._queryHandlers[eventType]
+          this._oldQuery.off(eventType, handler)
+          delete this._queryHandlers[eventType]
+        }
       }
+
       this._oldQuery = this.query
 
       if (this.query === null) {
@@ -84,65 +143,31 @@ export default class LiveQuery {
       this._value = undefined
       if (this.query === undefined) return
 
-      for (let eventType in this.dataConfig) {
-        if ([
-          'value', 'child_added', 'child_changed', 'child_moved', 'child_removed'
-        ].indexOf(eventType) == -1) continue
+      if (!this.isMulti) {
+        for (let eventType in this.dataConfig) {
+          if ([
+            'value', 'child_added', 'child_changed', 'child_moved', 'child_removed'
+          ].indexOf(eventType) == -1) continue
 
-        const callback = this.dataConfig[eventType]
-
-        this._queryHandlers[eventType] = this.query.on(eventType, (snapshot, prevChildKey) => {
-          if (typeof callback == 'function') {
-            const retVal = callback(snapshot, prevChildKey)
-            if (eventType == 'value') {
-              this._value = retVal
-            }
-
-          } else {
-            if (eventType == 'value') {
-              let retVal
-              if (callback === true) {
-                retVal = snapshot.val()
-              } else if (callback == 'WITH_ID') {
-                retVal = snapshot.val()
-                if (retVal) retVal.id = snapshot.key
-              } else if (callback == 'ID_ARR') {
-                retVal = []
-                if (snapshot.val()) {
-                  snapshot.forEach(childRef => {
-                    retVal.push(childRef.key)
-                  })
-                }
-              } else if (callback == 'ARR') {
-                retVal = []
-                if (snapshot.val()) {
-                  snapshot.forEach(childRef => {
-                    retVal.push(childRef.val())
-                  })
-                }
-              } else if (callback == 'ARR_WITH_IDS') {
-                retVal = []
-                if (snapshot.val()) {
-                  snapshot.forEach(childRef => {
-                    const childObj = childRef.val()
-                    childObj.id = childRef.key
-                    retVal.push(childObj)
-                  })
-                }
-              } else {
-                throw new Error(`Unsupported value spec: ${callback}`)
-              }
-              this._value = retVal
-
-            } else {
-              throw new Error(`Invalid callback for ${eventType}: ${callback}`)
-            }
+          const callback = this.dataConfig[eventType]
+          if (typeof callback != 'function') {
+            throw new Error(`Invalid callback for ${eventType}: ${callback}`)
           }
-        })
-      }
 
-      if (Object.keys(this._queryHandlers).length == 0) {
-        console.warn(`No event handlers for LiveQuery`, this.name)
+          this._queryHandlers[eventType] = this.query.on(
+            eventType,
+            (snap, prevChildKey) => {
+              const retVal = callback(snap, prevChildKey)
+              if (eventType == 'value') {
+                this._value = retVal
+              }
+            }
+          )
+        }
+
+        if (Object.keys(this._queryHandlers).length == 0) {
+          console.warn(`No event handlers for LiveQuery`, this.name)
+        }
       }
     })
 
@@ -154,13 +179,15 @@ export default class LiveQuery {
   }
 
   stop() {
-    if (this._queryDisposer) {
-      this._queryDisposer()
-      delete this._queyDisposer
+    if (this._disposer) {
+      this._disposer()
+      delete this._disposer
     }
+
     for (let eventType in this._queryHandlers) {
       this._oldQuery.off(eventType, this._queryHandlers[eventType])
     }
+
     this._reallyStarted = false
     this.isActive = false
   }
