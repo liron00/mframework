@@ -2,6 +2,8 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/database'
 
+import {autorun, computed, observable, when} from 'mobx'
+
 import auth from './auth'
 import config from './config'
 import decorator from './decorator'
@@ -20,6 +22,23 @@ export default function initialize(cfg) {
   })
 
   auth.initialize()
+}
+
+if (!config.isLive) {
+  window.autorun = autorun
+  window.computed = computed
+  window.observable = observable
+  window.when = when
+
+  window.M = {
+    auth,
+    config,
+    firebase,
+    decorator,
+    LiveQuery,
+    storage,
+    util
+  }
 }
 
 export {
