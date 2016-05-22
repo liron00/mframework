@@ -6,6 +6,8 @@ import { firebase } from './index'
 
 export default class LiveQuery {
   @observable _value
+  @observable isActive
+
   @computed({asStructure: true}) get value() {
     if (!this.isActive) {
       throw new Error(`${this} can't get value when inactive`)
@@ -143,14 +145,12 @@ export default class LiveQuery {
         console.warn(`No event handlers for LiveQuery`, this.name)
       }
     })
+
+    this.isActive = true
   }
 
   dispose() {
     this.stop()
-  }
-
-  @computed get isActive() {
-    return !!this._queryDisposer
   }
 
   stop() {
@@ -162,6 +162,7 @@ export default class LiveQuery {
       this._oldQuery.off(eventType, this._queryHandlers[eventType])
     }
     this._reallyStarted = false
+    this.isActive = false
   }
 
   toString() {

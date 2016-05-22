@@ -60,7 +60,10 @@ export default function m(NewComponent) {
           }
         )
         extendObservable(this.data, {
-          [dataKey]: asStructure(() => this.liveQueries[dataKey].value)
+          [dataKey]: asStructure(() => {
+            return this.liveQueries[dataKey].isActive?
+              this.liveQueries[dataKey].value : undefined
+          })
         })
       }
       for (let dataKey in this.liveQueries) {
