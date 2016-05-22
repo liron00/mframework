@@ -143,31 +143,29 @@ export default class LiveQuery {
       this._value = undefined
       if (this.query === undefined) return
 
-      if (!this.isMulti) {
-        for (let eventType in this.dataConfig) {
-          if ([
-            'value', 'child_added', 'child_changed', 'child_moved', 'child_removed'
-          ].indexOf(eventType) == -1) continue
+      for (let eventType in this.dataConfig) {
+        if ([
+          'value', 'child_added', 'child_changed', 'child_moved', 'child_removed'
+        ].indexOf(eventType) == -1) continue
 
-          const callback = this.dataConfig[eventType]
-          if (typeof callback != 'function') {
-            throw new Error(`Invalid callback for ${eventType}: ${callback}`)
-          }
+        const callback = this.dataConfig[eventType]
+        if (typeof callback != 'function') {
+          throw new Error(`Invalid callback for ${eventType}: ${callback}`)
+        }
 
-          this._queryHandlers[eventType] = this.query.on(
-            eventType,
-            (snap, prevChildKey) => {
-              const retVal = callback(snap, prevChildKey)
-              if (eventType == 'value') {
-                this._value = retVal
-              }
+        this._queryHandlers[eventType] = this.query.on(
+          eventType,
+          (snap, prevChildKey) => {
+            const retVal = callback(snap, prevChildKey)
+            if (eventType == 'value') {
+              this._value = retVal
             }
-          )
-        }
+          }
+        )
+      }
 
-        if (Object.keys(this._queryHandlers).length == 0) {
-          console.warn(`No event handlers for LiveQuery`, this.name)
-        }
+      if (Object.keys(this._queryHandlers).length == 0) {
+        console.warn(`No event handlers for LiveQuery`, this.name)
       }
     })
 
