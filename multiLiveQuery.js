@@ -35,7 +35,7 @@ export default class MultiLiveQuery {
   }
 
   @computed({asStructure: true}) get value() {
-    if (!this.isActive) {
+    if (!untracked(() => this.isActive)) {
       throw new Error(`${this} can't get value when inactive`)
     }
     if (!this.pathSpecs) return this.pathSpecs

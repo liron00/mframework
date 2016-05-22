@@ -12,6 +12,8 @@ import MultiLiveQuery from './multiLiveQuery'
 import storage from './storage'
 import util from './util'
 
+let initialized = false
+
 export default function initialize(cfg) {
   Object.assign(config, cfg)
 
@@ -23,7 +25,11 @@ export default function initialize(cfg) {
   })
 
   auth.initialize()
+
+  initialized = true
 }
+
+const isInitialized = () => initialized
 
 if (!config.isLive) {
   window.autorun = autorun
@@ -50,6 +56,7 @@ export {
   firebase,
   decorator as m,
   LiveQuery,
+  isInitialized,
   MultiLiveQuery,
   storage,
   util
