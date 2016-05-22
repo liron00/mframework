@@ -1,7 +1,5 @@
-import { extendObservable, map } from 'mobx'
-import { asStructure, autorun, computed, observable, transaction,
-  untracked } from 'mobx'
-import { observer } from 'mobx-react'
+import { asStructure, autorun, computed, extendObservable, map, observable,
+  transaction, untracked } from 'mobx'
 
 import { firebase } from './index'
 import LiveQuery from './liveQuery'
