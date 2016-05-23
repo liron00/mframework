@@ -8,7 +8,8 @@ import MultiLiveQuery from './multiLiveQuery'
 let nextId = 1
 
 export default function m(NewComponent) {
-  return observer(class extends NewComponent {
+  @observer
+  class C extends NewComponent {
     @observable smartProps = {}
     @observable data = {}
     liveQueries = {} // dataKey: liveQuery
@@ -185,5 +186,12 @@ export default function m(NewComponent) {
     toString() {
       return `<${NewComponent.name} ${this.id}>`
     }
+  }
+
+  Object.defineProperty(C, 'name', {
+    value: NewComponent.name,
+    writable: false
   })
+
+  return C
 }
