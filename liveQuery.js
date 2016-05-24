@@ -158,6 +158,13 @@ export default class LiveQuery {
             if (eventType == 'value') {
               this._value = retVal
             }
+          },
+          err => {
+            if ('onErr' in this.dataConfig) {
+              this.dataConfig.onErr(err)
+            } else {
+              console.error(`Error in ${this}:`, err)
+            }
           }
         )
       }

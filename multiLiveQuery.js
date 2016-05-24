@@ -82,6 +82,9 @@ export default class MultiLiveQuery {
     if (this.dataConfig.refOptions) {
       lqConfig.refOptions = (ref) => this.dataConfig.refOptions(key, ref)
     }
+    if (this.dataConfig.onErr) {
+      lqConfig.onErr = (err) => this.dataConfig.onErr(key, err)
+    }
     for (let eventType of [
       'value', 'child_added', 'child_changed', 'child_moved', 'child_removed'
     ]) {

@@ -1,8 +1,12 @@
 {
+  "env": {
+    "es6": true
+  },
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "sourceType": "module"
+  },
   "rules": {
-    "indent": 1,
-    "react/jsx-closing-bracket-location": 1,
-    "react/jsx-indent-props": 1,
-    "react/jsx-indent": 1
+    "brace-style": 2
   }
 }
