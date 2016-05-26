@@ -1,5 +1,6 @@
 import { extendObservable, observable, when } from 'mobx'
 import { browserHistory } from 'react-router'
+import moment from 'moment'
 
 import config from './config'
 import auth from './auth'
@@ -57,6 +58,19 @@ const util = {
       },
       params
     })
+  },
+
+  formatMessengerDate: (date) => {
+    date = moment(date)
+    const now = moment()
+
+    if (now.diff(date, 'hours') <= 11) {
+      return date.format('h:mma')
+    } else if (now.diff(date, 'days') <= 5) {
+      return date.format('ddd')
+    } else {
+      return date.format('MMM D')
+    }
   },
 
   makeComparator: (keyFunc, reverse) => {

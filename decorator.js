@@ -188,10 +188,17 @@ export default function m(NewComponent) {
     }
   }
 
-  Object.defineProperty(C, 'name', {
-    value: NewComponent.name,
-    writable: false
-  })
+  try {
+    // This is useful for debugging in desktop Chrome browser
+    Object.defineProperty(C, 'name', {
+      value: NewComponent.name,
+      writable: false
+    })
+  } catch(err) {
+    // Lots of other browsers throw
+    // TypeError: Attempting to change value of a readonly property
+    // but it's not a big deal
+  }
 
   return C
 }
