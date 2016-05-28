@@ -83,18 +83,14 @@ export default class LiveQuery {
       throw new Error(`${this} can't get value when inactive`)
     }
 
-    // Leaving this block here for now because I suspect this may be something
-    // to address
-    untracked(() => {
-      if (this._reallyStarted && this._oldQuery !== this.query) {
-        if (this._value !== undefined) {
-          console.log(this.toString(), 'STALE VALUE', this._value, this.query, this._oldQuery)
-          console.trace()
-        }
-      }
-    })
-
-    return this._value
+    if (this.query === this._oldQuery) {
+      return this._value
+    } else {
+      // Computed query has changed before the autorun had time to update
+      // this._value
+      this._value // for tracking
+      return this.query === null? null : undefined
+    }
   }
 
   @computed({asStructure: true}) get pathSpec() {
