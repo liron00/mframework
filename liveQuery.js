@@ -25,7 +25,9 @@ export default class LiveQuery {
       return (snap) => {
         const ret = []
         if (snap.val()) {
-          snap.forEach(childRef => ret.push(childRef.key))
+          snap.forEach(childRef => {
+            ret.push(childRef.key)
+          })
         }
         return ret
       }
@@ -33,7 +35,9 @@ export default class LiveQuery {
       return (snap) => {
         const ret = []
         if (snap.val()) {
-          snap.forEach(childRef => ret.push(childRef.val()))
+          snap.forEach(childRef => {
+            ret.push(childRef.val())
+          })
         }
         return ret
       }
