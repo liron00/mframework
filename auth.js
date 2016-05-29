@@ -224,13 +224,42 @@ class Auth {
         })
       })
     } catch (err) {
-      console.log('login failed')
+      console.error(`Login failed`, err)
       this._loggingIn = false
       transaction(() => {
         this.uid = null
         this.isAdmin = null
       })
       return
+    }
+
+    this._setFirebaseToken(apiResponse.firebaseToken)
+    await firebase.auth().signInWithCustomToken(apiResponse.firebaseToken)
+
+    this._loggingIn = false
+    transaction(() => {
+      this.uid = firebase.auth().currentUser.uid
+      this.isAdmin = apiResponse.isAdmin
+    })
+  }
+
+  async loginOrRegister(params) {
+    this._loggingIn = true
+    transaction(() => {
+      this.uid = undefined
+      this.isAdmin = undefined
+    })
+
+    let apiResponse
+    try {
+      apiResponse = await util.apiPost('loginOrRegister', params)
+    } catch (err) {
+      this._loggingIn = false
+      transaction(() => {
+        this.uid = null
+        this.isAdmin = null
+      })
+      throw err
     }
 
     this._setFirebaseToken(apiResponse.firebaseToken)

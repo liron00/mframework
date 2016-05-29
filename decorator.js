@@ -1,5 +1,6 @@
 import React from 'react'
-import { asStructure, autorun, computed, extendObservable, observable, transaction, when } from 'mobx'
+import { asStructure, autorun, computed, extendObservable, observable,
+  reaction, transaction, when } from 'mobx'
 import { observer } from 'mobx-react'
 
 import LiveQuery from './liveQuery'
@@ -16,6 +17,7 @@ export default function m(NewComponent) {
     _intervalIds
     _timeoutIds
     _autorunDisposers
+    _reactionDisposers
     _whenDisposers
 
     constructor(props) {
@@ -122,6 +124,12 @@ export default function m(NewComponent) {
       this._autorunDisposers.push(disposer)
     }
 
+    reaction(expressionFunc, sideEffectFunc, fireImmediately = false, delay = 0) {
+      const disposer = reaction(expressionFunc, sideEffectFunc, fireImmediately, delay)
+      if (!this._reactionDisposers) this._reactionDisposers = []
+      this._reactionDisposers.push(disposer)
+    }
+
     when(predicate, effect) {
       const disposer = when(predicate, effect)
       if (!this._whenDisposers) this._whenDisposers = []
@@ -165,6 +173,9 @@ export default function m(NewComponent) {
       if (super.componentWillUnmount) super.componentWillUnmount()
 
       for (let disposer of this._autorunDisposers || []) {
+        disposer()
+      }
+      for (let disposer of this._reactionDisposers || []) {
         disposer()
       }
       for (let disposer of this._whenDisposers || []) {
