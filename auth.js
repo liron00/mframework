@@ -106,12 +106,18 @@ class Auth {
   }
 
   async startNewSession() {
-    const session = await util.apiCall('newSession', {
-      method: 'post',
-      headers: {
-        'Content-Type': "application/json"
-      }
-    }, null)
+    let session
+    try {
+      session = await util.apiCall('newSession', {
+        method: 'post',
+        headers: {
+          'Content-Type': "application/json"
+        }
+      }, null)
+    } catch(err) {
+      console.error(`Error starting new session`, err)
+      throw err
+    }
 
     transaction(() => {
       this.sessionId = session.id
@@ -147,11 +153,11 @@ class Auth {
           this.uid = null
         }
       } else {
-        this.startNewSession()
+        await this.startNewSession()
       }
 
     } else {
-      this.startNewSession()
+      await this.startNewSession()
     }
   }
 
@@ -162,8 +168,15 @@ class Auth {
       this.isAdmin = undefined
     })
 
-    const FB = await facebook()
-    const response = await new Promise(resolve => FB.login(resolve))
+    let FB
+    if (window.FB) {
+      // Bypass the elegant way because some browsers don't get that it's
+      // is "synchronous" for the purpose of allowing a popup
+      FB = window.FB
+    } else {
+      FB = await facebook()
+    }
+    const response = await new Promise(resolve => window.FB.login(resolve))
     if (!response.authResponse) {
       // User cancelled login
       this.uid = null
