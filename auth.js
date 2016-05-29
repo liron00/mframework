@@ -170,13 +170,46 @@ class Auth {
       this._loggingIn = false
       return
     }
+    const fbToken = response.authResponse.accessToken
 
     let apiResponse
     try {
       apiResponse = await util.apiPost('loginWithFacebook', {
-        fbToken: response.authResponse.accessToken
+        fbToken
       })
     } catch (err) {
+      this._loggingIn = false
+      transaction(() => {
+        this.uid = null
+        this.isAdmin = null
+      })
+      err.fbToken = fbToken
+      throw err
+    }
+
+    this._setFirebaseToken(apiResponse.firebaseToken)
+    await firebase.auth().signInWithCustomToken(apiResponse.firebaseToken)
+
+    this._loggingIn = false
+    this._loggedInWithFacebook = true
+    transaction(() => {
+      this.uid = firebase.auth().currentUser.uid
+      this.isAdmin = apiResponse.isAdmin
+    })
+  }
+
+  async registerWithFacebook(params) {
+    this._loggingIn = true
+    transaction(() => {
+      this.uid = undefined
+      this.isAdmin = undefined
+    })
+
+    let apiResponse
+    try {
+      apiResponse = await util.apiPost('registerWithFacebook', params)
+    } catch (err) {
+      this._loggingIn = false
       transaction(() => {
         this.uid = null
         this.isAdmin = null
