@@ -25,6 +25,10 @@ export default function m(NewComponent) {
 
       this.id = nextId++
 
+      if (this.debug) {
+        console.log(`${this}.constructor`, props)
+      }
+
       Object.assign(this.smartProps, props)
 
       transaction(() => {
@@ -84,6 +88,10 @@ export default function m(NewComponent) {
     }
 
     componentWillReceiveProps(nextProps) {
+      if (this.debug) {
+        console.log(`${this}.componentWillReceiveProps`, nextProps)
+      }
+
       transaction(() => {
         for (let propName in nextProps) {
           const propType = (NewComponent.propTypes || {})[propName]
@@ -104,12 +112,18 @@ export default function m(NewComponent) {
     }
 
     componentWillMount() {
+      if (this.debug) {
+        console.log(`${this}.componentWillMount`, this.props)
+      }
       this.props = this.smartProps
 
       if (super.componentWillMount) super.componentWillMount()
     }
 
     componentDidMount() {
+      if (this.debug) {
+        console.log(`${this}.componentDidMount`, this.props)
+      }
       this.when(
         () => !this.active || this.active(),
         () => {
@@ -118,20 +132,36 @@ export default function m(NewComponent) {
       )
     }
 
+    _wrapFuncWithSmartProps(func) {
+      const _this = this
+      return function(...args) {
+        _this.props = _this.smartProps
+        return func.apply(this, args)
+      }
+    }
+
     autorun(func) {
-      const disposer = autorun(func)
+      const disposer = autorun(this._wrapFuncWithSmartProps(func))
       if (!this._autorunDisposers) this._autorunDisposers = []
       this._autorunDisposers.push(disposer)
     }
 
     reaction(expressionFunc, sideEffectFunc, fireImmediately = false, delay = 0) {
-      const disposer = reaction(expressionFunc, sideEffectFunc, fireImmediately, delay)
+      const disposer = reaction(
+        this._wrapFuncWithSmartProps(expressionFunc),
+        this._wrapFuncWithSmartProps(sideEffectFunc),
+        fireImmediately,
+        delay
+      )
       if (!this._reactionDisposers) this._reactionDisposers = []
       this._reactionDisposers.push(disposer)
     }
 
     when(predicate, effect) {
-      const disposer = when(predicate, effect)
+      const disposer = when(
+        this._wrapFuncWithSmartProps(predicate),
+        this._wrapFuncWithSmartProps(effect)
+      )
       if (!this._whenDisposers) this._whenDisposers = []
       this._whenDisposers.push(disposer)
     }
@@ -161,6 +191,9 @@ export default function m(NewComponent) {
     }
 
     render() {
+      if (this.debug) {
+        console.log(`${this}.render`, this.props)
+      }
       this.props = this.smartProps
       if (!this.active || this.active()) {
         return super.render()
@@ -170,6 +203,9 @@ export default function m(NewComponent) {
     }
 
     componentWillUnmount() {
+      if (this.debug) {
+        console.log(`${this}.componentWillUnmount`)
+      }
       if (super.componentWillUnmount) super.componentWillUnmount()
 
       for (let disposer of this._autorunDisposers || []) {
