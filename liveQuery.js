@@ -163,7 +163,7 @@ export default class LiveQuery {
             if ('onErr' in this.dataConfig) {
               this.dataConfig.onErr(err)
             } else {
-              console.error(`Error in ${this}:`, err)
+              console.warn(this.toString(), err)
             }
           }
         )

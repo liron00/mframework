@@ -46,6 +46,10 @@ export default class MultiLiveQuery {
       } else {
         valueByKey[key] = undefined
       }
+
+      if (this.dataConfig.waitForAll && valueByKey[key] === undefined) {
+        return undefined
+      }
     }
     return valueByKey
   }
@@ -94,13 +98,13 @@ export default class MultiLiveQuery {
         }
       }
     }
-    return new LiveQuery(
+    return untracked(() => new LiveQuery(
       lqConfig,
       {
         name: `${this.name || '[unnamed]'}.${key}`,
         start: true
       }
-    )
+    ))
   }
 
   start() {
@@ -112,11 +116,7 @@ export default class MultiLiveQuery {
     this._disposer = autorun(() => {
       transaction(() => {
         const newQueryByKey = {}
-        for (let key in oldQueryByKey) {
-          // queryMap.clear has a dependency-tracking bug
-          // https://github.com/mobxjs/mobx/issues/256
-          this.queryMap.delete(key)
-        }
+        this.queryMap.clear()
 
         for (let key in this.pathSpecs || {}) {
           const liveQuery = this._makeLiveQuery(key, this.pathSpecs[key])
