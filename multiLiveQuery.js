@@ -56,11 +56,13 @@ export default class MultiLiveQuery {
 
   @computed({asStructure: true}) get pathSpecs() {
     const pathParts = this.dataConfig.refs()
-    if (pathParts === null) {
-      return null
-    } else if (pathParts === undefined || pathParts.indexOf(undefined) >= 0) {
-      return undefined
-    } else if (pathParts.findIndex(part => !part) >= 0) {
+    if (pathParts === undefined) return undefined
+    if (pathParts === null) return null
+    if (!Array.isArray(pathParts)) {
+      throw new Error(`${this} got non-array refs: ${pathParts}`)
+    }
+    if (pathParts.indexOf(undefined) >= 0) return undefined
+    if (pathParts.findIndex(part => !part) >= 0) {
       throw new Error(`Invalid path part in ${JSON.stringify(pathParts)}`)
     }
 
