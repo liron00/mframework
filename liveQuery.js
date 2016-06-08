@@ -98,7 +98,7 @@ export default class LiveQuery {
     if (pathParts === undefined) return undefined
     if (pathParts === null) return null
     if (!Array.isArray(pathParts)) {
-      throw new Error(`${this} got non-array refs: ${pathParts}`)
+      throw new Error(`${this} got non-array ref: ${pathParts}`)
     }
     if (pathParts.indexOf(undefined) >= 0) return undefined
     if (pathParts.findIndex(part => !part) >= 0) {

@@ -58,7 +58,17 @@ export default class MultiLiveQuery {
     const pathParts = this.dataConfig.refs()
     if (pathParts === undefined) return undefined
     if (pathParts === null) return null
+
+    if (pathParts.constructor === Object) {
+      const pathSpecByKey = {}
+      for (let key in pathParts) {
+        pathSpecByKey[key] = pathParts[key]
+      }
+      return pathSpecByKey
+    }
+
     if (!Array.isArray(pathParts)) {
+      console.log('pathParts', pathParts)
       throw new Error(`${this} got non-array refs: ${pathParts}`)
     }
     if (pathParts.indexOf(undefined) >= 0) return undefined
