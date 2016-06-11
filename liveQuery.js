@@ -80,7 +80,9 @@ export default class LiveQuery {
 
   @computed({asStructure: true}) get value() {
     if (!untracked(() => this.isActive)) {
-      throw new Error(`${this} can't get value when inactive`)
+      // This used to be an error, but apparently this path happens naturally
+      // during multiQueries and it's not a big deal, so just return undefined
+      return undefined
     }
 
     if (this.query === this._oldQuery) {
