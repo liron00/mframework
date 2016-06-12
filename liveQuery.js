@@ -110,6 +110,10 @@ export default class LiveQuery {
   }
 
   @computed get query() {
+    if (!untracked(() => this.isActive)) {
+      console.info(`Getting ${this}.query when inactive`)
+      return undefined
+    }
     if (this.pathSpec === undefined) return undefined
     if (this.pathSpec === null) return null
 
@@ -123,6 +127,8 @@ export default class LiveQuery {
     if (this.isActive) {
       throw new Error(`${this} already started`)
     }
+
+    this.isActive = true
 
     this._disposer = autorun(() => {
       this._reallyStarted = true
@@ -176,8 +182,6 @@ export default class LiveQuery {
         console.warn(`No event handlers for LiveQuery`, this.name)
       }
     })
-
-    this.isActive = true
   }
 
   dispose() {

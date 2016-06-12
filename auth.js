@@ -24,13 +24,21 @@ class Auth {
         storage.remove('sessionId')
       }
     })
+
+    let _initializedUid = false
     autorun(() => {
-      if (this.uid) {
-        storage.set('uid', this.uid)
-      } else {
-        storage.remove('uid')
+      if (!_initializedUid && this.uid !== undefined) {
+        _initializedUid = true
+      }
+      if (_initializedUid) {
+        if (this.uid) {
+          storage.set('uid', this.uid)
+        } else {
+          storage.remove('uid')
+        }
       }
     })
+
     autorun(() => {
       if (this.isAdmin != null) {
         storage.set('isAdmin', this.isAdmin)

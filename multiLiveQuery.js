@@ -9,6 +9,7 @@ export default class MultiLiveQuery {
   dataConfig
   @observable isActive
   _disposer
+  _oldPathSpecs
   queryMap = map()
 
   constructor(dataSpec, {start = true, name = null} = {}) {
@@ -34,7 +35,10 @@ export default class MultiLiveQuery {
 
   @computed({asStructure: true}) get value() {
     if (!untracked(() => this.isActive)) {
-      throw new Error(`${this} can't get value when inactive`)
+      // This used to be an error, but apparently this path happens naturally
+      // during multiQueries and it's not a big deal, so just return undefined
+      console.info(`${this} getting value when inactive`)
+      return undefined
     }
     if (!this.pathSpecs) return this.pathSpecs
 
@@ -96,7 +100,14 @@ export default class MultiLiveQuery {
       ref: () => pathSpec
     }
     if (this.dataConfig.refOptions) {
-      lqConfig.refOptions = (ref) => this.dataConfig.refOptions(key, ref)
+      lqConfig.refOptions = (ref) => {
+        if (this.pathSpecs !== this._oldPathSpecs) {
+          // Computed pathSpecs changed before our autorun had time to
+          // stop potentially outdated LiveQuery instances
+          return undefined
+        }
+        return this.dataConfig.refOptions(key, ref)
+      }
     }
     if (this.dataConfig.onErr) {
       lqConfig.onErr = (err) => this.dataConfig.onErr(key, err)
@@ -138,6 +149,7 @@ export default class MultiLiveQuery {
 
         for (let key in oldQueryByKey) oldQueryByKey[key].dispose()
         oldQueryByKey = newQueryByKey
+        this._oldPathSpecs = this.pathSpecs
       })
     })
 
