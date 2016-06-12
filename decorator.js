@@ -11,7 +11,7 @@ let nextId = 1
 export default function m(NewComponent) {
   @observer
   class C extends NewComponent {
-    @observable smartProps = {}
+    smartProps
     @observable data = {}
     liveQueries = {} // dataKey: liveQuery
     _intervalIds
@@ -21,6 +21,21 @@ export default function m(NewComponent) {
     _whenDisposers
 
     constructor(props) {
+      const smartProps = observable({})
+
+      // We have all the props, but only the explicitly-typed ones are
+      // MobX-observable, except the function-type props
+      Object.assign(smartProps, props)
+
+      for (let propName in NewComponent.propTypes || {}) {
+        const propType = NewComponent.propTypes[propName]
+        if ([
+          React.PropTypes.func,
+        ].indexOf(propType) == -1) {
+          extendObservable(smartProps, {[propName]: props[propName]})
+        }
+      }
+
       super(props)
 
       this.id = nextId++
@@ -29,20 +44,25 @@ export default function m(NewComponent) {
         console.log(`${this}.constructor`, props)
       }
 
-      Object.assign(this.smartProps, props)
+      this.smartProps = smartProps
 
-      transaction(() => {
-        for (let propName in NewComponent.propTypes || {}) {
-          const propType = NewComponent.propTypes[propName]
-
-          if ([
-            React.PropTypes.func,
-          ].indexOf(propType) == -1) {
-            extendObservable(this.smartProps, {[propName]: props[propName]})
+      let _foolReact = false
+      Object.defineProperty(this, 'props', {
+        __proto__: null,
+        configurable: false,
+        get: () => {
+          if (_foolReact) {
+            // Do this once so React's initialization doesn't suspect anything
+            _foolReact = false
+            return props
           }
+          return this.smartProps
+        },
+        set: (nextProps) => {
+          // When React plumbing tries to run `this.props = ...`, it'll be
+          // a no-op. All the prop-setting we need happens in our constructor
+          // and our componentWillReceiveProps handler.
         }
-
-        this.props = this.smartProps
       })
 
       for (let dataKey in this.dataSpec || {}) {
@@ -84,7 +104,9 @@ export default function m(NewComponent) {
         this.liveQueries[dataKey].start()
       }
 
-      delete this.props
+      // One-time thing to avoid getting a React warning about screwing
+      // with props
+      _foolReact = true
     }
 
     componentWillReceiveProps(nextProps) {
@@ -104,8 +126,6 @@ export default function m(NewComponent) {
             this.smartProps[propName] = nextProps[propName]
           }
         }
-
-        this.props = this.smartProps
       })
 
       if (super.componentWillReceiveProps) super.componentWillReceiveProps(nextProps)
@@ -115,7 +135,6 @@ export default function m(NewComponent) {
       if (this.debug) {
         console.log(`${this}.componentWillMount`, this.props)
       }
-      this.props = this.smartProps
 
       if (super.componentWillMount) super.componentWillMount()
     }
@@ -132,24 +151,16 @@ export default function m(NewComponent) {
       )
     }
 
-    _wrapFuncWithSmartProps(func) {
-      const _this = this
-      return function(...args) {
-        _this.props = _this.smartProps
-        return func.apply(this, args)
-      }
-    }
-
     autorun(func) {
-      const disposer = autorun(this._wrapFuncWithSmartProps(func))
+      const disposer = autorun(func)
       if (!this._autorunDisposers) this._autorunDisposers = []
       this._autorunDisposers.push(disposer)
     }
 
     reaction(expressionFunc, sideEffectFunc, fireImmediately = false, delay = 0) {
       const disposer = reaction(
-        this._wrapFuncWithSmartProps(expressionFunc),
-        this._wrapFuncWithSmartProps(sideEffectFunc),
+        expressionFunc,
+        sideEffectFunc,
         fireImmediately,
         delay
       )
@@ -159,8 +170,8 @@ export default function m(NewComponent) {
 
     when(predicate, effect) {
       const disposer = when(
-        this._wrapFuncWithSmartProps(predicate),
-        this._wrapFuncWithSmartProps(effect)
+        predicate,
+        effect
       )
       if (!this._whenDisposers) this._whenDisposers = []
       this._whenDisposers.push(disposer)
@@ -194,7 +205,6 @@ export default function m(NewComponent) {
       if (this.debug) {
         console.log(`${this}.render`, this.props)
       }
-      this.props = this.smartProps
       if (!this.active || this.active()) {
         return super.render()
       } else {

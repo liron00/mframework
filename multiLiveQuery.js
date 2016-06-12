@@ -36,8 +36,7 @@ export default class MultiLiveQuery {
   @computed({asStructure: true}) get value() {
     if (!untracked(() => this.isActive)) {
       // This used to be an error, but apparently this path happens naturally
-      // during multiQueries and it's not a big deal, so just return undefined
-      console.info(`${this} getting value when inactive`)
+      // and it's not a big deal, so just return undefined
       return undefined
     }
     if (!this.pathSpecs) return this.pathSpecs

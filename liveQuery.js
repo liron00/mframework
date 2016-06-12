@@ -111,7 +111,8 @@ export default class LiveQuery {
 
   @computed get query() {
     if (!untracked(() => this.isActive)) {
-      console.info(`Getting ${this}.query when inactive`)
+      // This used to be an error, but apparently this path happens naturally
+      // for multiQueries and it's not a big deal, so just return undefined
       return undefined
     }
     if (this.pathSpec === undefined) return undefined
