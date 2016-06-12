@@ -1,4 +1,4 @@
-import { extendObservable, observable, when } from 'mobx'
+import { extendObservable, isObservableArray, observable, when } from 'mobx'
 import { browserHistory } from 'react-router'
 import moment from 'moment'
 
@@ -139,5 +139,17 @@ browserHistory.listen(location => {
   extendObservable(util.browserLocation, location)
 })
 
+util.propTypes = {
+  array: (props, propName, componentName) => {
+    if (!(
+      props[propName] == null ||
+      Array.isArray(props[propName]) ||
+      isObservableArray(props[propName])
+    )) {
+      return new Error(`${componentName}.props.${propName} must be`
+        + ` an Array or ObservableArray`)
+    }
+  }
+}
 
 export default util

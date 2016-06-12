@@ -5,6 +5,7 @@ import { observer } from 'mobx-react'
 
 import LiveQuery from './liveQuery'
 import MultiLiveQuery from './multiLiveQuery'
+import util from './util'
 
 let nextId = 1
 
@@ -23,21 +24,35 @@ export default function m(NewComponent) {
     constructor(props) {
       const smartProps = observable({})
 
-      // We have all the props, but only the explicitly-typed ones are
-      // MobX-observable, except the function-type props
-      Object.assign(smartProps, props)
-
       for (let propName in NewComponent.propTypes || {}) {
         const propType = NewComponent.propTypes[propName]
-        if ([
-          React.PropTypes.func,
-        ].indexOf(propType) == -1) {
-          extendObservable(
-            smartProps,
-            {
-              [propName]: asStructure(props[propName])
-            }
-          )
+        if (propType != React.PropTypes.func) {
+          if ([
+            React.PropTypes.array,
+            React.PropTypes.object,
+            util.propTypes.array,
+          ].indexOf(propType) >= 0) {
+            extendObservable(
+              smartProps,
+              {
+                [propName]: asStructure(props[propName])
+              }
+            )
+          } else {
+            extendObservable(
+              smartProps,
+              {
+                [propName]: props[propName]
+              }
+            )
+          }
+        }
+      }
+      for (let propName in props) {
+        if (!(propName in smartProps)) {
+          // Not using extendObservable to purposely make this field
+          // non-observable
+          smartProps[propName] = props[propName]
         }
       }
 
@@ -123,20 +138,7 @@ export default function m(NewComponent) {
 
       transaction(() => {
         for (let propName in nextProps) {
-          const propType = (NewComponent.propTypes || {})[propName]
-
-          if (propType && [
-            React.PropTypes.func,
-          ].indexOf(propType) == -1) {
-            extendObservable(
-              this.smartProps,
-              {
-                [propName]: nextProps[propName]
-              }
-            )
-          } else {
-            this.smartProps[propName] = nextProps[propName]
-          }
+          this.smartProps[propName] = nextProps[propName]
         }
       })
 
