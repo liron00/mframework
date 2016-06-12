@@ -1,6 +1,6 @@
 import React from 'react'
-import { asStructure, autorun, computed, extendObservable, observable,
-  reaction, transaction, when } from 'mobx'
+import { action, asStructure, autorun, computed, extendObservable, observable,
+  reaction, toJS, transaction, untracked, when } from 'mobx'
 import { observer } from 'mobx-react'
 
 import LiveQuery from './liveQuery'
@@ -32,7 +32,12 @@ export default function m(NewComponent) {
         if ([
           React.PropTypes.func,
         ].indexOf(propType) == -1) {
-          extendObservable(smartProps, {[propName]: props[propName]})
+          extendObservable(
+            smartProps,
+            {
+              [propName]: asStructure(props[propName])
+            }
+          )
         }
       }
 
@@ -111,7 +116,9 @@ export default function m(NewComponent) {
 
     componentWillReceiveProps(nextProps) {
       if (this.debug) {
-        console.log(`${this}.componentWillReceiveProps`, nextProps)
+        untracked(() => {
+          console.log(`${this}.componentWillReceiveProps`, nextProps)
+        })
       }
 
       transaction(() => {
@@ -121,7 +128,12 @@ export default function m(NewComponent) {
           if (propType && [
             React.PropTypes.func,
           ].indexOf(propType) == -1) {
-            extendObservable(this.smartProps, {[propName]: nextProps[propName]})
+            extendObservable(
+              this.smartProps,
+              {
+                [propName]: nextProps[propName]
+              }
+            )
           } else {
             this.smartProps[propName] = nextProps[propName]
           }
@@ -133,7 +145,9 @@ export default function m(NewComponent) {
 
     componentWillMount() {
       if (this.debug) {
-        console.log(`${this}.componentWillMount`, this.props)
+        untracked(() => {
+          console.log(`${this}.componentWillMount`, this.props)
+        })
       }
 
       if (super.componentWillMount) super.componentWillMount()
@@ -141,7 +155,9 @@ export default function m(NewComponent) {
 
     componentDidMount() {
       if (this.debug) {
-        console.log(`${this}.componentDidMount`, this.props)
+        untracked(() => {
+          console.log(`${this}.componentDidMount`, this.props)
+        })
       }
       this.when(
         () => !this.active || this.active(),
@@ -201,9 +217,15 @@ export default function m(NewComponent) {
       return timeoutId
     }
 
+    shouldComponentUpdate() {
+      return false
+    }
+
     render() {
       if (this.debug) {
-        console.log(`${this}.render`, this.props)
+        untracked(() => {
+          console.log(`${this}.render`, this.props)
+        })
       }
       if (!this.active || this.active()) {
         return super.render()
@@ -214,7 +236,9 @@ export default function m(NewComponent) {
 
     componentWillUnmount() {
       if (this.debug) {
-        console.log(`${this}.componentWillUnmount`)
+        untracked(() => {
+          console.log(`${this}.componentWillUnmount`)
+        })
       }
       if (super.componentWillUnmount) super.componentWillUnmount()
 
