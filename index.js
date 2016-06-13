@@ -19,14 +19,18 @@ let initialized = false
 export default function initialize(cfg) {
   Object.assign(config, cfg)
 
-  firebase.initializeApp({
-    apiKey: config.firebaseApiKey,
-    authDomain: `${config.firebaseAppName}.firebaseapp.com`,
-    databaseURL: `https://${config.firebaseAppName}.firebaseio.com`,
-    storageBucket: config.firebaseStorageBucket
-  })
+  if (config.firebaseAppName) {
+    firebase.initializeApp({
+      apiKey: config.firebaseApiKey,
+      authDomain: `${config.firebaseAppName}.firebaseapp.com`,
+      databaseURL: `https://${config.firebaseAppName}.firebaseio.com`,
+      storageBucket: config.firebaseStorageBucket
+    })
+  }
 
-  auth.initialize()
+  if (config.apiBaseUrl) {
+    auth.initialize()
+  }
 
   initialized = true
 }
