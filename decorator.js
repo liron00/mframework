@@ -219,7 +219,7 @@ export default function m(NewComponent) {
       return timeoutId
     }
 
-    shouldComponentUpdate() {
+    shouldComponentUpdate(nextProps, nextState) {
       return false
     }
 
