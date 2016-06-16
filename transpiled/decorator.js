@@ -91,6 +91,8 @@ function m(NewComponent) {
   var C = (0, _mobxReact.observer)(_class = (_class2 = function (_NewComponent) {
     _inherits(C, _NewComponent);
 
+    // dataKey: liveQuery
+
     function C(props) {
       _classCallCheck(this, C);
 
@@ -102,7 +104,7 @@ function m(NewComponent) {
           if ([_react2.default.PropTypes.array, _react2.default.PropTypes.object, _util2.default.propTypes.array].indexOf(propType) >= 0) {
             (0, _mobx.extendObservable)(smartProps, _defineProperty({}, propName, (0, _mobx.asStructure)(props[propName])));
           } else {
-            (0, _mobx.extendObservable)(smartProps, _defineProperty({}, propName, props[propName]));
+            (0, _mobx.extendObservable)(smartProps, _defineProperty({}, propName, (0, _mobx.asReference)(props[propName])));
           }
         }
       }
@@ -129,14 +131,14 @@ function m(NewComponent) {
 
       _this.smartProps = smartProps;
 
-      var _foolReact = false;
+      _this._foolReact = false;
       Object.defineProperty(_this, 'props', {
         __proto__: null,
         configurable: false,
         get: function get() {
-          if (_foolReact) {
+          if (_this._foolReact) {
             // Do this once so React's initialization doesn't suspect anything
-            _foolReact = false;
+            _this._foolReact = false;
             return props;
           }
           return _this.smartProps;
@@ -195,10 +197,9 @@ function m(NewComponent) {
 
       // One-time thing to avoid getting a React warning about screwing
       // with props
-      _foolReact = true;
+      _this._foolReact = true;
       return _this;
-    } // dataKey: liveQuery
-
+    }
 
     _createClass(C, [{
       key: 'componentWillReceiveProps',
@@ -206,28 +207,32 @@ function m(NewComponent) {
         var _this2 = this;
 
         if (this.debug) {
-          (0, _mobx.untracked)(function () {
-            console.log(_this2 + '.componentWillReceiveProps', nextProps);
-          });
+          console.log(this + '.componentWillReceiveProps', nextProps);
         }
+
+        if (_get(Object.getPrototypeOf(C.prototype), 'componentWillReceiveProps', this)) _get(Object.getPrototypeOf(C.prototype), 'componentWillReceiveProps', this).call(this, nextProps);
 
         (0, _mobx.transaction)(function () {
           for (var propName in nextProps) {
             _this2.smartProps[propName] = nextProps[propName];
           }
+          for (var _propName2 in NewComponent.propTypes || {}) {
+            if (!(_propName2 in nextProps)) {
+              _this2.smartProps[_propName2] = undefined;
+            }
+          }
         });
-
-        if (_get(Object.getPrototypeOf(C.prototype), 'componentWillReceiveProps', this)) _get(Object.getPrototypeOf(C.prototype), 'componentWillReceiveProps', this).call(this, nextProps);
       }
     }, {
       key: 'componentWillMount',
       value: function componentWillMount() {
-        var _this3 = this;
-
         if (this.debug) {
-          (0, _mobx.untracked)(function () {
-            console.log(_this3 + '.componentWillMount', _this3.props);
-          });
+          console.log(this + '.componentWillMount', this.props);
+        }
+
+        if (this._foolReact) {
+          // We're probably in production and so didn't need to fool React
+          this._foolReact = false;
         }
 
         if (_get(Object.getPrototypeOf(C.prototype), 'componentWillMount', this)) _get(Object.getPrototypeOf(C.prototype), 'componentWillMount', this).call(this);
@@ -235,17 +240,15 @@ function m(NewComponent) {
     }, {
       key: 'componentDidMount',
       value: function componentDidMount() {
-        var _this4 = this;
+        var _this3 = this;
 
         if (this.debug) {
-          (0, _mobx.untracked)(function () {
-            console.log(_this4 + '.componentDidMount', _this4.props);
-          });
+          console.log(this + '.componentDidMount', this.props);
         }
         this.when(function () {
-          return !_this4.active || _this4.active();
+          return !_this3.active || _this3.active();
         }, function () {
-          if (_get(Object.getPrototypeOf(C.prototype), 'componentDidMount', _this4)) _get(Object.getPrototypeOf(C.prototype), 'componentDidMount', _this4).call(_this4);
+          if (_get(Object.getPrototypeOf(C.prototype), 'componentDidMount', _this3)) _get(Object.getPrototypeOf(C.prototype), 'componentDidMount', _this3).call(_this3);
         });
       }
     }, {
@@ -343,16 +346,20 @@ function m(NewComponent) {
     }, {
       key: 'shouldComponentUpdate',
       value: function shouldComponentUpdate(nextProps, nextState) {
-        return false;
+        if (_get(Object.getPrototypeOf(C.prototype), 'shouldComponentUpdate', this)) {
+          return _get(Object.getPrototypeOf(C.prototype), 'shouldComponentUpdate', this).call(this, nextProps, nextState);
+        } else {
+          return false;
+        }
       }
     }, {
       key: 'render',
       value: function render() {
-        var _this5 = this;
+        var _this4 = this;
 
         if (this.debug) {
           (0, _mobx.untracked)(function () {
-            console.log(_this5 + '.render', _this5.props);
+            console.log(_this4 + '.render', _this4.props);
           });
         }
         if (!this.active || this.active()) {
@@ -364,12 +371,8 @@ function m(NewComponent) {
     }, {
       key: 'componentWillUnmount',
       value: function componentWillUnmount() {
-        var _this6 = this;
-
         if (this.debug) {
-          (0, _mobx.untracked)(function () {
-            console.log(_this6 + '.componentWillUnmount');
-          });
+          console.log(this + '.componentWillUnmount');
         }
         if (_get(Object.getPrototypeOf(C.prototype), 'componentWillUnmount', this)) _get(Object.getPrototypeOf(C.prototype), 'componentWillUnmount', this).call(this);
 

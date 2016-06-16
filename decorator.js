@@ -1,6 +1,6 @@
 import React from 'react'
-import { action, asStructure, autorun, computed, extendObservable, observable,
-  reaction, toJS, transaction, untracked, when } from 'mobx'
+import { action, asReference, asStructure, autorun, computed, extendObservable,
+  observable, reaction, toJS, transaction, untracked, when } from 'mobx'
 import { observer } from 'mobx-react'
 
 import LiveQuery from './liveQuery'
@@ -15,6 +15,7 @@ export default function m(NewComponent) {
     smartProps
     @observable data = {}
     liveQueries = {} // dataKey: liveQuery
+    _foolReact
     _intervalIds
     _timeoutIds
     _autorunDisposers
@@ -42,7 +43,7 @@ export default function m(NewComponent) {
             extendObservable(
               smartProps,
               {
-                [propName]: props[propName]
+                [propName]: asReference(props[propName])
               }
             )
           }
@@ -66,14 +67,14 @@ export default function m(NewComponent) {
 
       this.smartProps = smartProps
 
-      let _foolReact = false
+      this._foolReact = false
       Object.defineProperty(this, 'props', {
         __proto__: null,
         configurable: false,
         get: () => {
-          if (_foolReact) {
+          if (this._foolReact) {
             // Do this once so React's initialization doesn't suspect anything
-            _foolReact = false
+            this._foolReact = false
             return props
           }
           return this.smartProps
@@ -126,30 +127,36 @@ export default function m(NewComponent) {
 
       // One-time thing to avoid getting a React warning about screwing
       // with props
-      _foolReact = true
+      this._foolReact = true
     }
 
     componentWillReceiveProps(nextProps) {
       if (this.debug) {
-        untracked(() => {
-          console.log(`${this}.componentWillReceiveProps`, nextProps)
-        })
+        console.log(`${this}.componentWillReceiveProps`, nextProps)
       }
+
+      if (super.componentWillReceiveProps) super.componentWillReceiveProps(nextProps)
 
       transaction(() => {
         for (let propName in nextProps) {
           this.smartProps[propName] = nextProps[propName]
         }
+        for (let propName in NewComponent.propTypes || {}) {
+          if (!(propName in nextProps)) {
+            this.smartProps[propName] = undefined
+          }
+        }
       })
-
-      if (super.componentWillReceiveProps) super.componentWillReceiveProps(nextProps)
     }
 
     componentWillMount() {
       if (this.debug) {
-        untracked(() => {
-          console.log(`${this}.componentWillMount`, this.props)
-        })
+        console.log(`${this}.componentWillMount`, this.props)
+      }
+
+      if (this._foolReact) {
+        // We're probably in production and so didn't need to fool React
+        this._foolReact = false
       }
 
       if (super.componentWillMount) super.componentWillMount()
@@ -157,9 +164,7 @@ export default function m(NewComponent) {
 
     componentDidMount() {
       if (this.debug) {
-        untracked(() => {
-          console.log(`${this}.componentDidMount`, this.props)
-        })
+        console.log(`${this}.componentDidMount`, this.props)
       }
       this.when(
         () => !this.active || this.active(),
@@ -220,7 +225,11 @@ export default function m(NewComponent) {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-      return false
+      if (super.shouldComponentUpdate) {
+        return super.shouldComponentUpdate(nextProps, nextState)
+      } else {
+        return false
+      }
     }
 
     render() {
@@ -238,9 +247,7 @@ export default function m(NewComponent) {
 
     componentWillUnmount() {
       if (this.debug) {
-        untracked(() => {
-          console.log(`${this}.componentWillUnmount`)
-        })
+        console.log(`${this}.componentWillUnmount`)
       }
       if (super.componentWillUnmount) super.componentWillUnmount()
 
