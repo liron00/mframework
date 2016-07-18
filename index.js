@@ -9,6 +9,7 @@ import {autorun, computed, map, observable, when} from 'mobx'
 import auth from './auth'
 import config from './config'
 import decorator from './decorator'
+import dimensions from './dimensions'
 import LiveQuery from './liveQuery'
 import MultiLiveQuery from './multiLiveQuery'
 import storage from './storage'
@@ -47,6 +48,7 @@ if (!config.isLive) {
   window.M = {
     auth,
     config,
+    dimensions,
     firebase,
     decorator,
     LiveQuery,
@@ -59,6 +61,7 @@ if (!config.isLive) {
 export {
   auth,
   config,
+  dimensions,
   firebase,
   decorator as m,
   LiveQuery,

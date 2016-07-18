@@ -3,6 +3,7 @@ import { action, asReference, asStructure, autorun, computed, extendObservable,
   observable, reaction, toJS, transaction, untracked, when } from 'mobx'
 import { observer } from 'mobx-react'
 
+import config from './config'
 import LiveQuery from './liveQuery'
 import MultiLiveQuery from './multiLiveQuery'
 import util from './util'
@@ -58,6 +59,10 @@ export default function m(NewComponent) {
       }
 
       super(props)
+
+      if (this.debug === undefined) {
+        this.debug = config.debugComponents || false
+      }
 
       this.id = nextId++
 

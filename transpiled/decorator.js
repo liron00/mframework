@@ -18,6 +18,10 @@ var _mobx = require('mobx');
 
 var _mobxReact = require('mobx-react');
 
+var _config = require('./config');
+
+var _config2 = _interopRequireDefault(_config);
+
 var _liveQuery = require('./liveQuery');
 
 var _liveQuery2 = _interopRequireDefault(_liveQuery);
@@ -122,6 +126,10 @@ function m(NewComponent) {
 
       _this.liveQueries = {};
 
+
+      if (_this.debug === undefined) {
+        _this.debug = _config2.default.debugComponents || false;
+      }
 
       _this.id = nextId++;
 

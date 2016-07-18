@@ -1,0 +1,9 @@
+)]}
+{
+ "version": 3,
+ "sources": "/Users/liron/workspace/mframework/dimensions.js",
+ "file": "/Users/liron/workspace/mframework/transpiled/dimensions.js",
+ "sourceRoot": "",
+ "names": [],
+ "mappings": ";;;;;;;;;;AAAA;;AACA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IAEM,U;AAIJ,wBAAc;AAAA;;AAAA;;AAAA;;AAAA;;AAAA,SAiBd,YAjBc,GAiBC,gCAAS,GAAT,EAAc;AAAA,aAAK,MAAK,OAAL,EAAL;AAAA,KAAd,CAjBD;;AACZ,SAAK,OAAL;AACA,WAAO,gBAAP,CAAwB,QAAxB,EAAkC,KAAK,YAAvC;AACD;;;;8BAES;AACR,UAAI,OAAO,WAAX,EAAwB;AACtB,aAAK,KAAL,GAAa,OAAO,UAApB;AACA,aAAK,MAAL,GAAc,OAAO,WAArB;AACD,OAHD,MAGO;AACL;AACA;AACA,aAAK,KAAL,GAAa,KAAK,GAAL,CAAS,OAAO,MAAP,CAAc,UAAvB,EAAmC,OAAO,UAA1C,CAAb;AACA,aAAK,MAAL,GAAc,KAAK,GAAL,CAAS,OAAO,MAAP,CAAc,WAAvB,EAAoC,OAAO,WAA3C,CAAd;AACD;AACF;;;wBAIwB;AACvB,aAAO,KAAK,KAAL,GAAa,GAApB;AACD;;;;;;;;;;;kBAGY,IAAI,UAAJ,E"
+}

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.util = exports.storage = exports.MultiLiveQuery = exports.isInitialized = exports.LiveQuery = exports.m = exports.firebase = exports.config = exports.auth = undefined;
+exports.util = exports.storage = exports.MultiLiveQuery = exports.isInitialized = exports.LiveQuery = exports.m = exports.firebase = exports.dimensions = exports.config = exports.auth = undefined;
 exports.default = initialize;
 
 var _whatwgFetch = require('whatwg-fetch');
@@ -31,6 +31,10 @@ var _config2 = _interopRequireDefault(_config);
 var _decorator = require('./decorator');
 
 var _decorator2 = _interopRequireDefault(_decorator);
+
+var _dimensions = require('./dimensions');
+
+var _dimensions2 = _interopRequireDefault(_dimensions);
 
 var _liveQuery = require('./liveQuery');
 
@@ -85,6 +89,7 @@ if (!_config2.default.isLive) {
   window.M = {
     auth: _auth2.default,
     config: _config2.default,
+    dimensions: _dimensions2.default,
     firebase: _app2.default,
     decorator: _decorator2.default,
     LiveQuery: _liveQuery2.default,
@@ -96,6 +101,7 @@ if (!_config2.default.isLive) {
 
 exports.auth = _auth2.default;
 exports.config = _config2.default;
+exports.dimensions = _dimensions2.default;
 exports.firebase = _app2.default;
 exports.m = _decorator2.default;
 exports.LiveQuery = _liveQuery2.default;
