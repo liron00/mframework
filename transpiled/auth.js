@@ -106,7 +106,9 @@ var Auth = (_class = function () {
     value: function initialize() {
       var _this = this;
 
-      (0, _mobx.autorun)(function () {
+      (0, _mobx.reaction)(function () {
+        return _this.sessionId;
+      }, function () {
         if (_this.sessionId) {
           _storage2.default.set('sessionId', _this.sessionId);
         } else {
@@ -115,7 +117,9 @@ var Auth = (_class = function () {
       });
 
       var _initializedUid = false;
-      (0, _mobx.autorun)(function () {
+      (0, _mobx.reaction)(function () {
+        return _this.uid;
+      }, function () {
         if (!_initializedUid && _this.uid !== undefined) {
           _initializedUid = true;
         }
@@ -126,15 +130,19 @@ var Auth = (_class = function () {
             _storage2.default.remove('uid');
           }
         }
-      });
+      }, true);
 
-      (0, _mobx.autorun)(function () {
-        if (_this.isAdmin != null) {
-          _storage2.default.set('isAdmin', _this.isAdmin);
-        } else {
-          _storage2.default.remove('isAdmin');
+      (0, _mobx.reaction)(function () {
+        return _this.isAdmin;
+      }, function () {
+        if (_this.isAdmin !== undefined) {
+          if (_this.isAdmin == null) {
+            _storage2.default.remove('isAdmin');
+          } else {
+            _storage2.default.set('isAdmin', _this.isAdmin);
+          }
         }
-      });
+      }, true);
 
       _index.firebase.auth().onAuthStateChanged(function (fiUser) {
         _this._fiUser = fiUser;
@@ -235,11 +243,13 @@ var Auth = (_class = function () {
         return _this.uid && ['users', _this.uid];
       }, { name: 'Auth.user', start: true });
 
-      (0, _mobx.autorun)(function () {
+      (0, _mobx.reaction)(function () {
+        return _this.user;
+      }, function () {
         if (_this.user) {
-          _this.isAdmin = _this.user.isAdmin;
+          _this.isAdmin = _this.user.isAdmin || false;
         }
-      });
+      }, true);
 
       // The setTimeout is because ensureSession depends on util methods
       // which import this module and need it to have finished initializing
@@ -363,6 +373,7 @@ var Auth = (_class = function () {
                             });
                           } else {
                             _this3.uid = null;
+                            _this3.isAdmin = false;
                           }
                           _context3.next = 9;
                           break;

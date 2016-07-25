@@ -1,4 +1,4 @@
-import { autorun, computed, observable, transaction, when } from 'mobx'
+import { autorun, computed, observable, reaction, transaction, when } from 'mobx'
 import URI from 'urijs'
 import { firebase } from './index'
 
@@ -17,35 +17,48 @@ class Auth {
   _loggedInWithFacebook = false
 
   initialize() {
-    autorun(() => {
-      if (this.sessionId) {
-        storage.set('sessionId', this.sessionId)
-      } else {
-        storage.remove('sessionId')
-      }
-    })
-
-    let _initializedUid = false
-    autorun(() => {
-      if (!_initializedUid && this.uid !== undefined) {
-        _initializedUid = true
-      }
-      if (_initializedUid) {
-        if (this.uid) {
-          storage.set('uid', this.uid)
+    reaction(
+      () => this.sessionId,
+      () => {
+        if (this.sessionId) {
+          storage.set('sessionId', this.sessionId)
         } else {
-          storage.remove('uid')
+          storage.remove('sessionId')
         }
       }
-    })
+    )
 
-    autorun(() => {
-      if (this.isAdmin != null) {
-        storage.set('isAdmin', this.isAdmin)
-      } else {
-        storage.remove('isAdmin')
-      }
-    })
+    let _initializedUid = false
+    reaction(
+      () => this.uid,
+      () => {
+        if (!_initializedUid && this.uid !== undefined) {
+          _initializedUid = true
+        }
+        if (_initializedUid) {
+          if (this.uid) {
+            storage.set('uid', this.uid)
+          } else {
+            storage.remove('uid')
+          }
+        }
+      },
+      true
+    )
+
+    reaction(
+      () => this.isAdmin,
+      () => {
+        if (this.isAdmin !== undefined) {
+          if (this.isAdmin == null) {
+            storage.remove('isAdmin')
+          } else {
+            storage.set('isAdmin', this.isAdmin)
+          }
+        }
+      },
+      true
+    )
 
     firebase.auth().onAuthStateChanged(fiUser => {
       this._fiUser = fiUser
@@ -88,11 +101,15 @@ class Auth {
       {name: 'Auth.user', start: true}
     )
 
-    autorun(() => {
-      if (this.user) {
-        this.isAdmin = this.user.isAdmin
-      }
-    })
+    reaction(
+      () => this.user,
+      () => {
+        if (this.user) {
+          this.isAdmin = this.user.isAdmin || false
+        }
+      },
+      true
+    )
 
     // The setTimeout is because ensureSession depends on util methods
     // which import this module and need it to have finished initializing
@@ -159,6 +176,7 @@ class Auth {
           )
         } else {
           this.uid = null
+          this.isAdmin = false
         }
       } else {
         await this.startNewSession()
