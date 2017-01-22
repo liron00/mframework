@@ -64,6 +64,7 @@ function initialize(cfg) {
       apiKey: _config2.default.firebaseApiKey,
       authDomain: _config2.default.firebaseAppName + '.firebaseapp.com',
       databaseURL: 'https://' + _config2.default.firebaseAppName + '.firebaseio.com',
+      messagingSenderId: _config2.default.firebaseSenderId,
       storageBucket: _config2.default.firebaseStorageBucket
     });
   }

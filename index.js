@@ -25,7 +25,8 @@ export default function initialize(cfg) {
       apiKey: config.firebaseApiKey,
       authDomain: `${config.firebaseAppName}.firebaseapp.com`,
       databaseURL: `https://${config.firebaseAppName}.firebaseio.com`,
-      storageBucket: config.firebaseStorageBucket
+      messagingSenderId: config.firebaseSenderId,
+      storageBucket: config.firebaseStorageBucket,
     })
   }
 
