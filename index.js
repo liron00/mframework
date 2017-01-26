@@ -1,5 +1,3 @@
-import fetch from 'whatwg-fetch'
-
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/database'
@@ -39,24 +37,22 @@ export default function initialize(cfg) {
 
 const isInitialized = () => initialized
 
-if (!config.isLive) {
-  window.autorun = autorun
-  window.computed = computed
-  window.map = map
-  window.observable = observable
-  window.when = when
+window.autorun = autorun
+window.computed = computed
+window.map = map
+window.observable = observable
+window.when = when
 
-  window.M = {
-    auth,
-    config,
-    dimensions,
-    firebase,
-    decorator,
-    LiveQuery,
-    MultiLiveQuery,
-    storage,
-    util
-  }
+window.M = {
+  auth,
+  config,
+  dimensions,
+  firebase,
+  decorator,
+  LiveQuery,
+  MultiLiveQuery,
+  storage,
+  util
 }
 
 export {

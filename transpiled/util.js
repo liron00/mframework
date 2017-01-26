@@ -26,86 +26,44 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 var util = {
   apiCall: function apiCall(endpoint, options, sessionId) {
-    var _this = this;
+    return _asyncToGenerator(function* () {
+      options = Object.assign({}, options);
+      options.params = Object.assign({}, options.params);
 
-    return _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
-      var url, apiResponse, apiResponseJson, err;
-      return regeneratorRuntime.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              options = Object.assign({}, options);
-              options.params = Object.assign({}, options.params);
+      if (sessionId === undefined) {
+        yield new Promise(function (resolve) {
+          return (0, _mobx.when)(function () {
+            return _auth2.default.sessionId;
+          }, resolve);
+        });
+        sessionId = _auth2.default.sessionId;
+      }
+      options.params.sessionId = sessionId;
 
-              if (!(sessionId === undefined)) {
-                _context.next = 6;
-                break;
-              }
-
-              _context.next = 5;
-              return new Promise(function (resolve) {
-                return (0, _mobx.when)(function () {
-                  return _auth2.default.sessionId;
-                }, resolve);
-              });
-
-            case 5:
-              sessionId = _auth2.default.sessionId;
-
-            case 6:
-              options.params.sessionId = sessionId;
-
-              url = _config2.default.apiBaseUrl + endpoint;
-
-              if (options.params) {
-                if (options.method == 'post') {
-                  options.body = JSON.stringify(options.params);
-                } else {
-                  url += '?' + util.objToParamString(options.params);
-                }
-                delete options.params;
-              }
-
-              _context.next = 11;
-              return fetch(url, options);
-
-            case 11:
-              apiResponse = _context.sent;
-
-              if (apiResponse.ok) {
-                _context.next = 14;
-                break;
-              }
-
-              throw new Error(apiResponse.status + ': ' + apiResponse.statusText);
-
-            case 14:
-              _context.next = 16;
-              return apiResponse.json();
-
-            case 16:
-              apiResponseJson = _context.sent;
-
-              if (!(apiResponseJson && apiResponseJson.err)) {
-                _context.next = 21;
-                break;
-              }
-
-              err = new Error(apiResponseJson.err);
-
-              err.id = apiResponseJson.errId || null;
-              throw err;
-
-            case 21:
-              return _context.abrupt('return', apiResponseJson);
-
-            case 22:
-            case 'end':
-              return _context.stop();
-          }
+      var url = _config2.default.apiBaseUrl + endpoint;
+      if (options.params) {
+        if (options.method == 'post') {
+          options.body = JSON.stringify(options.params);
+        } else {
+          url += '?' + util.objToParamString(options.params);
         }
-      }, _callee, _this);
-    }))();
+        delete options.params;
+      }
+
+      var apiResponse = yield fetch(url, options);
+      if (!apiResponse.ok) {
+        throw new Error(apiResponse.status + ': ' + apiResponse.statusText);
+      }
+
+      var apiResponseJson = yield apiResponse.json();
+      if (apiResponseJson && apiResponseJson.err) {
+        var err = new Error(apiResponseJson.err);
+        err.id = apiResponseJson.errId || null;
+        throw err;
+      }
+
+      return apiResponseJson;
+    })();
   },
   apiGet: function apiGet(endpoint) {
     var params = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];

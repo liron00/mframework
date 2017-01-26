@@ -6,10 +6,6 @@ Object.defineProperty(exports, "__esModule", {
 exports.util = exports.storage = exports.MultiLiveQuery = exports.isInitialized = exports.LiveQuery = exports.m = exports.firebase = exports.dimensions = exports.config = exports.auth = undefined;
 exports.default = initialize;
 
-var _whatwgFetch = require('whatwg-fetch');
-
-var _whatwgFetch2 = _interopRequireDefault(_whatwgFetch);
-
 var _app = require('firebase/app');
 
 var _app2 = _interopRequireDefault(_app);
@@ -80,25 +76,23 @@ var isInitialized = function isInitialized() {
   return initialized;
 };
 
-if (!_config2.default.isLive) {
-  window.autorun = _mobx.autorun;
-  window.computed = _mobx.computed;
-  window.map = _mobx.map;
-  window.observable = _mobx.observable;
-  window.when = _mobx.when;
+window.autorun = _mobx.autorun;
+window.computed = _mobx.computed;
+window.map = _mobx.map;
+window.observable = _mobx.observable;
+window.when = _mobx.when;
 
-  window.M = {
-    auth: _auth2.default,
-    config: _config2.default,
-    dimensions: _dimensions2.default,
-    firebase: _app2.default,
-    decorator: _decorator2.default,
-    LiveQuery: _liveQuery2.default,
-    MultiLiveQuery: _multiLiveQuery2.default,
-    storage: _storage2.default,
-    util: _util2.default
-  };
-}
+window.M = {
+  auth: _auth2.default,
+  config: _config2.default,
+  dimensions: _dimensions2.default,
+  firebase: _app2.default,
+  decorator: _decorator2.default,
+  LiveQuery: _liveQuery2.default,
+  MultiLiveQuery: _multiLiveQuery2.default,
+  storage: _storage2.default,
+  util: _util2.default
+};
 
 exports.auth = _auth2.default;
 exports.config = _config2.default;
