@@ -313,6 +313,8 @@ class Auth {
       this.uid = firebase.auth().currentUser.uid
       this.isAdmin = apiResponse.isAdmin
     })
+
+    return apiResponse
   }
 
   async loginOrRegister(params) {
@@ -342,6 +344,8 @@ class Auth {
       this.uid = firebase.auth().currentUser.uid
       this.isAdmin = apiResponse.isAdmin
     })
+
+    return apiResponse
   }
 
   async loginAs(linkedInId) {
