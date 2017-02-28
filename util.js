@@ -6,6 +6,21 @@ import config from './config'
 import auth from './auth'
 
 const util = {
+  _nowObj: observable({}), // interval: +new Date()
+  now(msInterval) {
+    if (!(msInterval in this._nowObj)) {
+      extendObservable(
+        this._nowObj,
+        {[msInterval]: moment()}
+      )
+      setInterval(
+        () => this._nowObj[msInterval] = moment(),
+        msInterval
+      )
+    }
+    return this._nowObj[msInterval]
+  },
+
   async apiCall(endpoint, options, sessionId) {
     options = Object.assign({}, options)
     options.params = Object.assign({}, options.params)
