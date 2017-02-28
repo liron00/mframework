@@ -11,10 +11,28 @@ import storage from './storage'
 class Auth {
   @observable sessionId = storage.get('sessionId')
   @observable uid = undefined
-  @observable isAdmin = undefined
   @observable _fiUser = undefined
   _loggingIn = false
   _loggedInWithFacebook = false
+
+  hasPerm(user, permId) {
+    // Syntax: hasPerm([user = auth.user], permId)
+    if (permId === undefined) {
+      permId = user
+      user = this.user
+    }
+
+    if (!user) return user
+    const userPermIds = user.permissions || []
+    if (permId == 'admin') {
+      return userPermIds.indexOf('admin') >= 0
+    } else if (permId == 'expert') {
+      return (
+        userPermIds.indexOf('expert') >= 0 ||
+        userPermIds.indexOf('admin') >= 0
+      )
+    }
+  }
 
   initialize() {
     reaction(
@@ -40,20 +58,6 @@ class Auth {
             storage.set('uid', this.uid)
           } else {
             storage.remove('uid')
-          }
-        }
-      },
-      true
-    )
-
-    reaction(
-      () => this.isAdmin,
-      () => {
-        if (this.isAdmin !== undefined) {
-          if (this.isAdmin == null) {
-            storage.remove('isAdmin')
-          } else {
-            storage.set('isAdmin', this.isAdmin)
           }
         }
       },
@@ -91,24 +95,14 @@ class Auth {
         }
       } else if (e.key == 'uid') {
         this.uid = e.newValue
-      } else if (e.key == 'isAdmin') {
-        this.isAdmin = e.newValue
+      } else if (e.key == 'isExpert') {
+        this.isExpert = e.newValue
       }
     }).bind(this))
 
     this.userLq = new LiveQuery(
       () => this.uid && ['users', this.uid],
       {name: 'Auth.user', start: true}
-    )
-
-    reaction(
-      () => this.user,
-      () => {
-        if (this.user) {
-          this.isAdmin = this.user.isAdmin || false
-        }
-      },
-      true
     )
 
     // The setTimeout is because ensureSession depends on util methods
@@ -162,9 +156,6 @@ class Auth {
                 if (this.uid !== session.uid) {
                   transaction(() => {
                     this.uid = session.uid
-
-                    // If undefined, will be set when user loads
-                    this.isAdmin = session.uid? undefined: null
                   })
                 }
               } else {
@@ -176,7 +167,6 @@ class Auth {
           )
         } else {
           this.uid = null
-          this.isAdmin = false
         }
       } else {
         await this.startNewSession()
@@ -191,7 +181,6 @@ class Auth {
     this._loggingIn = true
     transaction(() => {
       this.uid = undefined
-      this.isAdmin = undefined
     })
 
     let FB
@@ -220,7 +209,6 @@ class Auth {
       this._loggingIn = false
       transaction(() => {
         this.uid = null
-        this.isAdmin = null
       })
       err.fbToken = fbToken
       throw err
@@ -233,7 +221,6 @@ class Auth {
     this._loggedInWithFacebook = true
     transaction(() => {
       this.uid = firebase.auth().currentUser.uid
-      this.isAdmin = apiResponse.isAdmin
     })
   }
 
@@ -241,7 +228,6 @@ class Auth {
     this._loggingIn = true
     transaction(() => {
       this.uid = undefined
-      this.isAdmin = undefined
     })
 
     let apiResponse
@@ -251,7 +237,6 @@ class Auth {
       this._loggingIn = false
       transaction(() => {
         this.uid = null
-        this.isAdmin = null
       })
       throw err
     }
@@ -263,7 +248,6 @@ class Auth {
     this._loggedInWithFacebook = true
     transaction(() => {
       this.uid = firebase.auth().currentUser.uid
-      this.isAdmin = apiResponse.isAdmin
     })
   }
 
@@ -284,7 +268,6 @@ class Auth {
     this._loggingIn = true
     transaction(() => {
       this.uid = undefined
-      this.isAdmin = undefined
     })
 
     let apiResponse
@@ -300,7 +283,6 @@ class Auth {
       this._loggingIn = false
       transaction(() => {
         this.uid = null
-        this.isAdmin = null
       })
       return
     }
@@ -311,7 +293,6 @@ class Auth {
     this._loggingIn = false
     transaction(() => {
       this.uid = firebase.auth().currentUser.uid
-      this.isAdmin = apiResponse.isAdmin
     })
 
     return apiResponse
@@ -321,7 +302,6 @@ class Auth {
     this._loggingIn = true
     transaction(() => {
       this.uid = undefined
-      this.isAdmin = undefined
     })
 
     let apiResponse
@@ -331,7 +311,6 @@ class Auth {
       this._loggingIn = false
       transaction(() => {
         this.uid = null
-        this.isAdmin = null
       })
       throw err
     }
@@ -342,7 +321,6 @@ class Auth {
     this._loggingIn = false
     transaction(() => {
       this.uid = firebase.auth().currentUser.uid
-      this.isAdmin = apiResponse.isAdmin
     })
 
     return apiResponse
@@ -351,7 +329,6 @@ class Auth {
   async loginAs(linkedInId) {
     transaction(() => {
       this.uid = undefined
-      this.isAdmin = undefined
     })
 
     let apiResponse
@@ -367,8 +344,7 @@ class Auth {
     this._setFirebaseToken(apiResponse.firebaseToken)
     await firebase.auth().signInWithCustomToken(apiResponse.firebaseToken)
     transaction(() => {
-      this.uid = apiResponse.uid,
-      this.isAdmin = apiResponse.isAdmin
+      this.uid = apiResponse.uid
     })
   }
 
@@ -376,7 +352,6 @@ class Auth {
     const oldSessionId = this.sessionId
     transaction(() => {
       this.uid = null
-      this.isAdmin = null
       this.sessionId = undefined
     })
     this._setFirebaseToken(null)

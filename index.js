@@ -2,6 +2,7 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/database'
 
+import { Component } from 'react'
 import {autorun, computed, map, observable, when} from 'mobx'
 
 import auth from './auth'
@@ -65,5 +66,9 @@ export {
   isInitialized,
   MultiLiveQuery,
   storage,
-  util
+  util,
+
+  // Export React's Component just so we can make a flow declaration
+  // that mframework's component has special things like this.data
+  Component,
 }
