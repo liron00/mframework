@@ -2,7 +2,7 @@
   "name": "mframework",
   "description": "Framework for React + MobX + Firebase apps",
   "author": "Liron Shapira <wiseguy@gmail.com> (http://liron.me)",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "main": "transpiled/index.js",
   "repository": {
     "type": "git",

@@ -23,15 +23,7 @@ class Auth {
     }
 
     if (!user) return user
-    const userPermIds = user.permissions || []
-    if (permId == 'admin') {
-      return userPermIds.indexOf('admin') >= 0
-    } else if (permId == 'expert') {
-      return (
-        userPermIds.indexOf('expert') >= 0 ||
-        userPermIds.indexOf('admin') >= 0
-      )
-    }
+    return permId in (user.permissions || {})
   }
 
   initialize() {
@@ -95,8 +87,6 @@ class Auth {
         }
       } else if (e.key == 'uid') {
         this.uid = e.newValue
-      } else if (e.key == 'isExpert') {
-        this.isExpert = e.newValue
       }
     }).bind(this))
 
