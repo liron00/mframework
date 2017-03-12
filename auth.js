@@ -16,14 +16,18 @@ class Auth {
   _loggedInWithFacebook = false
 
   hasPerm(user, permId) {
-    // Syntax: hasPerm([user = auth.user], permId)
     if (permId === undefined) {
+      // Alternate signature: hasPerm(permId)
       permId = user
-      user = this.user
+      return this.permissions && permId in this.permissions
     }
 
     if (!user) return user
     return permId in (user.permissions || {})
+  }
+
+  @computed({asStructure: true}) get permissions() {
+    return this.user && (this.user.permissions || {})
   }
 
   initialize() {
@@ -102,7 +106,7 @@ class Auth {
     })
   }
 
-  @computed get user() {
+  @computed({asStructure: true}) get user() {
     return this.userLq.value
   }
 
