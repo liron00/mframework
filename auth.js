@@ -293,6 +293,7 @@ class Auth {
   }
 
   async loginOrRegister(params) {
+    const lastUid = this.uid
     this._loggingIn = true
     transaction(() => {
       this.uid = undefined
@@ -304,7 +305,7 @@ class Auth {
     } catch (err) {
       this._loggingIn = false
       transaction(() => {
-        this.uid = null
+        this.uid = lastUid
       })
       throw err
     }
