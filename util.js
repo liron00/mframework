@@ -1,6 +1,7 @@
 import { extendObservable, isObservableArray, observable, when } from 'mobx'
-import { browserHistory } from 'react-router'
+import createHistory from 'history/createBrowserHistory'
 import moment from 'moment'
+import queryString from 'query-string'
 
 import config from './config'
 import auth from './auth'
@@ -150,9 +151,18 @@ const util = {
    browserLocation: observable({})
 }
 
-browserHistory.listen(location => {
-  extendObservable(util.browserLocation, location)
+const history = createHistory()
+extendObservable(util.browserLocation, history.location)
+extendObservable(util.browserLocation, {
+  query: queryString.parse(history.location.search)
 })
+history.listen(location => {
+  extendObservable(util.browserLocation, location)
+  extendObservable(util.browserLocation, {
+    query: queryString.parse(history.location.search)
+  })
+})
+util.history = history
 
 util.propTypes = {
   array: (props, propName, componentName) => {
