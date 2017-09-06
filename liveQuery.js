@@ -1,7 +1,19 @@
 import { asStructure, autorun, computed, extendObservable, observable,
   transaction, untracked } from 'mobx'
 
+import config from './config'
 import { firebase } from './index'
+
+window.liveQueries = []
+window.getLiveQueries = () => {
+  return window.liveQueries.map(q => {
+    return {
+      name: q.name,
+      pathSpec: JSON.stringify(q.pathSpec),
+      value: toJS(q._value),
+    }
+  })
+}
 
 export default class LiveQuery {
   name
@@ -131,6 +143,10 @@ export default class LiveQuery {
 
     this.isActive = true
 
+    if (config.debugData) {
+      window.liveQueries.push(this)
+    }
+
     this._disposer = autorun(() => {
       this._reallyStarted = true
 
@@ -201,6 +217,11 @@ export default class LiveQuery {
 
     this._reallyStarted = false
     this.isActive = false
+
+    if (config.debugData) {
+      const i = window.liveQueries.indexOf(this)
+      window.liveQueries.splice(i, 1)
+    }
   }
 
   toString() {
