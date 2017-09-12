@@ -22,6 +22,7 @@ export default function m(NewComponent) {
     _autorunDisposers
     _reactionDisposers
     _whenDisposers
+    _className = NewComponent.name // debugging
 
     constructor(props) {
       const smartProps = observable({})
@@ -197,12 +198,24 @@ export default function m(NewComponent) {
     }
 
     when(predicate, effect) {
+      let done = false
       const disposer = when(
         predicate,
-        effect
+        () => {
+          effect()
+
+          done = true
+          const i = (this._whenDisposers || []).indexOf(disposer)
+          if (i >= 0) {
+            this._whenDisposers.splice(i, 1)
+          }
+        }
       )
-      if (!this._whenDisposers) this._whenDisposers = []
-      this._whenDisposers.push(disposer)
+      disposer.tag = this.toString() + '_whenDisposer'
+      if (!done) {
+        if (!this._whenDisposers) this._whenDisposers = []
+        this._whenDisposers.push(disposer)
+      }
     }
 
     clearInterval(intervalId) {
