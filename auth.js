@@ -39,6 +39,9 @@ class Auth {
         } else {
           storage.remove('sessionId')
         }
+      },
+      {
+        name: `sessionIdStorage`,
       }
     )
 
@@ -57,7 +60,10 @@ class Auth {
           }
         }
       },
-      true
+      {
+        name: 'auth.uid',
+        fireImmediately: true,
+      }
     )
 
     firebase.auth().onAuthStateChanged(fiUser => {

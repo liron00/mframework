@@ -71,7 +71,6 @@ export default class MultiLiveQuery {
     }
 
     if (!Array.isArray(pathParts)) {
-      console.log('pathParts', pathParts)
       throw new Error(`${this} got non-array refs: ${pathParts}`)
     }
     if (pathParts.indexOf(undefined) >= 0) return undefined
@@ -152,6 +151,7 @@ export default class MultiLiveQuery {
         this._oldPathSpecs = pathSpecs
       },
       {
+        name: `${this.toString().pathSpecsReaction}`,
         compareStructural: true,
         fireImmediately: true,
       }

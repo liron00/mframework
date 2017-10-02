@@ -20,7 +20,6 @@ export default class LiveQuery {
   @observable _value
   @observable isActive
   _disposer
-  _reallyStarted
   _oldQuery
 
   static compileValueFunc = valueFunc => {
@@ -68,7 +67,6 @@ export default class LiveQuery {
   }
 
   constructor(dataSpec, {start = true, name = null} = {}) {
-    console.log('constructor', name, dataSpec)
     if (typeof dataSpec == 'function') {
       // Shorthand syntax
       this.dataConfig = {
@@ -150,8 +148,7 @@ export default class LiveQuery {
     this._disposer = reaction(
       () => this.query,
       query => {
-        this._reallyStarted = true
-
+        // console.log(this.toString(), 'reacting to query', query)
         if (this._oldQuery) {
           for (let eventType of Object.keys(this._queryHandlers)) {
             const handler = this._queryHandlers[eventType]
@@ -184,7 +181,6 @@ export default class LiveQuery {
             action((snap, prevChildKey) => {
               const retVal = callback(snap, prevChildKey)
               if (eventType == 'value') {
-                console.log(this.toString(), 'update value', retVal)
                 this._value = retVal
               }
             }),
@@ -203,7 +199,8 @@ export default class LiveQuery {
         }
       },
       {
-        compareStructural: true,
+        name: `${this.toString()}.queryReaction`,
+        compareStructural: false,
         fireImmediately: true,
       }
     )
@@ -214,7 +211,6 @@ export default class LiveQuery {
   }
 
   @action stop() {
-    console.log(this.toString(), 'stop')
     if (this._disposer) {
       this._disposer()
       delete this._disposer
@@ -224,7 +220,6 @@ export default class LiveQuery {
       this._oldQuery.off(eventType, this._queryHandlers[eventType])
     }
 
-    this._reallyStarted = false
     this.isActive = false
 
     if (config.debugData) {

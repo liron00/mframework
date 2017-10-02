@@ -106,7 +106,8 @@ export default function m(NewComponent) {
       if (typeof options == 'boolean') options = {fireImmediately: options}
       options = Object.assign(
         {
-          compareStructural: true,
+          name: `${this.toString()}.reaction`,
+          compareStructural: false,
         },
         options
       )
