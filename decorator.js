@@ -57,19 +57,25 @@ export default function m(NewComponent) {
         this.liveQueries[dataKey] = new (isMulti? MultiLiveQuery : LiveQuery)(
           specCopy,
           {
+            name: `${this}.data.${dataKey}`,
+
+            // Can't start yet MobX-react hasn't wired up this.props
+            // to be reactive when accessed in the spec functions
             start: false,
-            name: `${this}.data.${dataKey}`
           }
         )
         extendObservable(this.data, {
-          [dataKey]: computed(() => {
-            return this.liveQueries[dataKey].isActive?
-              this.liveQueries[dataKey].value : undefined
-          }, {compareStructural: true})
+          [dataKey]: computed(
+            () => {
+              return this.liveQueries[dataKey].isActive?
+                this.liveQueries[dataKey].value : undefined
+            },
+            {
+              name: `${this.toString()}.data.${dataKey}`,
+              compareStructural: true,
+            }
+          )
         })
-      }
-      for (let dataKey in this.liveQueries) {
-        this.liveQueries[dataKey].start()
       }
     }
 
@@ -84,6 +90,10 @@ export default function m(NewComponent) {
     componentWillMount() {
       if (this.debug) {
         console.log(`${this}.componentWillMount`, this.props)
+      }
+
+      for (let dataKey in this.liveQueries) {
+        this.liveQueries[dataKey].start()
       }
 
       if (super.componentWillMount) super.componentWillMount()
@@ -208,17 +218,17 @@ export default function m(NewComponent) {
     }
   }
 
-  // try {
-  //   // This is useful for debugging in desktop Chrome browser
-  //   Object.defineProperty(C, 'name', {
-  //     value: NewComponent.name,
-  //     writable: false
-  //   })
-  // } catch(err) {
-  //   // Lots of other browsers throw
-  //   // TypeError: Attempting to change value of a readonly property
-  //   // but it's not a big deal
-  // }
+  try {
+    // This is useful for debugging in desktop Chrome browser
+    Object.defineProperty(C, 'name', {
+      value: NewComponent.name,
+      writable: false
+    })
+  } catch(err) {
+    // Lots of other browsers throw
+    // TypeError: Attempting to change value of a readonly property
+    // but it's not a big deal
+  }
 
   return C
 }

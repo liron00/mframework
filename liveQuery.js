@@ -148,7 +148,6 @@ export default class LiveQuery {
     this._disposer = reaction(
       () => this.query,
       query => {
-        // console.log(this.toString(), 'reacting to query', query)
         if (this._oldQuery) {
           for (let eventType of Object.keys(this._queryHandlers)) {
             const handler = this._queryHandlers[eventType]
