@@ -2,7 +2,7 @@
   "name": "mframework",
   "description": "Framework for React + MobX + Firebase apps",
   "author": "Liron Shapira <wiseguy@gmail.com> (http://liron.me)",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "main": "transpiled/index.js",
   "repository": {
     "type": "git",
@@ -29,7 +29,7 @@
     "moment": "^2.13.0",
     "prop-types": "^15.5.10",
     "query-string": "^4.3.4",
-    "react": "^15.6.2",
+    "react": "^16.0.0",
     "throttle-debounce": "^1.0.1",
     "urijs": "^1.18.0",
     "whatwg-fetch": "^1.0.0"
