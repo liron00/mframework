@@ -1,4 +1,4 @@
-import { autorun, computed, observable, ObservableMap,
+import { action, autorun, computed, observable, ObservableMap,
   reaction, untracked } from 'mobx'
 
 import { firebase } from './index'
@@ -129,41 +129,42 @@ export default class MultiLiveQuery {
     ))
   }
 
-  start() {
+  @action start() {
     if (this.isActive) {
       throw new Error(`${this} already started`)
     }
 
     let oldQueryByKey = {}
     this._disposer = reaction(
-      () => {
-
-      },
-      () => {
+      () => this.pathSpecs,
+      pathSpecs => {
         const newQueryByKey = {}
         this.queryMap.clear()
 
-        for (let key in this.pathSpecs || {}) {
-          const liveQuery = this._makeLiveQuery(key, this.pathSpecs[key])
+        for (let key in pathSpecs || {}) {
+          const liveQuery = this._makeLiveQuery(key, pathSpecs[key])
           newQueryByKey[key] = liveQuery
           this.queryMap.set(key, liveQuery)
         }
 
         for (let key in oldQueryByKey) oldQueryByKey[key].dispose()
         oldQueryByKey = newQueryByKey
-        this._oldPathSpecs = this.pathSpecs
+        this._oldPathSpecs = pathSpecs
       },
-      true
+      {
+        compareStructural: true,
+        fireImmediately: true,
+      }
     )
 
     this.isActive = true
   }
 
-  dispose() {
+  @action dispose() {
     this.stop()
   }
 
-  stop() {
+  @action stop() {
     if (this._disposer) {
       this._disposer()
       delete this._disposer
