@@ -1,4 +1,4 @@
-import React from 'react'
+import PropTypes from 'prop-types'
 import { action, asReference, asStructure, autorun, computed, extendObservable,
   observable, reaction, toJS, transaction, untracked, when } from 'mobx'
 import { observer } from 'mobx-react'
@@ -13,10 +13,8 @@ let nextId = 1
 export default function m(NewComponent) {
   @observer
   class C extends NewComponent {
-    smartProps
     @observable data = {}
     liveQueries = {} // dataKey: liveQuery
-    _foolReact
     _intervalIds
     _timeoutIds
     _autorunDisposers
@@ -25,40 +23,6 @@ export default function m(NewComponent) {
     _className = NewComponent.name // debugging
 
     constructor(props) {
-      const smartProps = observable({})
-
-      for (let propName in NewComponent.propTypes || {}) {
-        const propType = NewComponent.propTypes[propName]
-        if (propType != React.PropTypes.func) {
-          if ([
-            React.PropTypes.array,
-            React.PropTypes.object,
-            util.propTypes.array,
-          ].indexOf(propType) >= 0) {
-            extendObservable(
-              smartProps,
-              {
-                [propName]: asStructure(props[propName])
-              }
-            )
-          } else {
-            extendObservable(
-              smartProps,
-              {
-                [propName]: asReference(props[propName])
-              }
-            )
-          }
-        }
-      }
-      for (let propName in props) {
-        if (!(propName in smartProps)) {
-          // Not using extendObservable to purposely make this field
-          // non-observable
-          smartProps[propName] = props[propName]
-        }
-      }
-
       super(props)
 
       if (this.debug === undefined) {
@@ -71,45 +35,22 @@ export default function m(NewComponent) {
         console.log(`${this}.constructor`, props)
       }
 
-      this.smartProps = smartProps
-
-      this._foolReact = false
-      Object.defineProperty(this, 'props', {
-        __proto__: null,
-        configurable: false,
-        get: () => {
-          if (this._foolReact) {
-            // Do this once so React's initialization doesn't suspect anything
-            this._foolReact = false
-            return props
-          }
-          return this.smartProps
-        },
-        set: (nextProps) => {
-          // When React plumbing tries to run `this.props = ...`, it'll be
-          // a no-op. All the prop-setting we need happens in our constructor
-          // and our componentWillReceiveProps handler.
-        }
-      })
-
       for (let dataKey in this.dataSpec || {}) {
         let specCopy
         if (typeof this.dataSpec[dataKey] == 'function') {
           specCopy = {
             ref: this.dataSpec[dataKey],
-            value: true
+            value: true,
           }
         } else {
           specCopy = Object.assign({}, this.dataSpec[dataKey])
         }
-        if (this.active) {
-          if (specCopy.ref) {
-            const refFunc = specCopy.ref
-            specCopy.ref = () => this.active()? refFunc() : undefined
-          } else if (specCopy.refs) {
-            const refsFunc = specCopy.refs
-            specCopy.refs = () => this.active()? refsFunc() : undefined
-          }
+        if (specCopy.ref) {
+          const refFunc = specCopy.ref
+          specCopy.ref = () => refFunc()
+        } else if (specCopy.refs) {
+          const refsFunc = specCopy.refs
+          specCopy.refs = () => refsFunc()
         }
 
         const isMulti = !!specCopy.refs
@@ -130,10 +71,6 @@ export default function m(NewComponent) {
       for (let dataKey in this.liveQueries) {
         this.liveQueries[dataKey].start()
       }
-
-      // One-time thing to avoid getting a React warning about screwing
-      // with props
-      this._foolReact = true
     }
 
     componentWillReceiveProps(nextProps) {
@@ -142,27 +79,11 @@ export default function m(NewComponent) {
       }
 
       if (super.componentWillReceiveProps) super.componentWillReceiveProps(nextProps)
-
-      transaction(() => {
-        for (let propName in nextProps) {
-          this.smartProps[propName] = nextProps[propName]
-        }
-        for (let propName in NewComponent.propTypes || {}) {
-          if (!(propName in nextProps)) {
-            this.smartProps[propName] = undefined
-          }
-        }
-      })
     }
 
     componentWillMount() {
       if (this.debug) {
         console.log(`${this}.componentWillMount`, this.props)
-      }
-
-      if (this._foolReact) {
-        // We're probably in production and so didn't need to fool React
-        this._foolReact = false
       }
 
       if (super.componentWillMount) super.componentWillMount()
@@ -172,12 +93,7 @@ export default function m(NewComponent) {
       if (this.debug) {
         console.log(`${this}.componentDidMount`, this.props)
       }
-      this.when(
-        () => !this.active || this.active(),
-        () => {
-          if (super.componentDidMount) super.componentDidMount()
-        }
-      )
+      if (super.componentDidMount) super.componentDidMount()
     }
 
     autorun(func) {
@@ -242,25 +158,13 @@ export default function m(NewComponent) {
       return timeoutId
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-      if (super.shouldComponentUpdate) {
-        return super.shouldComponentUpdate(nextProps, nextState)
-      } else {
-        return false
-      }
-    }
-
     render() {
       if (this.debug) {
         untracked(() => {
-          console.log(`${this}.render`, this.props)
+          console.log(`${this}.render`, toJS(this.props))
         })
       }
-      if (!this.active || this.active()) {
-        return super.render()
-      } else {
-        return null
-      }
+      return super.render()
     }
 
     componentWillUnmount() {
@@ -296,17 +200,17 @@ export default function m(NewComponent) {
     }
   }
 
-  try {
-    // This is useful for debugging in desktop Chrome browser
-    Object.defineProperty(C, 'name', {
-      value: NewComponent.name,
-      writable: false
-    })
-  } catch(err) {
-    // Lots of other browsers throw
-    // TypeError: Attempting to change value of a readonly property
-    // but it's not a big deal
-  }
+  // try {
+  //   // This is useful for debugging in desktop Chrome browser
+  //   Object.defineProperty(C, 'name', {
+  //     value: NewComponent.name,
+  //     writable: false
+  //   })
+  // } catch(err) {
+  //   // Lots of other browsers throw
+  //   // TypeError: Attempting to change value of a readonly property
+  //   // but it's not a big deal
+  // }
 
   return C
 }
