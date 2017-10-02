@@ -1,5 +1,5 @@
-import { asStructure, autorun, computed, extendObservable, map, observable,
-  transaction, untracked } from 'mobx'
+import { autorun, computed, observable, ObservableMap,
+  reaction, untracked } from 'mobx'
 
 import { firebase } from './index'
 import LiveQuery from './liveQuery'
@@ -10,7 +10,7 @@ export default class MultiLiveQuery {
   @observable isActive
   _disposer
   _oldPathSpecs
-  queryMap = map()
+  queryMap = new ObservableMap()
 
   constructor(dataSpec, {start = true, name = null} = {}) {
     if (typeof dataSpec == 'function') {
@@ -33,7 +33,7 @@ export default class MultiLiveQuery {
     if (start) this.start()
   }
 
-  @computed({asStructure: true}) get value() {
+  @computed.struct get value() {
     if (!untracked(() => this.isActive)) {
       // This used to be an error, but apparently this path happens naturally
       // and it's not a big deal, so just return undefined
@@ -57,7 +57,7 @@ export default class MultiLiveQuery {
     return valueByKey
   }
 
-  @computed({asStructure: true}) get pathSpecs() {
+  @computed.struct get pathSpecs() {
     const pathParts = this.dataConfig.refs()
     if (pathParts === undefined) return undefined
     if (pathParts === null) return null
@@ -135,8 +135,11 @@ export default class MultiLiveQuery {
     }
 
     let oldQueryByKey = {}
-    this._disposer = autorun(() => {
-      transaction(() => {
+    this._disposer = reaction(
+      () => {
+
+      },
+      () => {
         const newQueryByKey = {}
         this.queryMap.clear()
 
@@ -149,8 +152,9 @@ export default class MultiLiveQuery {
         for (let key in oldQueryByKey) oldQueryByKey[key].dispose()
         oldQueryByKey = newQueryByKey
         this._oldPathSpecs = this.pathSpecs
-      })
-    })
+      },
+      true
+    )
 
     this.isActive = true
   }

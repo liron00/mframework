@@ -3,7 +3,7 @@ import 'firebase/auth'
 import 'firebase/database'
 
 import { Component } from 'react'
-import {autorun, computed, map, observable, when} from 'mobx'
+import {autorun, computed, observable, when} from 'mobx'
 
 import auth from './auth'
 import config from './config'
@@ -40,7 +40,6 @@ const isInitialized = () => initialized
 
 window.autorun = autorun
 window.computed = computed
-window.map = map
 window.observable = observable
 window.when = when
 

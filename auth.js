@@ -26,7 +26,7 @@ class Auth {
     return permId in (user.permissions || {})
   }
 
-  @computed({asStructure: true}) get permissions() {
+  @computed.struct get permissions() {
     return this.user && (this.user.permissions || {})
   }
 
@@ -106,7 +106,7 @@ class Auth {
     })
   }
 
-  @computed({asStructure: true}) get user() {
+  @computed.struct get user() {
     return this.userLq.value
   }
 

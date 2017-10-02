@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import { action, asReference, asStructure, autorun, computed, extendObservable,
+import { action, asReference, autorun, computed, extendObservable,
   observable, reaction, toJS, transaction, untracked, when } from 'mobx'
 import { observer } from 'mobx-react'
 
@@ -62,10 +62,10 @@ export default function m(NewComponent) {
           }
         )
         extendObservable(this.data, {
-          [dataKey]: asStructure(() => {
+          [dataKey]: computed(() => {
             return this.liveQueries[dataKey].isActive?
               this.liveQueries[dataKey].value : undefined
-          })
+          }, {compareStructural: true})
         })
       }
       for (let dataKey in this.liveQueries) {
@@ -102,12 +102,19 @@ export default function m(NewComponent) {
       this._autorunDisposers.push(disposer)
     }
 
-    reaction(expressionFunc, sideEffectFunc, fireImmediately = false, delay = 0) {
+    reaction(expressionFunc, sideEffectFunc, options = {}) {
+      if (typeof options == 'boolean') options = {fireImmediately: options}
+      options = Object.assign(
+        {
+          compareStructural: true,
+        },
+        options
+      )
+
       const disposer = reaction(
         expressionFunc,
         sideEffectFunc,
-        fireImmediately,
-        delay
+        options
       )
       if (!this._reactionDisposers) this._reactionDisposers = []
       this._reactionDisposers.push(disposer)

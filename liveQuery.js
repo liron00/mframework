@@ -1,5 +1,4 @@
-import { asStructure, autorun, computed, extendObservable, observable,
-  transaction, untracked } from 'mobx'
+import { action, computed, observable, reaction, untracked } from 'mobx'
 
 import config from './config'
 import { firebase } from './index'
@@ -69,6 +68,7 @@ export default class LiveQuery {
   }
 
   constructor(dataSpec, {start = true, name = null} = {}) {
+    console.log('constructor', name, dataSpec)
     if (typeof dataSpec == 'function') {
       // Shorthand syntax
       this.dataConfig = {
@@ -90,7 +90,7 @@ export default class LiveQuery {
     if (start) this.start()
   }
 
-  @computed({asStructure: true}) get value() {
+  @computed.struct get value() {
     if (!untracked(() => this.isActive)) {
       // This used to be an error, but apparently this path happens naturally
       // during multiQueries and it's not a big deal, so just return undefined
@@ -107,7 +107,7 @@ export default class LiveQuery {
     }
   }
 
-  @computed({asStructure: true}) get pathSpec() {
+  @computed.struct get pathSpec() {
     const pathParts = this.dataConfig.ref()
     if (pathParts === undefined) return undefined
     if (pathParts === null) return null
@@ -136,7 +136,7 @@ export default class LiveQuery {
     return refOptionsFunc(rawRef)
   }
 
-  start() {
+  @action start() {
     if (this.isActive) {
       throw new Error(`${this} already started`)
     }
@@ -147,65 +147,74 @@ export default class LiveQuery {
       window.liveQueries.push(this)
     }
 
-    this._disposer = autorun(() => {
-      this._reallyStarted = true
+    this._disposer = reaction(
+      () => this.query,
+      query => {
+        this._reallyStarted = true
 
-      if (this._oldQuery) {
-        for (let eventType of Object.keys(this._queryHandlers)) {
-          const handler = this._queryHandlers[eventType]
-          this._oldQuery.off(eventType, handler)
-          delete this._queryHandlers[eventType]
-        }
-      }
-
-      this._oldQuery = this.query
-
-      if (this.query === null) {
-        this._value = null
-        return
-      }
-      this._value = undefined
-      if (this.query === undefined) return
-
-      for (let eventType in this.dataConfig) {
-        if ([
-          'value', 'child_added', 'child_changed', 'child_moved', 'child_removed'
-        ].indexOf(eventType) == -1) continue
-
-        const callback = this.dataConfig[eventType]
-        if (typeof callback != 'function') {
-          throw new Error(`Invalid callback for ${eventType}: ${callback}`)
-        }
-
-        this._queryHandlers[eventType] = this.query.on(
-          eventType,
-          (snap, prevChildKey) => {
-            const retVal = callback(snap, prevChildKey)
-            if (eventType == 'value') {
-              this._value = retVal
-            }
-          },
-          err => {
-            if ('onErr' in this.dataConfig) {
-              this.dataConfig.onErr(err)
-            } else {
-              console.warn(this.toString(), err)
-            }
+        if (this._oldQuery) {
+          for (let eventType of Object.keys(this._queryHandlers)) {
+            const handler = this._queryHandlers[eventType]
+            this._oldQuery.off(eventType, handler)
+            delete this._queryHandlers[eventType]
           }
-        )
-      }
+        }
 
-      if (Object.keys(this._queryHandlers).length == 0) {
-        console.warn(`No event handlers for LiveQuery`, this.name)
+        this._oldQuery = query
+
+        if (query === null) {
+          this._value = null
+          return
+        }
+        this._value = undefined
+        if (query === undefined) return
+
+        for (let eventType in this.dataConfig) {
+          if ([
+            'value', 'child_added', 'child_changed', 'child_moved', 'child_removed'
+          ].indexOf(eventType) == -1) continue
+
+          const callback = this.dataConfig[eventType]
+          if (typeof callback != 'function') {
+            throw new Error(`Invalid callback for ${eventType}: ${callback}`)
+          }
+
+          this._queryHandlers[eventType] = query.on(
+            eventType,
+            action((snap, prevChildKey) => {
+              const retVal = callback(snap, prevChildKey)
+              if (eventType == 'value') {
+                console.log(this.toString(), 'update value', retVal)
+                this._value = retVal
+              }
+            }),
+            err => {
+              if ('onErr' in this.dataConfig) {
+                this.dataConfig.onErr(err)
+              } else {
+                console.warn(this.toString(), err)
+              }
+            }
+          )
+        }
+
+        if (Object.keys(this._queryHandlers).length == 0) {
+          console.warn(`No event handlers for LiveQuery`, this.name)
+        }
+      },
+      {
+        compareStructural: true,
+        fireImmediately: true,
       }
-    })
+    )
   }
 
-  dispose() {
+  @action dispose() {
     this.stop()
   }
 
-  stop() {
+  @action stop() {
+    console.log(this.toString(), 'stop')
     if (this._disposer) {
       this._disposer()
       delete this._disposer
