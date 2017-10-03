@@ -83,6 +83,12 @@ export default function m(NewComponent) {
     componentWillReceiveProps(nextProps) {
       if (this.debug) {
         console.log(`${this}.componentWillReceiveProps`, nextProps)
+
+        for (let propName in nextProps) {
+          if (!(propName in NewComponent.propTypes)) {
+            console.warn(`${this} received unexpected prop: ${propName}`)
+          }
+        }
       }
 
       if (super.componentWillReceiveProps) super.componentWillReceiveProps(nextProps)
