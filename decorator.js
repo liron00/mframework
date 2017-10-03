@@ -21,6 +21,7 @@ export default function m(NewComponent) {
     _reactionDisposers
     _whenDisposers
     _className = NewComponent.name // debugging
+    @observable pro = undefined // like props but granular reactivity
 
     constructor(props) {
       super(props)
@@ -87,11 +88,39 @@ export default function m(NewComponent) {
       if (super.componentWillReceiveProps) super.componentWillReceiveProps(nextProps)
     }
 
-    getProp = createTransformer(propName => this.props[propName])
-
     componentWillMount() {
       if (this.debug) {
         console.log(`${this}.componentWillMount`, this.props)
+      }
+
+      this.pro = {}
+      for (let propName in NewComponent.propTypes || {}) {
+        const propType = NewComponent.propTypes[propName]
+        if (propType == PropTypes.func) {
+          Object.defineProperty(this.pro, propName, {
+            configurable: true,
+            enumerable: true,
+            get: () => {
+              return this.props[propName]
+            }
+          })
+        } else {
+          extendObservable(
+            this.pro,
+            {
+              [propName]: computed(
+                () => this.props[propName],
+                {
+                  compareStructural: [
+                    PropTypes.array,
+                    PropTypes.object,
+                    util.propTypes.array,
+                  ].indexOf(propType) >= 0
+                }
+              )
+            }
+          )
+        }
       }
 
       for (let dataKey in this.liveQueries) {
