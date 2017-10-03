@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import { action, autorun, createTransformer, computed, extendObservable,
   observable, reaction, toJS, transaction, untracked, when } from 'mobx'
-import { observer } from 'mobx-react'
+import { observer } from 'liron-mobx-react'
 
 import config from './config'
 import LiveQuery from './liveQuery'

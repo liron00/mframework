@@ -2,7 +2,7 @@
   "name": "mframework",
   "description": "Framework for React + MobX + Firebase apps",
   "author": "Liron Shapira <wiseguy@gmail.com> (http://liron.me)",
-  "version": "0.7.4",
+  "version": "0.7.7",
   "main": "transpiled/index.js",
   "repository": {
     "type": "git",
@@ -24,8 +24,8 @@
     "eslint": "^3.19.0",
     "firebase": "^4.4.0",
     "history": "^4.6.3",
+    "liron-mobx-react": "^4.3.5",
     "mobx": "^3.3.0",
-    "mobx-react": "https://github.com/liron00/mobx-react",
     "moment": "^2.13.0",
     "prop-types": "^15.5.10",
     "query-string": "^4.3.4",
