@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import { action, asReference, autorun, computed, extendObservable,
+import { action, autorun, createTransformer, computed, extendObservable,
   observable, reaction, toJS, transaction, untracked, when } from 'mobx'
 import { observer } from 'mobx-react'
 
@@ -86,6 +86,8 @@ export default function m(NewComponent) {
 
       if (super.componentWillReceiveProps) super.componentWillReceiveProps(nextProps)
     }
+
+    getProp = createTransformer(propName => this.props[propName])
 
     componentWillMount() {
       if (this.debug) {
