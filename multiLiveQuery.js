@@ -1,4 +1,4 @@
-import { action, autorun, computed, observable, ObservableMap,
+import { action, computed, observable, ObservableMap,
   reaction, untracked } from 'mobx'
 
 import { firebase } from './index'
@@ -35,9 +35,7 @@ export default class MultiLiveQuery {
 
   @computed.struct get value() {
     if (!untracked(() => this.isActive)) {
-      // This used to be an error, but apparently this path happens naturally
-      // and it's not a big deal, so just return undefined
-      return undefined
+      throw new Error(`Can't get value because not active: ${this}`)
     }
     if (!this.pathSpecs) return this.pathSpecs
 
@@ -94,13 +92,15 @@ export default class MultiLiveQuery {
   }
 
   _makeLiveQuery(key, pathSpec) {
+    const myId = parseInt(Math.random() * 1000)
+
     const lqConfig = {
       ref: () => pathSpec
     }
     if (this.dataConfig.refOptions) {
       lqConfig.refOptions = (ref) => {
         if (this.pathSpecs !== this._oldPathSpecs) {
-          // Computed pathSpecs changed before our autorun had time to
+          // Computed pathSpecs changed before our reaction had time to
           // stop potentially outdated LiveQuery instances
           return undefined
         }
@@ -119,13 +119,13 @@ export default class MultiLiveQuery {
         }
       }
     }
-    return untracked(() => new LiveQuery(
+    return new LiveQuery(
       lqConfig,
       {
         name: `${this.name || '[unnamed]'}.${key}`,
-        start: true
+        start: false,
       }
-    ))
+    )
   }
 
   @action start() {
@@ -146,12 +146,18 @@ export default class MultiLiveQuery {
           this.queryMap.set(key, liveQuery)
         }
 
-        for (let key in oldQueryByKey) oldQueryByKey[key].dispose()
+        for (let key in oldQueryByKey) {
+          oldQueryByKey[key].dispose()
+        }
         oldQueryByKey = newQueryByKey
         this._oldPathSpecs = pathSpecs
+
+        for (let key in pathSpecs || {}) {
+          newQueryByKey[key].start()
+        }
       },
       {
-        name: `${this.toString().pathSpecsReaction}`,
+        name: `${this.toString()}.pathSpecsReaction`,
         compareStructural: true,
         fireImmediately: true,
       }

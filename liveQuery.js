@@ -15,6 +15,8 @@ window.getLiveQueries = () => {
 }
 
 export default class LiveQuery {
+  id
+  debug
   name
   dataConfig
   @observable _value
@@ -66,7 +68,12 @@ export default class LiveQuery {
     }
   }
 
-  constructor(dataSpec, {start = true, name = null} = {}) {
+  constructor(dataSpec, {
+    start = true, name = null, debug = false, id = null
+  } = {}) {
+    this.debug = debug
+    this.id = id || parseInt(Math.random() * 10000)
+
     if (typeof dataSpec == 'function') {
       // Shorthand syntax
       this.dataConfig = {
@@ -90,15 +97,16 @@ export default class LiveQuery {
 
   @computed.struct get value() {
     if (!untracked(() => this.isActive)) {
-      // This used to be an error, but apparently this path happens naturally
-      // during multiQueries and it's not a big deal, so just return undefined
-      return undefined
+      // // This used to be an error, but apparently this path happens naturally
+      // // during multiQueries and it's not a big deal, so just return undefined
+      // return undefined
+      throw new Error(`Can't get value because not active: ${this}`)
     }
 
     if (this.query === this._oldQuery) {
       return this._value
     } else {
-      // Computed query has changed before the autorun had time to update
+      // Computed query has changed before the reaction had time to update
       // this._value
       this._value // for tracking
       return this.query === null? null : undefined
@@ -121,9 +129,10 @@ export default class LiveQuery {
 
   @computed get query() {
     if (!untracked(() => this.isActive)) {
+      throw new Error(`${this}.query accessed while not active`)
       // This used to be an error, but apparently this path happens naturally
       // for multiQueries and it's not a big deal, so just return undefined
-      return undefined
+      // return undefined
     }
     if (this.pathSpec === undefined) return undefined
     if (this.pathSpec === null) return null
@@ -228,6 +237,6 @@ export default class LiveQuery {
   }
 
   toString() {
-    return this.name? `<LiveQuery ${this.name}>` : `<LiveQuery>`
+    return `${this.id} <LiveQuery${this.name? ` ${this.name}` : ''}>`
   }
 }
