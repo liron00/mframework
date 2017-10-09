@@ -53,11 +53,15 @@ export default function m(NewComponent) {
           const refsFunc = specCopy.refs
           specCopy.refs = () => refsFunc()
         }
+        let debug = specCopy.debug || false
+        if (specCopy.debug) delete specCopy.debug
 
         const isMulti = !!specCopy.refs
         this.liveQueries[dataKey] = new (isMulti? MultiLiveQuery : LiveQuery)(
           specCopy,
           {
+            debug,
+
             name: `${this}.data.${dataKey}`,
 
             // Can't start yet MobX-react hasn't wired up this.props

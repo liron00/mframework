@@ -1,3 +1,4 @@
+import deepEqual from 'deep-equal'
 import { action, computed, observable, ObservableMap,
   reaction, untracked } from 'mobx'
 
@@ -5,6 +6,7 @@ import { firebase } from './index'
 import LiveQuery from './liveQuery'
 
 export default class MultiLiveQuery {
+  debug
   name
   dataConfig
   @observable isActive
@@ -12,7 +14,9 @@ export default class MultiLiveQuery {
   _oldPathSpecs
   queryMap = new ObservableMap()
 
-  constructor(dataSpec, {start = true, name = null} = {}) {
+  constructor(dataSpec, {start = true, name = null, debug = false} = {}) {
+    this.debug = debug
+
     if (typeof dataSpec == 'function') {
       // Shorthand syntax
       this.dataConfig = {
@@ -95,11 +99,11 @@ export default class MultiLiveQuery {
     const myId = parseInt(Math.random() * 1000)
 
     const lqConfig = {
-      ref: () => pathSpec
+      ref: () => pathSpec,
     }
     if (this.dataConfig.refOptions) {
       lqConfig.refOptions = (ref) => {
-        if (this.pathSpecs !== this._oldPathSpecs) {
+        if (!deepEqual(this.pathSpecs, this._oldPathSpecs)) {
           // Computed pathSpecs changed before our reaction had time to
           // stop potentially outdated LiveQuery instances
           return undefined
@@ -122,6 +126,7 @@ export default class MultiLiveQuery {
     return new LiveQuery(
       lqConfig,
       {
+        debug: this.debug,
         name: `${this.name || '[unnamed]'}.${key}`,
         start: false,
       }

@@ -21,6 +21,7 @@
   "dependencies": {
     "babel-cli": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
+    "deep-equal": "^1.0.1",
     "eslint": "^3.19.0",
     "firebase": "^4.4.0",
     "history": "^4.6.3",

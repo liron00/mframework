@@ -14,6 +14,8 @@ window.getLiveQueries = () => {
   })
 }
 
+let nextId = 1
+
 export default class LiveQuery {
   id
   debug
@@ -69,10 +71,10 @@ export default class LiveQuery {
   }
 
   constructor(dataSpec, {
-    start = true, name = null, debug = false, id = null
+    start = true, name = null, debug = false
   } = {}) {
     this.debug = debug
-    this.id = id || parseInt(Math.random() * 10000)
+    this.id = nextId++
 
     if (typeof dataSpec == 'function') {
       // Shorthand syntax
@@ -187,6 +189,9 @@ export default class LiveQuery {
           this._queryHandlers[eventType] = query.on(
             eventType,
             action((snap, prevChildKey) => {
+              if (this.debug) {
+                console.log(`${this} on.${eventType}`, snap.val())
+              }
               const retVal = callback(snap, prevChildKey)
               if (eventType == 'value') {
                 this._value = retVal
@@ -237,6 +242,6 @@ export default class LiveQuery {
   }
 
   toString() {
-    return `${this.id} <LiveQuery${this.name? ` ${this.name}` : ''}>`
+    return `<LiveQuery #${this.id} ${this.name? ` ${this.name}` : ''}>`
   }
 }
