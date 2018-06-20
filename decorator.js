@@ -26,6 +26,8 @@ export default function m(NewComponent) {
     constructor(props) {
       super(props)
 
+      this.data = {} // Because `@observable data = {}` doesn't initialize early enough
+
       if (this.debug === undefined) {
         this.debug = config.debugComponents || false
       }
