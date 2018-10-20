@@ -6,7 +6,7 @@ window.fbAsyncInit = () => {
   FB.init({
     appId: config.facebookAppId,
     xfbml: true,
-    version: 'v2.6'
+    version: 'v2.6',
   })
   for (let callback of fbLoadCallbacks) {
     callback()

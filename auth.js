@@ -1,6 +1,6 @@
-import { autorun, computed, observable, reaction, transaction, when } from 'mobx'
+import {autorun, computed, observable, reaction, transaction, when} from 'mobx'
 import URI from 'urijs'
-import { firebase } from './index'
+import {firebase} from './index'
 
 import config from './config'
 import facebook from './facebook'
@@ -26,7 +26,8 @@ class Auth {
     return permId in (user.permissions || {})
   }
 
-  @computed.struct get permissions() {
+  @computed.struct
+  get permissions() {
     return this.user && (this.user.permissions || {})
   }
 
@@ -42,7 +43,7 @@ class Auth {
       },
       {
         name: `sessionIdStorage`,
-      }
+      },
     )
 
     let _initializedUid = false
@@ -63,7 +64,7 @@ class Auth {
       {
         name: 'auth.uid',
         fireImmediately: true,
-      }
+      },
     )
 
     firebase.auth().onAuthStateChanged(fiUser => {
@@ -77,33 +78,36 @@ class Auth {
       }
     })
 
-    window.addEventListener('storage', (async function(e) {
-      // Handle localStorage change triggered from another tab/window
-      if (e.key == 'sessionId') {
-        this.sessionId = e.newValue || undefined
-      } else if (e.key == 'firebaseToken') {
-        if (e.newValue) {
-          let currentToken = null
-          if (this._fiUser) {
-            currentToken = await firebase.auth().currentUser.getToken()
-          }
-          if (currentToken != e.newValue) {
-            try {
-              await firebase.auth().signInWithCustomToken(e.newValue)
-            } catch (err) {
-              console.error(err)
+    window.addEventListener(
+      'storage',
+      async function(e) {
+        // Handle localStorage change triggered from another tab/window
+        if (e.key == 'sessionId') {
+          this.sessionId = e.newValue || undefined
+        } else if (e.key == 'firebaseToken') {
+          if (e.newValue) {
+            let currentToken = null
+            if (this._fiUser) {
+              currentToken = await firebase.auth().currentUser.getToken()
+            }
+            if (currentToken != e.newValue) {
+              try {
+                await firebase.auth().signInWithCustomToken(e.newValue)
+              } catch (err) {
+                console.error(err)
+              }
             }
           }
+        } else if (e.key == 'uid') {
+          this.uid = e.newValue
         }
-      } else if (e.key == 'uid') {
-        this.uid = e.newValue
-      }
-    }).bind(this))
-
-    this.userLq = new LiveQuery(
-      () => this.uid && ['users', this.uid],
-      {name: 'Auth.user', start: true}
+      }.bind(this),
     )
+
+    this.userLq = new LiveQuery(() => this.uid && ['users', this.uid], {
+      name: 'Auth.user',
+      start: true,
+    })
 
     // The setTimeout is because ensureSession depends on util methods
     // which import this module and need it to have finished initializing
@@ -112,7 +116,8 @@ class Auth {
     })
   }
 
-  @computed.struct get user() {
+  @computed.struct
+  get user() {
     return this.userLq.value
   }
 
@@ -127,13 +132,17 @@ class Auth {
   async startNewSession() {
     let session
     try {
-      session = await util.apiCall('newSession', {
-        method: 'post',
-        headers: {
-          'Content-Type': "application/json"
-        }
-      }, null)
-    } catch(err) {
+      session = await util.apiCall(
+        'newSession',
+        {
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+        null,
+      )
+    } catch (err) {
       console.error(`Error starting new session`, err)
       throw err
     }
@@ -163,7 +172,7 @@ class Auth {
                 // Firebase. Just log out to restore a consistent state.
                 this.logout()
               }
-            }
+            },
           )
         } else {
           this.uid = null
@@ -171,7 +180,6 @@ class Auth {
       } else {
         await this.startNewSession()
       }
-
     } else {
       await this.startNewSession()
     }
@@ -203,7 +211,7 @@ class Auth {
     let apiResponse
     try {
       apiResponse = await util.apiPost('loginWithFacebook', {
-        fbToken
+        fbToken,
       })
     } catch (err) {
       this._loggingIn = false
@@ -252,16 +260,19 @@ class Auth {
   }
 
   redirectToLinkedInOauth(nextUrl = window.location.href) {
-    window.location = `https://www.linkedin.com/uas/oauth2/authorization?${
-      util.objToParamString({
+    window.location = `https://www.linkedin.com/uas/oauth2/authorization?${util.objToParamString(
+      {
         response_type: 'code',
         client_id: config.linkedInClientId,
-        redirect_uri: config.linkedInRedirectUri + '?' + util.objToParamString({
-          next: URI(nextUrl).resource()
-        }),
-        state: 'TODO'
-      })
-    }`
+        redirect_uri:
+          config.linkedInRedirectUri +
+          '?' +
+          util.objToParamString({
+            next: URI(nextUrl).resource(),
+          }),
+        state: 'TODO',
+      },
+    )}`
   }
 
   async loginOrRegisterWithLinkedIn(linkedInCode, nextUrl) {
@@ -274,9 +285,12 @@ class Auth {
     try {
       apiResponse = await util.apiPost('loginOrRegisterWithLinkedIn', {
         linkedInCode,
-        redirectUri: config.linkedInRedirectUri + '?' + util.objToParamString({
-          next: nextUrl
-        })
+        redirectUri:
+          config.linkedInRedirectUri +
+          '?' +
+          util.objToParamString({
+            next: nextUrl,
+          }),
       })
     } catch (err) {
       console.error(`Login failed`, err)
@@ -335,7 +349,7 @@ class Auth {
     let apiResponse
     try {
       apiResponse = await util.apiPost('loginAs', {
-        linkedInId
+        linkedInId,
       })
     } catch (err) {
       console.log('loginAs failed')
@@ -358,19 +372,24 @@ class Auth {
     this._setFirebaseToken(null)
     await Promise.all([
       firebase.auth().signOut(),
-      this._loggedInWithFacebook && facebook().then(FB => {
-        return new Promise(resolve => FB.logout(resolve))
-      })
+      this._loggedInWithFacebook &&
+        facebook().then(FB => {
+          return new Promise(resolve => FB.logout(resolve))
+        }),
     ])
 
     let apiResponse
     try {
-      apiResponse = await util.apiCall('logout', {
-        method: 'post',
-        headers: {
-          'Content-Type': "application/json"
-        }
-      }, oldSessionId)
+      apiResponse = await util.apiCall(
+        'logout',
+        {
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+        oldSessionId,
+      )
     } catch (err) {
       console.error(err)
       return

@@ -1,7 +1,7 @@
-import { action, computed, observable, reaction, untracked } from 'mobx'
+import {action, computed, observable, reaction, untracked} from 'mobx'
 
 import config from './config'
-import { firebase } from './index'
+import {firebase} from './index'
 
 window.liveQueries = []
 window.getLiveQueries = () => {
@@ -28,15 +28,15 @@ export default class LiveQuery {
 
   static compileValueFunc = valueFunc => {
     if (valueFunc === true) {
-      return (snap) => snap.val()
+      return snap => snap.val()
     } else if (valueFunc == 'WITH_ID') {
-      return (snap) => {
+      return snap => {
         const ret = snap.val()
         if (ret) ret.id = snap.key
         return ret
       }
     } else if (valueFunc == 'ID_ARR') {
-      return (snap) => {
+      return snap => {
         const ret = []
         if (snap.val()) {
           snap.forEach(childRef => {
@@ -46,7 +46,7 @@ export default class LiveQuery {
         return ret
       }
     } else if (valueFunc == 'ARR') {
-      return (snap) => {
+      return snap => {
         const ret = []
         if (snap.val()) {
           snap.forEach(childRef => {
@@ -56,7 +56,7 @@ export default class LiveQuery {
         return ret
       }
     } else if (valueFunc == 'ARR_WITH_IDS') {
-      return (snap) => {
+      return snap => {
         const ret = []
         if (snap.val()) {
           snap.forEach(childRef => {
@@ -70,9 +70,7 @@ export default class LiveQuery {
     }
   }
 
-  constructor(dataSpec, {
-    start = true, name = null, debug = false
-  } = {}) {
+  constructor(dataSpec, {start = true, name = null, debug = false} = {}) {
     this.debug = debug
     this.id = nextId++
 
@@ -80,14 +78,15 @@ export default class LiveQuery {
       // Shorthand syntax
       this.dataConfig = {
         ref: dataSpec,
-        value: true
+        value: true,
       }
     } else {
       this.dataConfig = dataSpec
     }
     if (this.dataConfig.value && typeof this.dataConfig.value != 'function') {
-      this.dataConfig.value =
-        this.constructor.compileValueFunc(this.dataConfig.value)
+      this.dataConfig.value = this.constructor.compileValueFunc(
+        this.dataConfig.value,
+      )
     }
 
     this._oldQuery = null
@@ -97,7 +96,8 @@ export default class LiveQuery {
     if (start) this.start()
   }
 
-  @computed.struct get value() {
+  @computed.struct
+  get value() {
     if (!untracked(() => this.isActive)) {
       // // This used to be an error, but apparently this path happens naturally
       // // during multiQueries and it's not a big deal, so just return undefined
@@ -111,11 +111,12 @@ export default class LiveQuery {
       // Computed query has changed before the reaction had time to update
       // this._value
       this._value // for tracking
-      return this.query === null? null : undefined
+      return this.query === null ? null : undefined
     }
   }
 
-  @computed.struct get pathSpec() {
+  @computed.struct
+  get pathSpec() {
     const pathParts = this.dataConfig.ref()
     if (pathParts === undefined) return undefined
     if (pathParts === null) return null
@@ -124,12 +125,15 @@ export default class LiveQuery {
     }
     if (pathParts.indexOf(undefined) >= 0) return undefined
     if (pathParts.findIndex(part => !part) >= 0) {
-      throw new Error(`${this} Invalid path part in ${JSON.stringify(pathParts)}`)
+      throw new Error(
+        `${this} Invalid path part in ${JSON.stringify(pathParts)}`,
+      )
     }
     return pathParts
   }
 
-  @computed get query() {
+  @computed
+  get query() {
     if (!untracked(() => this.isActive)) {
       throw new Error(`${this}.query accessed while not active`)
       // This used to be an error, but apparently this path happens naturally
@@ -140,12 +144,16 @@ export default class LiveQuery {
     if (this.pathSpec === null) return null
 
     // Return Firebase.Query
-    const rawRef = firebase.database().ref().child(this.pathSpec.join('/'))
+    const rawRef = firebase
+      .database()
+      .ref()
+      .child(this.pathSpec.join('/'))
     const refOptionsFunc = this.dataConfig.refOptions || (ref => ref)
     return refOptionsFunc(rawRef)
   }
 
-  @action start() {
+  @action
+  start() {
     if (this.isActive) {
       throw new Error(`${this} already started`)
     }
@@ -177,9 +185,16 @@ export default class LiveQuery {
         if (query === undefined) return
 
         for (let eventType in this.dataConfig) {
-          if ([
-            'value', 'child_added', 'child_changed', 'child_moved', 'child_removed'
-          ].indexOf(eventType) == -1) continue
+          if (
+            [
+              'value',
+              'child_added',
+              'child_changed',
+              'child_moved',
+              'child_removed',
+            ].indexOf(eventType) == -1
+          )
+            continue
 
           const callback = this.dataConfig[eventType]
           if (typeof callback != 'function') {
@@ -203,7 +218,7 @@ export default class LiveQuery {
               } else {
                 console.warn(this.toString(), err)
               }
-            }
+            },
           )
         }
 
@@ -215,15 +230,17 @@ export default class LiveQuery {
         name: `${this.toString()}.queryReaction`,
         compareStructural: false,
         fireImmediately: true,
-      }
+      },
     )
   }
 
-  @action dispose() {
+  @action
+  dispose() {
     this.stop()
   }
 
-  @action stop() {
+  @action
+  stop() {
     if (this._disposer) {
       this._disposer()
       delete this._disposer
@@ -242,6 +259,6 @@ export default class LiveQuery {
   }
 
   toString() {
-    return `<LiveQuery #${this.id} ${this.name? ` ${this.name}` : ''}>`
+    return `<LiveQuery #${this.id} ${this.name ? ` ${this.name}` : ''}>`
   }
 }

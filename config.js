@@ -5,5 +5,5 @@ export default {
   firebaseStorageBucket: null,
   isLive: null,
   linkedInClientId: null,
-  linkedInRedirectUri: null
+  linkedInRedirectUri: null,
 }

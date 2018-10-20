@@ -1,13 +1,13 @@
 {
-  "babelMapsPath":                    "transpiled",
-  "babelMapsAddUrl":                  false,
-  "babelSourcePath":                  ".",
-  "babelTranspilePath":               "transpiled",
-  "createMap":                        true,
-  "createTargetDirectories":          true,
-  "createTranspiledCode":             true,
-  "disableWhenNoBabelrcFileInPath":   true,
-  "suppressSourcePathMessages":       false,
-  "suppressTranspileOnSaveMessages":  false,
-  "transpileOnSave":                  true
+  "babelMapsPath": "transpiled",
+  "babelMapsAddUrl": false,
+  "babelSourcePath": ".",
+  "babelTranspilePath": "transpiled",
+  "createMap": true,
+  "createTargetDirectories": true,
+  "createTranspiledCode": true,
+  "disableWhenNoBabelrcFileInPath": true,
+  "suppressSourcePathMessages": false,
+  "suppressTranspileOnSaveMessages": false,
+  "transpileOnSave": true
 }

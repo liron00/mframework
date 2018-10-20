@@ -1,4 +1,4 @@
-import { extendObservable, isObservableArray, observable, when } from 'mobx'
+import {extendObservable, isObservableArray, observable, when} from 'mobx'
 import createHistory from 'history/createBrowserHistory'
 import moment from 'moment'
 import queryString from 'query-string'
@@ -10,14 +10,8 @@ const util = {
   _nowObj: observable({}), // interval: +new Date()
   now(msInterval) {
     if (!(msInterval in this._nowObj)) {
-      extendObservable(
-        this._nowObj,
-        {[msInterval]: moment()}
-      )
-      setInterval(
-        () => this._nowObj[msInterval] = moment(),
-        msInterval
-      )
+      extendObservable(this._nowObj, {[msInterval]: moment()})
+      setInterval(() => (this._nowObj[msInterval] = moment()), msInterval)
     }
     return this._nowObj[msInterval]
   },
@@ -60,9 +54,9 @@ const util = {
   apiGet(endpoint, params = {}) {
     return util.apiCall(endpoint, {
       headers: {
-        'Content-Type': "application/json"
+        'Content-Type': 'application/json',
       },
-      params
+      params,
     })
   },
 
@@ -70,13 +64,13 @@ const util = {
     return util.apiCall(endpoint, {
       method: 'post',
       headers: {
-        'Content-Type': "application/json"
+        'Content-Type': 'application/json',
       },
-      params
+      params,
     })
   },
 
-  formatMessengerDate: (date) => {
+  formatMessengerDate: date => {
     date = moment(date)
     const now = moment()
 
@@ -120,61 +114,65 @@ const util = {
   },
 
   objToParamString: (obj, options = {spaceToPlus: false}) => {
-     let str = ""
-     for (let key in obj) {
-       if (obj[key] == null) continue
+    let str = ''
+    for (let key in obj) {
+      if (obj[key] == null) continue
 
-       let valueStr = encodeURIComponent(obj[key])
-       if (options.spaceToPlus) {
-         valueStr = valueStr.replace(/%20/g, '+')
-       }
+      let valueStr = encodeURIComponent(obj[key])
+      if (options.spaceToPlus) {
+        valueStr = valueStr.replace(/%20/g, '+')
+      }
 
-       if (str != "") {
-         str += "&"
-       }
-       str += key + "=" + valueStr
-     }
-     return str
-   },
+      if (str != '') {
+        str += '&'
+      }
+      str += key + '=' + valueStr
+    }
+    return str
+  },
 
-   regexEscape(pattern) {
-     return pattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-   },
+  regexEscape(pattern) {
+    return pattern.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+  },
 
-   routeIsActive(path) {
-     if (path[0] != '/') {
-       path = '/' + path
-     }
-     return util.browserLocation.pathname == path
-   },
+  routeIsActive(path) {
+    if (path[0] != '/') {
+      path = '/' + path
+    }
+    return util.browserLocation.pathname == path
+  },
 
-   browserLocation: observable({})
+  browserLocation: observable({}),
 }
 
 const history = createHistory()
 extendObservable(util.browserLocation, history.location)
 extendObservable(util.browserLocation, {
-  query: queryString.parse(history.location.search)
+  query: queryString.parse(history.location.search),
 })
 history.listen(location => {
   extendObservable(util.browserLocation, location)
   extendObservable(util.browserLocation, {
-    query: queryString.parse(history.location.search)
+    query: queryString.parse(history.location.search),
   })
 })
 util.history = history
 
 util.propTypes = {
   array: (props, propName, componentName) => {
-    if (!(
-      props[propName] == null ||
-      Array.isArray(props[propName]) ||
-      isObservableArray(props[propName])
-    )) {
-      return new Error(`${componentName}.props.${propName} must be`
-        + ` an Array or ObservableArray`)
+    if (
+      !(
+        props[propName] == null ||
+        Array.isArray(props[propName]) ||
+        isObservableArray(props[propName])
+      )
+    ) {
+      return new Error(
+        `${componentName}.props.${propName} must be` +
+          ` an Array or ObservableArray`,
+      )
     }
-  }
+  },
 }
 
 export default util

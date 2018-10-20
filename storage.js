@@ -7,11 +7,11 @@ try {
   console.info(`LocalStorage doesn't work`)
 }
 
-const fakeLocalStorage = localStorageWorks? null : {}
+const fakeLocalStorage = localStorageWorks ? null : {}
 
 const storage = {
   get(key) {
-    return localStorageWorks? localStorage.getItem(key) : fakeLocalStorage[key]
+    return localStorageWorks ? localStorage.getItem(key) : fakeLocalStorage[key]
   },
 
   set(key, value) {
@@ -28,7 +28,7 @@ const storage = {
     } else {
       delete fakeLocalStorage[key]
     }
-  }
+  },
 }
 
 export default storage

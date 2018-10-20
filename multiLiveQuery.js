@@ -1,8 +1,14 @@
 import deepEqual from 'deep-equal'
-import { action, computed, observable, ObservableMap,
-  reaction, untracked } from 'mobx'
+import {
+  action,
+  computed,
+  observable,
+  ObservableMap,
+  reaction,
+  untracked,
+} from 'mobx'
 
-import { firebase } from './index'
+import {firebase} from './index'
 import LiveQuery from './liveQuery'
 
 export default class MultiLiveQuery {
@@ -21,7 +27,7 @@ export default class MultiLiveQuery {
       // Shorthand syntax
       this.dataConfig = {
         refs: dataSpec,
-        value: true
+        value: true,
       }
     } else {
       this.dataConfig = dataSpec
@@ -37,7 +43,8 @@ export default class MultiLiveQuery {
     if (start) this.start()
   }
 
-  @computed.struct get value() {
+  @computed.struct
+  get value() {
     if (!untracked(() => this.isActive)) {
       throw new Error(`Can't get value because not active: ${this}`)
     }
@@ -59,7 +66,8 @@ export default class MultiLiveQuery {
     return valueByKey
   }
 
-  @computed.struct get pathSpecs() {
+  @computed.struct
+  get pathSpecs() {
     const pathParts = this.dataConfig.refs()
     if (pathParts === undefined) return undefined
     if (pathParts === null) return null
@@ -83,7 +91,7 @@ export default class MultiLiveQuery {
     const multiIndex = pathParts.findIndex(part => part instanceof Array)
     if (multiIndex == -1) {
       throw new Error(
-        `Invalid ref for MultiLiveQuery: ${JSON.stringify(pathParts)}`
+        `Invalid ref for MultiLiveQuery: ${JSON.stringify(pathParts)}`,
       )
     }
     const pathSpecByKey = {}
@@ -102,7 +110,7 @@ export default class MultiLiveQuery {
       ref: () => pathSpec,
     }
     if (this.dataConfig.refOptions) {
-      lqConfig.refOptions = (ref) => {
+      lqConfig.refOptions = ref => {
         if (!deepEqual(this.pathSpecs, this._oldPathSpecs)) {
           // Computed pathSpecs changed before our reaction had time to
           // stop potentially outdated LiveQuery instances
@@ -112,10 +120,14 @@ export default class MultiLiveQuery {
       }
     }
     if (this.dataConfig.onErr) {
-      lqConfig.onErr = (err) => this.dataConfig.onErr(key, err)
+      lqConfig.onErr = err => this.dataConfig.onErr(key, err)
     }
     for (let eventType of [
-      'value', 'child_added', 'child_changed', 'child_moved', 'child_removed'
+      'value',
+      'child_added',
+      'child_changed',
+      'child_moved',
+      'child_removed',
     ]) {
       if (this.dataConfig[eventType]) {
         lqConfig[eventType] = (snap, prevChildKey) => {
@@ -123,17 +135,15 @@ export default class MultiLiveQuery {
         }
       }
     }
-    return new LiveQuery(
-      lqConfig,
-      {
-        debug: this.debug,
-        name: `${this.name || '[unnamed]'}.${key}`,
-        start: false,
-      }
-    )
+    return new LiveQuery(lqConfig, {
+      debug: this.debug,
+      name: `${this.name || '[unnamed]'}.${key}`,
+      start: false,
+    })
   }
 
-  @action start() {
+  @action
+  start() {
     if (this.isActive) {
       throw new Error(`${this} already started`)
     }
@@ -165,17 +175,19 @@ export default class MultiLiveQuery {
         name: `${this.toString()}.pathSpecsReaction`,
         compareStructural: true,
         fireImmediately: true,
-      }
+      },
     )
 
     this.isActive = true
   }
 
-  @action dispose() {
+  @action
+  dispose() {
     this.stop()
   }
 
-  @action stop() {
+  @action
+  stop() {
     if (this._disposer) {
       this._disposer()
       delete this._disposer
@@ -190,6 +202,6 @@ export default class MultiLiveQuery {
   }
 
   toString() {
-    return this.name? `<MultiLiveQuery ${this.name}>` : `<MultiLiveQuery>`
+    return this.name ? `<MultiLiveQuery ${this.name}>` : `<MultiLiveQuery>`
   }
 }

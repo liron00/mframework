@@ -2,7 +2,7 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/database'
 
-import { Component } from 'react'
+import {Component} from 'react'
 import {autorun, computed, observable, when} from 'mobx'
 
 import auth from './auth'
@@ -52,7 +52,7 @@ window.M = {
   LiveQuery,
   MultiLiveQuery,
   storage,
-  util
+  util,
 }
 
 export {
@@ -66,7 +66,6 @@ export {
   MultiLiveQuery,
   storage,
   util,
-
   // Export React's Component just so we can make a flow declaration
   // that mframework's component has special things like this.data
   Component,

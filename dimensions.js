@@ -1,5 +1,5 @@
-import { autorun, computed, observable } from 'mobx'
-import { throttle } from 'throttle-debounce'
+import {autorun, computed, observable} from 'mobx'
+import {throttle} from 'throttle-debounce'
 
 class Dimensions {
   @observable width
@@ -24,7 +24,8 @@ class Dimensions {
 
   handleResize = throttle(100, e => this.refresh())
 
-  @computed get isMobile() {
+  @computed
+  get isMobile() {
     return this.width < 960
   }
 }

@@ -1,7 +1,18 @@
 import PropTypes from 'prop-types'
-import { action, autorun, createTransformer, computed, extendObservable,
-  observable, reaction, toJS, transaction, untracked, when } from 'mobx'
-import { observer } from 'liron-mobx-react'
+import {
+  action,
+  autorun,
+  createTransformer,
+  computed,
+  extendObservable,
+  observable,
+  reaction,
+  toJS,
+  transaction,
+  untracked,
+  when,
+} from 'mobx'
+import {observer} from 'liron-mobx-react'
 
 import config from './config'
 import LiveQuery from './liveQuery'
@@ -59,7 +70,7 @@ export default function m(NewComponent) {
         if (specCopy.debug) delete specCopy.debug
 
         const isMulti = !!specCopy.refs
-        this.liveQueries[dataKey] = new (isMulti? MultiLiveQuery : LiveQuery)(
+        this.liveQueries[dataKey] = new (isMulti ? MultiLiveQuery : LiveQuery)(
           specCopy,
           {
             debug,
@@ -69,19 +80,20 @@ export default function m(NewComponent) {
             // Can't start yet MobX-react hasn't wired up this.props
             // to be reactive when accessed in the spec functions
             start: false,
-          }
+          },
         )
         extendObservable(this.data, {
           [dataKey]: computed(
             () => {
-              return this.liveQueries[dataKey].isActive?
-                this.liveQueries[dataKey].value : undefined
+              return this.liveQueries[dataKey].isActive
+                ? this.liveQueries[dataKey].value
+                : undefined
             },
             {
               name: `${this.toString()}.data.${dataKey}`,
               compareStructural: true,
-            }
-          )
+            },
+          ),
         })
       }
     }
@@ -97,7 +109,8 @@ export default function m(NewComponent) {
         }
       }
 
-      if (super.componentWillReceiveProps) super.componentWillReceiveProps(nextProps)
+      if (super.componentWillReceiveProps)
+        super.componentWillReceiveProps(nextProps)
     }
 
     componentWillMount() {
@@ -114,24 +127,19 @@ export default function m(NewComponent) {
             enumerable: true,
             get: () => {
               return this.props[propName]
-            }
+            },
           })
         } else {
-          extendObservable(
-            this.pro,
-            {
-              [propName]: computed(
-                () => this.props[propName],
-                {
-                  compareStructural: [
-                    PropTypes.array,
-                    PropTypes.object,
-                    util.propTypes.array,
-                  ].indexOf(propType) >= 0
-                }
-              )
-            }
-          )
+          extendObservable(this.pro, {
+            [propName]: computed(() => this.props[propName], {
+              compareStructural:
+                [
+                  PropTypes.array,
+                  PropTypes.object,
+                  util.propTypes.array,
+                ].indexOf(propType) >= 0,
+            }),
+          })
         }
       }
 
@@ -162,32 +170,25 @@ export default function m(NewComponent) {
           name: `${this.toString()}.reaction`,
           compareStructural: false,
         },
-        options
+        options,
       )
 
-      const disposer = reaction(
-        expressionFunc,
-        sideEffectFunc,
-        options
-      )
+      const disposer = reaction(expressionFunc, sideEffectFunc, options)
       if (!this._reactionDisposers) this._reactionDisposers = []
       this._reactionDisposers.push(disposer)
     }
 
     when(predicate, effect) {
       let done = false
-      const disposer = when(
-        predicate,
-        () => {
-          effect()
+      const disposer = when(predicate, () => {
+        effect()
 
-          done = true
-          const i = (this._whenDisposers || []).indexOf(disposer)
-          if (i >= 0) {
-            this._whenDisposers.splice(i, 1)
-          }
+        done = true
+        const i = (this._whenDisposers || []).indexOf(disposer)
+        if (i >= 0) {
+          this._whenDisposers.splice(i, 1)
         }
-      )
+      })
       disposer.tag = this.toString() + '_whenDisposer'
       if (!done) {
         if (!this._whenDisposers) this._whenDisposers = []
@@ -265,9 +266,9 @@ export default function m(NewComponent) {
     // This is useful for debugging in desktop Chrome browser
     Object.defineProperty(C, 'name', {
       value: NewComponent.name,
-      writable: false
+      writable: false,
     })
-  } catch(err) {
+  } catch (err) {
     // Lots of other browsers throw
     // TypeError: Attempting to change value of a readonly property
     // but it's not a big deal
