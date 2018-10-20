@@ -12,7 +12,7 @@ import {
   untracked,
   when,
 } from 'mobx'
-import {observer} from 'liron-mobx-react'
+import {observer} from 'mobx-react'
 
 import config from './config'
 import LiveQuery from './liveQuery'
