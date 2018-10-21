@@ -63,7 +63,10 @@ export default class MultiLiveQuery {
 
       if (valueByKey[key] === undefined) {
         hasUndefinedValue = true
-        if (this.dataConfig.waitForAll && !this._initialized) {
+        if (
+          this.dataConfig.waitForAll ||
+          (this.dataConfig.waitForInit && !this._initialized)
+        ) {
           return undefined
         }
       }
