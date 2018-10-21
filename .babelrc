@@ -1,18 +1,17 @@
 {
-    "presets": [["@babel/preset-env", {
-        "targets": {
-            "ie": 11
-        }
-    }], "@babel/preset-react", "@babel/preset-flow"],
-    "plugins": [
-        ["@babel/plugin-proposal-decorators", {
-            "legacy": true
-        }],
-        ["@babel/plugin-proposal-class-properties", {
-            "loose": true
-        }],
-        "@babel/plugin-proposal-object-rest-spread",
-        "@babel/plugin-syntax-dynamic-import",
-        "react-hot-loader/babel"
-    ]
+  "presets": [["@babel/preset-env", {
+      "targets": {
+          "ie": 11
+      }
+  }], "@babel/preset-react", "@babel/preset-flow"],
+  "plugins": [
+    ["@babel/plugin-proposal-decorators", {
+        "legacy": true
+    }],
+    ["@babel/plugin-proposal-class-properties", {
+        "loose": true
+    }],
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-syntax-dynamic-import",
+  ]
 }

@@ -19,6 +19,7 @@ export default class MultiLiveQuery {
   _disposer
   _oldPathSpecs
   queryMap = new ObservableMap()
+  _initialized = false
 
   constructor(dataSpec, {start = true, name = null, debug = false} = {}) {
     this.debug = debug
@@ -51,6 +52,7 @@ export default class MultiLiveQuery {
     if (!this.pathSpecs) return this.pathSpecs
 
     const valueByKey = {}
+    let hasUndefinedValue = false
     for (let key in this.pathSpecs) {
       if (this.queryMap.has(key)) {
         const liveQuery = this.queryMap.get(key)
@@ -59,9 +61,15 @@ export default class MultiLiveQuery {
         valueByKey[key] = undefined
       }
 
-      if (this.dataConfig.waitForAll && valueByKey[key] === undefined) {
-        return undefined
+      if (valueByKey[key] === undefined) {
+        hasUndefinedValue = true
+        if (this.dataConfig.waitForAll && !this._initialized) {
+          return undefined
+        }
       }
+    }
+    if (!hasUndefinedValue) {
+      this._initialized = true
     }
     return valueByKey
   }
@@ -104,14 +112,17 @@ export default class MultiLiveQuery {
   }
 
   _makeLiveQuery(key, pathSpec) {
-    const myId = parseInt(Math.random() * 1000)
-
     const lqConfig = {
       ref: () => pathSpec,
     }
     if (this.dataConfig.refOptions) {
       lqConfig.refOptions = ref => {
-        if (!deepEqual(this.pathSpecs, this._oldPathSpecs)) {
+        if (
+          !(
+            this.pathSpecs &&
+            JSON.stringify(this.pathSpecs[key]) == JSON.stringify(pathSpec)
+          )
+        ) {
           // Computed pathSpecs changed before our reaction had time to
           // stop potentially outdated LiveQuery instances
           return undefined
@@ -135,11 +146,13 @@ export default class MultiLiveQuery {
         }
       }
     }
-    return new LiveQuery(lqConfig, {
+    const lq = new LiveQuery(lqConfig, {
       debug: this.debug,
       name: `${this.name || '[unnamed]'}.${key}`,
       start: false,
     })
+    lq._pathSpecArr = pathSpec
+    return lq
   }
 
   @action
@@ -148,7 +161,10 @@ export default class MultiLiveQuery {
       throw new Error(`${this} already started`)
     }
 
-    let oldQueryByKey = {}
+    // When pathSpecs change, lets us dispose of the old LiveQueries
+    // that are no longer needed
+    let oldQueryByKey = {} // key: liveQuery
+
     this._disposer = reaction(
       () => this.pathSpecs,
       pathSpecs => {
@@ -156,19 +172,33 @@ export default class MultiLiveQuery {
         this.queryMap.clear()
 
         for (let key in pathSpecs || {}) {
-          const liveQuery = this._makeLiveQuery(key, pathSpecs[key])
-          newQueryByKey[key] = liveQuery
+          const pathSpec = pathSpecs[key]
+          const oldQuery = oldQueryByKey[key]
+          let liveQuery
+          if (
+            oldQuery &&
+            JSON.stringify(oldQuery._pathSpecArr) == JSON.stringify(pathSpec)
+          ) {
+            liveQuery = oldQuery
+          } else {
+            liveQuery = this._makeLiveQuery(key, pathSpec)
+          }
           this.queryMap.set(key, liveQuery)
+          newQueryByKey[key] = liveQuery
         }
 
         for (let key in oldQueryByKey) {
-          oldQueryByKey[key].dispose()
+          if (!newQueryByKey[key]) {
+            oldQueryByKey[key].dispose()
+          }
         }
         oldQueryByKey = newQueryByKey
         this._oldPathSpecs = pathSpecs
 
         for (let key in pathSpecs || {}) {
-          newQueryByKey[key].start()
+          if (!newQueryByKey[key].isActive) {
+            newQueryByKey[key].start()
+          }
         }
       },
       {

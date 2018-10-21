@@ -1,6 +1,6 @@
 import {extendObservable, isObservableArray, observable, when} from 'mobx'
 import createHistory from 'history/createBrowserHistory'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import queryString from 'query-string'
 
 import config from './config'

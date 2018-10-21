@@ -1,6 +1,7 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/database'
+import 'firebase/messaging'
 
 import {Component} from 'react'
 import {autorun, computed, observable, when} from 'mobx'
