@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 import {
   action,
   autorun,
-  createTransformer,
+  comparer,
   computed,
   extendObservable,
   observable,
@@ -82,19 +82,24 @@ export default function m(NewComponent) {
             start: false,
           },
         )
-        extendObservable(this.data, {
-          [dataKey]: computed(
-            () => {
-              return this.liveQueries[dataKey].isActive
-                ? this.liveQueries[dataKey].value
+
+        const _this = this
+        extendObservable(
+          this.data,
+          {
+            get [dataKey]() {
+              return _this.liveQueries[dataKey].isActive
+                ? _this.liveQueries[dataKey].value
                 : undefined
             },
-            {
+          },
+          {
+            [dataKey]: computed({
               name: `${this.toString()}.data.${dataKey}`,
-              compareStructural: true,
-            },
-          ),
-        })
+              equals: comparer.structural,
+            }),
+          },
+        )
       }
     }
 
@@ -130,16 +135,27 @@ export default function m(NewComponent) {
             },
           })
         } else {
-          extendObservable(this.pro, {
-            [propName]: computed(() => this.props[propName], {
-              compareStructural:
-                [
-                  PropTypes.array,
-                  PropTypes.object,
-                  util.propTypes.array,
-                ].indexOf(propType) >= 0,
-            }),
-          })
+          const _this = this
+          extendObservable(
+            this.pro,
+            {
+              get [propName]() {
+                return _this.props[propName]
+              },
+            },
+            {
+              [propName]: computed({
+                equals:
+                  [
+                    PropTypes.array,
+                    PropTypes.object,
+                    util.propTypes.array,
+                  ].indexOf(propType) >= 0
+                    ? comparer.structural
+                    : comparer.identity,
+              }),
+            },
+          )
         }
       }
 

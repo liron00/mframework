@@ -1,12 +1,5 @@
 import deepEqual from 'deep-equal'
-import {
-  action,
-  computed,
-  observable,
-  ObservableMap,
-  reaction,
-  untracked,
-} from 'mobx'
+import {action, computed, observable, reaction, untracked} from 'mobx'
 
 import {firebase} from './index'
 import LiveQuery from './liveQuery'
@@ -18,7 +11,7 @@ export default class MultiLiveQuery {
   @observable isActive
   _disposer
   _oldPathSpecs
-  queryMap = new ObservableMap()
+  queryMap = new observable.map()
   _initialized = false
 
   constructor(dataSpec, {start = true, name = null, debug = false} = {}) {

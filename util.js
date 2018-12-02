@@ -151,10 +151,8 @@ extendObservable(util.browserLocation, {
   query: queryString.parse(history.location.search),
 })
 history.listen(location => {
-  extendObservable(util.browserLocation, location)
-  extendObservable(util.browserLocation, {
-    query: queryString.parse(history.location.search),
-  })
+  Object.assign(util.browserLocation, location)
+  util.browserLocation.query = queryString.parse(history.location.search)
 })
 util.history = history
 
